@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Evenizer</string>
+    <string name="nav_home">Beranda</string>
+    <string name="nav_event">Acara</string>
+    <string name="nav_organizer">Penyelenggara</string>
+    <string name="nav_profile">Profil</string>
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_dark_mode">Mode Gelap</string>
+    <string name="settings_language">Bahasa</string>
+    <string name="lang_id">Bahasa Indonesia</string>
+    <string name="lang_en">Bahasa Inggris</string>
+    <string name="lang_zh">Bahasa Mandarin</string>
+    <string name="profile_welcome">Selamat datang kembali!</string>
+    <string name="event_empty">Tidak ada acara mendatang</string>
+    <string name="organizer_find">Cari penyelenggara Anda di sini</string>
+
+    <string name="settings_switch_to_dark">Ganti ke Mode Gelap</string>
+    <string name="settings_switch_to_light">Ganti ke Mode Terang</string>
+    <string name="search_events_placeholder">Cari acara&#8230;</string>
+    <string name="filter_by_date">Filter Berdasarkan Tanggal</string>
+    <string name="check_availability">Cek ketersediaan untuk:</string>
+    <string name="filter_any_day">Kapan Saja</string>
+    <string name="organizer_projects_rating">%2$.1f • %1$d Proyek</string>
+    <string name="organizer_available">Tersedia: %1$s</string>
+    <string name="btn_hire">Rekrut</string>
+    <string name="home_stat_total_events">Total Acara</string>
+    <string name="home_stat_organizers">Penyelenggara</string>
+    <string name="home_section_upcoming">Acara Mendatang</string>
+    <string name="home_section_available_organizers">Penyelenggara Tersedia</string>
+    <string name="home_see_all">Lihat Semua</string>
+    <string name="btn_ok">Oke</string>
+    <string name="btn_cancel">Batal</string>
+</resources>

@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Evenizer</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_event">Event</string>
+    <string name="nav_organizer">Organizer</string>
+    <string name="nav_profile">Profile</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_language">Language</string>
+    <string name="lang_id">Indonesian</string>
+    <string name="lang_en">English</string>
+    <string name="lang_zh">Chinese</string>
+    <string name="profile_welcome">Welcome back!</string>
+    <string name="event_empty">No upcoming events</string>
+    <string name="organizer_find">Find your organizers here</string>
+
+    <string name="settings_switch_to_dark">Switch to Dark Mode</string>
+    <string name="settings_switch_to_light">Switch to Light Mode</string>
+    <string name="search_events_placeholder">Search events&#8230;</string>
+    <string name="filter_by_date">Filter by Date</string>
+    <string name="check_availability">Check availability for:</string>
+    <string name="filter_any_day">Any Day</string>
+    <string name="organizer_projects_rating">%2$.1f • %1$d Projects</string>
+    <string name="organizer_available">Available: %1$s</string>
+    <string name="btn_hire">Hire</string>
+    <string name="home_stat_total_events">Total Events</string>
+    <string name="home_stat_organizers">Organizers</string>
+    <string name="home_section_upcoming">Upcoming Events</string>
+    <string name="home_section_available_organizers">Available Organizers</string>
+    <string name="home_see_all">See All</string>
+    <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Cancel</string>
+</resources>

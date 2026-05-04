@@ -7,9 +7,11 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 val Context.dataStore by preferencesDataStore(name = "settings")
@@ -29,7 +31,7 @@ class ThemeViewModel(context: Context) : ViewModel() {
         }
 
     fun toggleDarkMode(context: Context) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             context.dataStore.edit { preferences ->
                 val current = preferences[darkModeKey] ?: false
                 preferences[darkModeKey] = !current
@@ -38,11 +40,13 @@ class ThemeViewModel(context: Context) : ViewModel() {
     }
 
     fun setLanguage(context: Context, languageCode: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             context.dataStore.edit { preferences ->
                 preferences[languageKey] = languageCode
             }
-            updateLocale(context, languageCode)
+            withContext(Dispatchers.Main) {
+                updateLocale(context, languageCode)
+            }
         }
     }
 

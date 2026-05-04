@@ -143,6 +143,8 @@ fun SettingsPage(
                         "id" -> stringResource(R.string.lang_id)
                         "en" -> stringResource(R.string.lang_en)
                         "zh" -> stringResource(R.string.lang_zh)
+                        "ru" -> stringResource(R.string.lang_ru)
+                        "es" -> stringResource(R.string.lang_es)
                         else -> stringResource(R.string.lang_id)
                     }
                     Text(
@@ -175,6 +177,20 @@ fun SettingsPage(
                             text = { Text(stringResource(R.string.lang_zh)) },
                             onClick = {
                                 themeViewModel.setLanguage(context, "zh")
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.lang_ru)) },
+                            onClick = {
+                                themeViewModel.setLanguage(context, "ru")
+                                expanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.lang_es)) },
+                            onClick = {
+                                themeViewModel.setLanguage(context, "es")
                                 expanded = false
                             }
                         )

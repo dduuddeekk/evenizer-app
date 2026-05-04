@@ -1,0 +1,33 @@
+<resources>
+    <string name="nav_home">Главная</string>
+    <string name="nav_event">События</string>
+    <string name="nav_organizer">Организаторы</string>
+    <string name="nav_profile">Профиль</string>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_dark_mode">Темный режим</string>
+    <string name="settings_language">Язык</string>
+    <string name="lang_id">Индонезийский</string>
+    <string name="lang_en">Английский</string>
+    <string name="lang_zh">Китайский</string>
+    <string name="lang_ru">Русский</string>
+    <string name="lang_es">Испанский</string>
+    <string name="profile_welcome">С возвращением!</string>
+    <string name="event_empty">Нет предстоящих событий</string>
+    <string name="organizer_find">Найдите своих организаторов здесь</string>
+    <string name="settings_switch_to_dark">Переключить на темный режим</string>
+    <string name="settings_switch_to_light">Переключить на светлый режим</string>
+    <string name="search_events_placeholder">Поиск событий&#8230;</string>
+    <string name="filter_by_date">Фильтр по дате</string>
+    <string name="check_availability">Проверить доступность для:</string>
+    <string name="filter_any_day">Любой день</string>
+    <string name="organizer_projects_rating">%2$.1f • %1$d Проектов</string>
+    <string name="organizer_available">Доступен: %1$s</string>
+    <string name="btn_hire">Нанять</string>
+    <string name="home_stat_total_events">Всего событий</string>
+    <string name="home_stat_organizers">Организаторы</string>
+    <string name="home_section_upcoming">Ближайшие события</string>
+    <string name="home_section_available_organizers">Доступные организаторы</string>
+    <string name="home_see_all">Посмотреть все</string>
+    <string name="btn_ok">ОК</string>
+    <string name="btn_cancel">Отмена</string>
+</resources>

@@ -1,0 +1,33 @@
+<resources>
+    <string name="nav_home">Inicio</string>
+    <string name="nav_event">Eventos</string>
+    <string name="nav_organizer">Organizadores</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_dark_mode">Modo Oscuro</string>
+    <string name="settings_language">Idioma</string>
+    <string name="lang_id">Indonesio</string>
+    <string name="lang_en">Inglés</string>
+    <string name="lang_zh">Chino</string>
+    <string name="lang_ru">Ruso</string>
+    <string name="lang_es">Español</string>
+    <string name="profile_welcome">¡Bienvenido de nuevo!</string>
+    <string name="event_empty">No hay eventos próximos</string>
+    <string name="organizer_find">Encuentra tus organizadores aquí</string>
+    <string name="settings_switch_to_dark">Cambiar a Modo Oscuro</string>
+    <string name="settings_switch_to_light">Cambiar a Modo Claro</string>
+    <string name="search_events_placeholder">Buscar eventos&#8230;</string>
+    <string name="filter_by_date">Filtrar por fecha</string>
+    <string name="check_availability">Ver disponibilidad para:</string>
+    <string name="filter_any_day">Cualquier día</string>
+    <string name="organizer_projects_rating">%2$.1f • %1$d Proyectos</string>
+    <string name="organizer_available">Disponible: %1$s</string>
+    <string name="btn_hire">Contratar</string>
+    <string name="home_stat_total_events">Total de Eventos</string>
+    <string name="home_stat_organizers">Organizadores</string>
+    <string name="home_section_upcoming">Próximos Eventos</string>
+    <string name="home_section_available_organizers">Organizadores Disponibles</string>
+    <string name="home_see_all">Ver Todo</string>
+    <string name="btn_ok">Aceptar</string>
+    <string name="btn_cancel">Cancelar</string>
+</resources>

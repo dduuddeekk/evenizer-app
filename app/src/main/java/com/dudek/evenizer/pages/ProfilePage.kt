@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
@@ -32,9 +33,14 @@ import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 
 @Composable
-fun ProfilePage(modifier: Modifier = Modifier, onNavigateToSettings: () -> Unit) {
+fun ProfilePage(
+    modifier: Modifier = Modifier,
+    onNavigateToSettings: () -> Unit,
+    onNavigateToLogin: () -> Unit
+) {
     val menuItems = listOf(
-        ProfileMenuItem(stringResource(R.string.settings_title), Icons.Default.Settings, onNavigateToSettings)
+        ProfileMenuItem(stringResource(R.string.settings_title), Icons.Default.Settings, onNavigateToSettings),
+        ProfileMenuItem(stringResource(R.string.profile_login), Icons.AutoMirrored.Filled.Login, onNavigateToLogin)
     )
 
     Column(

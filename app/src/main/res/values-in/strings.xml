@@ -14,6 +14,7 @@
     <string name="lang_ru">Bahasa Rusia</string>
     <string name="lang_es">Bahasa Spanyol</string>
     <string name="profile_welcome">Selamat datang kembali!</string>
+    <string name="profile_login">Masuk Akun</string>
     <string name="event_empty">Tidak ada acara mendatang</string>
     <string name="organizer_find">Cari penyelenggara Anda di sini</string>
 
@@ -31,6 +32,11 @@
     <string name="home_section_upcoming">Acara Mendatang</string>
     <string name="home_section_available_organizers">Penyelenggara Tersedia</string>
     <string name="home_see_all">Lihat Semua</string>
+    <string name="splash_init">Memulai&#8230;</string>
+    <string name="splash_events">Memuat acara&#8230;</string>
+    <string name="splash_organizers">Sinkronisasi penyelenggara&#8230;</string>
+    <string name="splash_tickets">Memeriksa tiket&#8230;</string>
+    <string name="splash_welcome">Selamat datang di Evenizer</string>
     <string name="btn_ok">Oke</string>
     <string name="btn_cancel">Batal</string>
     <string name="ticket_title">Tiket Saya</string>
@@ -38,4 +44,21 @@
     <string name="ticket_status_active">Aktif</string>
     <string name="ticket_status_used">Digunakan</string>
     <string name="ticket_empty">Anda belum memiliki tiket</string>
+
+    <string name="login_title">Selamat Datang</string>
+    <string name="login_subtitle">Masuk ke akun Anda</string>
+    <string name="login_email">Alamat Email</string>
+    <string name="login_password">Kata Sandi</string>
+    <string name="login_btn">Masuk</string>
+    <string name="login_google">Lanjutkan dengan Google</string>
+    <string name="login_guest">Masuk sebagai Tamu</string>
+    <string name="login_no_account">Belum punya akun? </string>
+    <string name="login_register">Daftar</string>
+
+    <string name="register_title">Buat Akun</string>
+    <string name="register_subtitle">Isi detail Anda untuk memulai</string>
+    <string name="register_name">Nama Lengkap</string>
+    <string name="register_btn">Daftar</string>
+    <string name="register_have_account">Sudah punya akun? </string>
+    <string name="register_login">Masuk</string>
 </resources>

@@ -3,6 +3,7 @@
     <string name="nav_event">События</string>
     <string name="nav_organizer">Организаторы</string>
     <string name="nav_profile">Профиль</string>
+    <string name="nav_ticket">Билеты</string>
     <string name="settings_title">Настройки</string>
     <string name="settings_dark_mode">Темный режим</string>
     <string name="settings_language">Язык</string>
@@ -12,6 +13,7 @@
     <string name="lang_ru">Русский</string>
     <string name="lang_es">Испанский</string>
     <string name="profile_welcome">С возвращением!</string>
+    <string name="profile_login">Войти в аккаунт</string>
     <string name="event_empty">Нет предстоящих событий</string>
     <string name="organizer_find">Найдите своих организаторов здесь</string>
     <string name="settings_switch_to_dark">Переключить на темный режим</string>
@@ -28,6 +30,33 @@
     <string name="home_section_upcoming">Ближайшие события</string>
     <string name="home_section_available_organizers">Доступные организаторы</string>
     <string name="home_see_all">Посмотреть все</string>
+    <string name="splash_init">Инициализация&#8230;</string>
+    <string name="splash_events">Загрузка событий&#8230;</string>
+    <string name="splash_organizers">Синхронизация организаторов&#8230;</string>
+    <string name="splash_tickets">Проверка билетов&#8230;</string>
+    <string name="splash_welcome">Добро пожаловать в Evenizer</string>
     <string name="btn_ok">ОК</string>
     <string name="btn_cancel">Отмена</string>
+    <string name="ticket_title">Мои билеты</string>
+    <string name="ticket_id">ID: %1$s</string>
+    <string name="ticket_status_active">Активен</string>
+    <string name="ticket_status_used">Использован</string>
+    <string name="ticket_empty">У вас пока нет билетов</string>
+
+    <string name="login_title">С возвращением</string>
+    <string name="login_subtitle">Войдите в свой аккаунт</string>
+    <string name="login_email">Электронная почта</string>
+    <string name="login_password">Пароль</string>
+    <string name="login_btn">Войти</string>
+    <string name="login_google">Продолжить через Google</string>
+    <string name="login_guest">Войти как гость</string>
+    <string name="login_no_account">Нет аккаунта? </string>
+    <string name="login_register">Регистрация</string>
+
+    <string name="register_title">Создать аккаунт</string>
+    <string name="register_subtitle">Заполните данные, чтобы начать</string>
+    <string name="register_name">Полное имя</string>
+    <string name="register_btn">Зарегистрироваться</string>
+    <string name="register_have_account">Уже есть аккаунт? </string>
+    <string name="register_login">Войти</string>
 </resources>

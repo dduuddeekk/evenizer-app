@@ -4,10 +4,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object DateUtils {
-    /**
-     * Memformat string tanggal (yyyy-MM-dd) ke format yang sesuai dengan bahasa (Locale).
-     * Contoh ID: 2024-06-15 -> 15 Juni 2024
-     */
     fun formatLocaleDate(dateString: String, languageCode: String): String {
         return try {
             val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
@@ -15,7 +11,6 @@ object DateUtils {
             
             val locale = Locale.forLanguageTag(languageCode)
             
-            // Format berbeda untuk setiap bahasa agar lebih natural
             val pattern = when (languageCode) {
                 "id" -> "d MMMM yyyy"    // 15 Juni 2024
                 "zh" -> "yyyy年M月d日"   // 2024年6月15日
@@ -26,7 +21,7 @@ object DateUtils {
             
             val outputFormat = SimpleDateFormat(pattern, locale)
             outputFormat.format(date)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             dateString
         }
     }

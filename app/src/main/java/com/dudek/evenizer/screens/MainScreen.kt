@@ -52,7 +52,10 @@ import com.dudek.evenizer.pages.SettingsPage
 import com.dudek.evenizer.pages.TicketPage
 
 @Composable
-fun MainScreen(themeViewModel: ThemeViewModel) {
+fun MainScreen(
+    themeViewModel: ThemeViewModel,
+    onNavigateToLogin: () -> Unit
+) {
     val navItemList = listOf(
         NavItem(
             label = stringResource(R.string.nav_home),
@@ -181,7 +184,8 @@ fun MainScreen(themeViewModel: ThemeViewModel) {
             Box(modifier = Modifier.padding(innerPadding)) {
                 ContentScreen(
                     selectedIndex = selectedIndex,
-                    onNavigateToSettings = { isSettingsVisible = true }
+                    onNavigateToSettings = { isSettingsVisible = true },
+                    onNavigateToLogin = onNavigateToLogin
                 )
             }
         }
@@ -191,13 +195,14 @@ fun MainScreen(themeViewModel: ThemeViewModel) {
 @Composable
 fun ContentScreen(
     selectedIndex: Int,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToLogin: () -> Unit
 ) {
     when (selectedIndex) {
         0 -> HomePage()
         1 -> EventPage()
         2 -> OrganizerPage()
         3 -> TicketPage()
-        4 -> ProfilePage(onNavigateToSettings = onNavigateToSettings)
+        4 -> ProfilePage(onNavigateToSettings = onNavigateToSettings, onNavigateToLogin = onNavigateToLogin)
     }
 }

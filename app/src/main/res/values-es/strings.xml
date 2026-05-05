@@ -3,6 +3,7 @@
     <string name="nav_event">Eventos</string>
     <string name="nav_organizer">Organizadores</string>
     <string name="nav_profile">Perfil</string>
+    <string name="nav_ticket">Entradas</string>
     <string name="settings_title">Ajustes</string>
     <string name="settings_dark_mode">Modo Oscuro</string>
     <string name="settings_language">Idioma</string>
@@ -12,6 +13,7 @@
     <string name="lang_ru">Ruso</string>
     <string name="lang_es">Español</string>
     <string name="profile_welcome">¡Bienvenido de nuevo!</string>
+    <string name="profile_login">Iniciar Sesión</string>
     <string name="event_empty">No hay eventos próximos</string>
     <string name="organizer_find">Encuentra tus organizadores aquí</string>
     <string name="settings_switch_to_dark">Cambiar a Modo Oscuro</string>
@@ -28,6 +30,33 @@
     <string name="home_section_upcoming">Próximos Eventos</string>
     <string name="home_section_available_organizers">Organizadores Disponibles</string>
     <string name="home_see_all">Ver Todo</string>
+    <string name="splash_init">Iniciando&#8230;</string>
+    <string name="splash_events">Cargando eventos&#8230;</string>
+    <string name="splash_organizers">Sincronizando organizadores&#8230;</string>
+    <string name="splash_tickets">Comprobando entradas&#8230;</string>
+    <string name="splash_welcome">Bienvenido a Evenizer</string>
     <string name="btn_ok">Aceptar</string>
     <string name="btn_cancel">Cancelar</string>
+    <string name="ticket_title">Mis Entradas</string>
+    <string name="ticket_id">ID: %1$s</string>
+    <string name="ticket_status_active">Activo</string>
+    <string name="ticket_status_used">Usado</string>
+    <string name="ticket_empty">Aún no tienes entradas</string>
+
+    <string name="login_title">Bienvenido de Nuevo</string>
+    <string name="login_subtitle">Inicia sesión en tu cuenta</string>
+    <string name="login_email">Correo Electrónico</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_btn">Iniciar Sesión</string>
+    <string name="login_google">Continuar con Google</string>
+    <string name="login_guest">Entrar como Invitado</string>
+    <string name="login_no_account">¿No tienes una cuenta? </string>
+    <string name="login_register">Regístrate</string>
+
+    <string name="register_title">Crear Cuenta</string>
+    <string name="register_subtitle">Completa tus datos para comenzar</string>
+    <string name="register_name">Nombre Completo</string>
+    <string name="register_btn">Registrarse</string>
+    <string name="register_have_account">¿Ya tienes una cuenta? </string>
+    <string name="register_login">Iniciar Sesión</string>
 </resources>

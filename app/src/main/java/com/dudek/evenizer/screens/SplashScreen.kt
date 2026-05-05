@@ -16,22 +16,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dudek.evenizer.R
 import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onFinished: () -> Unit) {
-    var step by remember { mutableIntStateOf(0) }
-    
-    // Gimmick warna background yang berubah-ubah
+    val step = remember { mutableIntStateOf(0) }
+
     val backgroundColor by animateColorAsState(
-        targetValue = when (step) {
+        targetValue = when (step.intValue) {
             0 -> Color(0xFF9C27B0) // Home Color
             1 -> Color(0xFF4CAF50) // Event Color
             2 -> Color(0xFF2196F3) // Organizer Color
@@ -41,23 +41,23 @@ fun SplashScreen(onFinished: () -> Unit) {
         animationSpec = tween(durationMillis = 800)
     )
 
-    val loadingText = when (step) {
-        0 -> "Initializing..."
-        1 -> "Loading events..."
-        2 -> "Syncing organizers..."
-        3 -> "Checking tickets..."
-        else -> "Welcome to Evenizer"
+    val loadingText = when (step.intValue) {
+        0 -> stringResource(R.string.splash_init)
+        1 -> stringResource(R.string.splash_events)
+        2 -> stringResource(R.string.splash_organizers)
+        3 -> stringResource(R.string.splash_tickets)
+        else -> stringResource(R.string.splash_welcome)
     }
 
     LaunchedEffect(Unit) {
         delay(1000)
-        step = 1
+        step.intValue = 1
         delay(1200)
-        step = 2
+        step.intValue = 2
         delay(1200)
-        step = 3
+        step.intValue = 3
         delay(1200)
-        step = 4
+        step.intValue = 4
         delay(1000)
         onFinished()
     }

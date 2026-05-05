@@ -37,12 +37,33 @@ class MainActivity : ComponentActivity() {
             applyLocale(this, language)
 
             var showSplash by remember { mutableStateOf(true) }
+            var isAuthenticated by remember { mutableStateOf(false) }
+            var currentAuthScreen by remember { mutableStateOf("login") } // "login" or "register"
             
             EvenizerTheme(darkTheme = isDarkMode) {
                 if (showSplash) {
                     SplashScreen(onFinished = { showSplash = false })
+                } else if (!isAuthenticated) {
+                    if (currentAuthScreen == "login") {
+                        com.dudek.evenizer.screens.LoginScreen(
+                            onLoginSuccess = { isAuthenticated = true },
+                            onNavigateToRegister = { currentAuthScreen = "register" },
+                            onLoginAsGuest = { isAuthenticated = true }
+                        )
+                    } else {
+                        com.dudek.evenizer.screens.RegisterScreen(
+                            onRegisterSuccess = { isAuthenticated = true },
+                            onNavigateToLogin = { currentAuthScreen = "login" }
+                        )
+                    }
                 } else {
-                    MainScreen(themeViewModel = themeViewModel)
+                    MainScreen(
+                        themeViewModel = themeViewModel,
+                        onNavigateToLogin = {
+                            isAuthenticated = false
+                            currentAuthScreen = "login"
+                        }
+                    )
                 }
             }
         }

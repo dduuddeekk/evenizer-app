@@ -34,31 +34,34 @@ import java.util.*
 @Composable
 fun OrganizerPage(themeViewModel: ThemeViewModel = viewModel()) {
     var selectedDate by remember { mutableStateOf("") }
-    var showDatePicker by remember { mutableStateOf(false) }
+    val showDatePicker = remember { mutableStateOf(false) }
     
     val language by themeViewModel.language.collectAsState(initial = "id")
     val datePickerState = rememberDatePickerState()
 
-    val availableOrganizers = MockData.organizers.filter {
-        selectedDate.isEmpty() || it.availableDates.contains(selectedDate)
+    val availableOrganizers = remember(selectedDate) {
+        MockData.organizers.filter {
+            selectedDate.isEmpty() || it.availableDates.contains(selectedDate)
+        }
     }
 
-    if (showDatePicker) {
+    if (showDatePicker.value) {
+        val onDismiss = { showDatePicker.value = false }
         DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
+            onDismissRequest = onDismiss,
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
                         val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                         selectedDate = formatter.format(Date(millis))
                     }
-                    showDatePicker = false
+                    onDismiss()
                 }) {
                     Text(stringResource(R.string.btn_ok), color = Color(0xFF2196F3))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
+                TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.btn_cancel))
                 }
             }
@@ -99,7 +102,7 @@ fun OrganizerPage(themeViewModel: ThemeViewModel = viewModel()) {
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                     shape = RoundedCornerShape(12.dp)
                 )
-                .clickable { showDatePicker = true }
+                .clickable { showDatePicker.value = true }
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

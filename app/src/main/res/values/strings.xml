@@ -14,6 +14,7 @@
     <string name="lang_ru">Russian</string>
     <string name="lang_es">Spanish</string>
     <string name="profile_welcome">Welcome back!</string>
+    <string name="profile_login">Login to Account</string>
     <string name="event_empty">No upcoming events</string>
     <string name="organizer_find">Find your organizers here</string>
 
@@ -31,6 +32,11 @@
     <string name="home_section_upcoming">Upcoming Events</string>
     <string name="home_section_available_organizers">Available Organizers</string>
     <string name="home_see_all">See All</string>
+    <string name="splash_init">Initializing...</string>
+    <string name="splash_events">Loading events...</string>
+    <string name="splash_organizers">Syncing organizers...</string>
+    <string name="splash_tickets">Checking tickets...</string>
+    <string name="splash_welcome">Welcome to Evenizer</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
     <string name="ticket_title">My Tickets</string>
@@ -38,4 +44,21 @@
     <string name="ticket_status_active">Active</string>
     <string name="ticket_status_used">Used</string>
     <string name="ticket_empty">You don\'t have any tickets yet</string>
+
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Login to your account</string>
+    <string name="login_email">Email Address</string>
+    <string name="login_password">Password</string>
+    <string name="login_btn">Login</string>
+    <string name="login_google">Continue with Google</string>
+    <string name="login_guest">Login as Guest</string>
+    <string name="login_no_account">Don\'t have an account? </string>
+    <string name="login_register">Register</string>
+
+    <string name="register_title">Create Account</string>
+    <string name="register_subtitle">Fill in your details to start</string>
+    <string name="register_name">Full Name</string>
+    <string name="register_btn">Register</string>
+    <string name="register_have_account">Already have an account? </string>
+    <string name="register_login">Login</string>
 </resources>

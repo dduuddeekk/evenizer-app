@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
@@ -48,6 +49,7 @@ import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.OrganizerPage
 import com.dudek.evenizer.pages.ProfilePage
 import com.dudek.evenizer.pages.SettingsPage
+import com.dudek.evenizer.pages.TicketPage
 
 @Composable
 fun MainScreen(themeViewModel: ThemeViewModel) {
@@ -69,6 +71,12 @@ fun MainScreen(themeViewModel: ThemeViewModel) {
             icon = Icons.Default.People,
             0,
             Color(0xFF2196F3)
+        ),
+        NavItem(
+            label = stringResource(R.string.nav_ticket),
+            icon = Icons.Default.ConfirmationNumber,
+            0,
+            Color(0xFFFF9800)
         ),
         NavItem(
             label = stringResource(R.string.nav_profile),
@@ -189,6 +197,7 @@ fun ContentScreen(
         0 -> HomePage()
         1 -> EventPage()
         2 -> OrganizerPage()
-        3 -> ProfilePage(onNavigateToSettings = onNavigateToSettings)
+        3 -> TicketPage()
+        4 -> ProfilePage(onNavigateToSettings = onNavigateToSettings)
     }
 }

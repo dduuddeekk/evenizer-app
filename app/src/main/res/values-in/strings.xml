@@ -4,6 +4,7 @@
     <string name="nav_event">Acara</string>
     <string name="nav_organizer">Penyelenggara</string>
     <string name="nav_profile">Profil</string>
+    <string name="nav_ticket">Tiket</string>
     <string name="settings_title">Pengaturan</string>
     <string name="settings_dark_mode">Mode Gelap</string>
     <string name="settings_language">Bahasa</string>
@@ -32,4 +33,9 @@
     <string name="home_see_all">Lihat Semua</string>
     <string name="btn_ok">Oke</string>
     <string name="btn_cancel">Batal</string>
+    <string name="ticket_title">Tiket Saya</string>
+    <string name="ticket_id">ID: %1$s</string>
+    <string name="ticket_status_active">Aktif</string>
+    <string name="ticket_status_used">Digunakan</string>
+    <string name="ticket_empty">Anda belum memiliki tiket</string>
 </resources>

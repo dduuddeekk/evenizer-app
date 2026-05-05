@@ -21,7 +21,22 @@ data class Organizer(
     val color: Color
 )
 
+data class Ticket(
+    val id: String,
+    val eventTitle: String,
+    val date: String,
+    val location: String,
+    val type: String,
+    val status: String,
+    val price: String
+)
+
 object MockData {
+    val tickets = listOf(
+        Ticket("TKT-001", "Summer Music Festival", "2024-06-15", "Jakarta", "VIP", "Active", "Rp 500.000"),
+        Ticket("TKT-002", "Tech Conference 2024", "2024-07-10", "Bandung", "Regular", "Active", "Rp 250.000"),
+        Ticket("TKT-003", "Wedding Expo", "2024-06-20", "Surabaya", "VIP", "Used", "Free")
+    )
     val events = listOf(
         Event(1, "Summer Music Festival", "2024-06-15", "Jakarta", "Joy Event", "Music"),
         Event(2, "Tech Conference 2024", "2024-07-10", "Bandung", "TechFlow", "Conference"),

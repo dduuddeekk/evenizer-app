@@ -35,6 +35,7 @@ fun SplashScreen(onFinished: () -> Unit) {
             0 -> Color(0xFF9C27B0) // Home Color
             1 -> Color(0xFF4CAF50) // Event Color
             2 -> Color(0xFF2196F3) // Organizer Color
+            3 -> Color(0xFFFF9800) // Ticket Color
             else -> Color(0xFFF44336) // Profile/Main Color
         },
         animationSpec = tween(durationMillis = 800)
@@ -44,6 +45,7 @@ fun SplashScreen(onFinished: () -> Unit) {
         0 -> "Initializing..."
         1 -> "Loading events..."
         2 -> "Syncing organizers..."
+        3 -> "Checking tickets..."
         else -> "Welcome to Evenizer"
     }
 
@@ -54,6 +56,8 @@ fun SplashScreen(onFinished: () -> Unit) {
         step = 2
         delay(1200)
         step = 3
+        delay(1200)
+        step = 4
         delay(1000)
         onFinished()
     }

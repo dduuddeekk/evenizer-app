@@ -4,6 +4,7 @@
     <string name="nav_event">Event</string>
     <string name="nav_organizer">Organizer</string>
     <string name="nav_profile">Profile</string>
+    <string name="nav_ticket">Tickets</string>
     <string name="settings_title">Settings</string>
     <string name="settings_dark_mode">Dark Mode</string>
     <string name="settings_language">Language</string>
@@ -32,4 +33,9 @@
     <string name="home_see_all">See All</string>
     <string name="btn_ok">OK</string>
     <string name="btn_cancel">Cancel</string>
+    <string name="ticket_title">My Tickets</string>
+    <string name="ticket_id">ID: %1$s</string>
+    <string name="ticket_status_active">Active</string>
+    <string name="ticket_status_used">Used</string>
+    <string name="ticket_empty">You don\'t have any tickets yet</string>
 </resources>

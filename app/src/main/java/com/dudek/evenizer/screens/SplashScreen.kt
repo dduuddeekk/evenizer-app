@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
+import com.dudek.evenizer.data.network.NetworkModule
 import kotlinx.coroutines.delay
 
 @Composable
@@ -38,7 +39,8 @@ fun SplashScreen(onFinished: () -> Unit) {
             3 -> Color(0xFFFF9800) // Ticket Color
             else -> Color(0xFFF44336) // Profile/Main Color
         },
-        animationSpec = tween(durationMillis = 800)
+        animationSpec = tween(durationMillis = 800),
+        label = "backgroundColor"
     )
 
     val loadingText = when (step.intValue) {
@@ -50,15 +52,45 @@ fun SplashScreen(onFinished: () -> Unit) {
     }
 
     LaunchedEffect(Unit) {
-        delay(1000)
-        step.intValue = 1
-        delay(1200)
-        step.intValue = 2
-        delay(1200)
-        step.intValue = 3
-        delay(1200)
-        step.intValue = 4
-        delay(1000)
+        try {
+            // Step 0: Initializing (Wait for health check)
+            val response = NetworkModule.apiService.checkHealth()
+            
+            if (response.success) {
+                // If health check is successful, proceed with steps quickly
+                delay(600)
+                step.intValue = 1
+                delay(600)
+                step.intValue = 2
+                delay(600)
+                step.intValue = 3
+                delay(600)
+                step.intValue = 4
+                delay(600)
+            } else {
+                // Fallback to original timing if success is false
+                delay(1000)
+                step.intValue = 1
+                delay(1200)
+                step.intValue = 2
+                delay(1200)
+                step.intValue = 3
+                delay(1200)
+                step.intValue = 4
+                delay(1000)
+            }
+        } catch (e: Exception) {
+            // Fallback to original timing on network error
+            delay(1000)
+            step.intValue = 1
+            delay(1200)
+            step.intValue = 2
+            delay(1200)
+            step.intValue = 3
+            delay(1200)
+            step.intValue = 4
+            delay(1000)
+        }
         onFinished()
     }
 

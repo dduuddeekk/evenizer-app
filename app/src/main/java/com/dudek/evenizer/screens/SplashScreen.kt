@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -84,7 +83,7 @@ fun SplashScreen(onFinished: () -> Unit) {
                 step.intValue = 4
                 delay(1000)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Fallback to original timing on network error
             delay(1000)
             step.intValue = 1

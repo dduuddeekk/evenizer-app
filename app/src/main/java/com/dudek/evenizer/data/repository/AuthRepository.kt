@@ -39,9 +39,7 @@ class AuthRepository(
                 val errorMsg = response.error ?: response.message
                 Result.failure(Exception(errorMsg))
             }
-        } catch (e: Exception) {
-            // Even if logout fails on server, we should probably clear local tokens?
-            // User requested to logout, so we clear them.
+        } catch (_: Exception) {
             tokenManager.clearTokens()
             Result.success(Unit)
         }
@@ -63,6 +61,4 @@ class AuthRepository(
             Result.failure(e)
         }
     }
-
-    fun getAccessToken() = tokenManager.accessToken
 }

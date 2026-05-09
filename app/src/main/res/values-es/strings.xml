@@ -15,6 +15,9 @@
     <string name="lang_es">Español</string>
     <string name="profile_welcome">¡Bienvenido de nuevo!</string>
     <string name="profile_login">Iniciar Sesión</string>
+    <string name="profile_logout">Cerrar Sesión</string>
+    <string name="profile_email_verified">Correo Verificado</string>
+    <string name="profile_email_unverified">Correo no Verificado</string>
     <string name="event_empty">No hay eventos próximos</string>
     <string name="organizer_find">Encuentra tus organizadores aquí</string>
     <string name="settings_switch_to_dark">Cambiar a Modo Oscuro</string>

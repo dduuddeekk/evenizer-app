@@ -56,10 +56,6 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
             onSuccess()
         }
     }
-
-    fun resetState() {
-        _loginState.value = LoginState.Idle
-    }
 }
 
 sealed class LoginState {

@@ -20,7 +20,10 @@ object NetworkModule {
         coerceInputValues = true
     }
 
+    @Volatile
     private var apiServiceInstance: ApiService? = null
+    
+    @Volatile
     private var tokenManagerInstance: TokenManager? = null
 
     fun getTokenManager(context: Context): TokenManager {
@@ -31,7 +34,7 @@ object NetworkModule {
 
     fun getApiService(context: Context): ApiService {
         return apiServiceInstance ?: synchronized(this) {
-            apiServiceInstance ?: buildApiService(context).also { apiServiceInstance = it }
+            apiServiceInstance ?: buildApiService(context.applicationContext).also { apiServiceInstance = it }
         }
     }
 

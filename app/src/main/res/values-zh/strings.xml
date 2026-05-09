@@ -15,6 +15,9 @@
     <string name="lang_es">西班牙语</string>
     <string name="profile_welcome">欢迎回来！</string>
     <string name="profile_login">登录帐户</string>
+    <string name="profile_logout">退出登录</string>
+    <string name="profile_email_verified">邮箱已验证</string>
+    <string name="profile_email_unverified">邮箱未验证</string>
     <string name="event_empty">暂无即将举行的活动</string>
     <string name="organizer_find">在这里找到您的组织者</string>
 

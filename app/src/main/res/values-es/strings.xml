@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">Evenizer</string>
     <string name="nav_home">Inicio</string>
     <string name="nav_event">Eventos</string>
     <string name="nav_organizer">Organizadores</string>
@@ -45,9 +46,11 @@
 
     <string name="login_title">Bienvenido de Nuevo</string>
     <string name="login_subtitle">Inicia sesión en tu cuenta</string>
+    <string name="login_identifier">Usuario o Correo Electrónico</string>
     <string name="login_email">Correo Electrónico</string>
     <string name="login_password">Contraseña</string>
     <string name="login_btn">Iniciar Sesión</string>
+    <string name="login_password_error">La contraseña debe tener al menos 8 caracteres</string>
     <string name="login_google">Continuar con Google</string>
     <string name="login_guest">Entrar como Invitado</string>
     <string name="login_no_account">¿No tienes una cuenta? </string>

@@ -15,6 +15,9 @@
     <string name="lang_es">Spanish</string>
     <string name="profile_welcome">Welcome back!</string>
     <string name="profile_login">Login to Account</string>
+    <string name="profile_logout">Logout</string>
+    <string name="profile_email_verified">Email Verified</string>
+    <string name="profile_email_unverified">Email Unverified</string>
     <string name="event_empty">No upcoming events</string>
     <string name="organizer_find">Find your organizers here</string>
 
@@ -47,9 +50,11 @@
 
     <string name="login_title">Welcome Back</string>
     <string name="login_subtitle">Login to your account</string>
+    <string name="login_identifier">Username or Email</string>
     <string name="login_email">Email Address</string>
     <string name="login_password">Password</string>
     <string name="login_btn">Login</string>
+    <string name="login_password_error">Password must be at least 8 characters</string>
     <string name="login_google">Continue with Google</string>
     <string name="login_guest">Login as Guest</string>
     <string name="login_no_account">Don\'t have an account? </string>

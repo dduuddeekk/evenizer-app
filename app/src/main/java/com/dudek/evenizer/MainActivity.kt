@@ -11,6 +11,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dudek.evenizer.data.network.module.NetworkModule
+import com.dudek.evenizer.data.repository.AuthRepository
+import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.screens.MainScreen
 import com.dudek.evenizer.screens.SplashScreen
@@ -27,6 +30,22 @@ class MainActivity : ComponentActivity() {
                     @Suppress("UNCHECKED_CAST")
                     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                         return ThemeViewModel(applicationContext) as T
+                    }
+                }
+            )
+            
+            val repository = remember {
+                AuthRepository(
+                    NetworkModule.getApiService(applicationContext),
+                    NetworkModule.getTokenManager(applicationContext)
+                )
+            }
+            
+            val authViewModel: AuthViewModel = viewModel(
+                factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                        return AuthViewModel(repository) as T
                     }
                 }
             )
@@ -59,9 +78,12 @@ class MainActivity : ComponentActivity() {
                 } else {
                     MainScreen(
                         themeViewModel = themeViewModel,
+                        authViewModel = authViewModel,
                         onNavigateToLogin = {
-                            isAuthenticated = false
-                            currentAuthScreen = "login"
+                            authViewModel.logout {
+                                isAuthenticated = false
+                                currentAuthScreen = "login"
+                            }
                         }
                     )
                 }

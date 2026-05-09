@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">Evenizer</string>
     <string name="nav_home">Главная</string>
     <string name="nav_event">События</string>
     <string name="nav_organizer">Организаторы</string>
@@ -45,9 +46,11 @@
 
     <string name="login_title">С возвращением</string>
     <string name="login_subtitle">Войдите в свой аккаунт</string>
+    <string name="login_identifier">Имя пользователя или почта</string>
     <string name="login_email">Электронная почта</string>
     <string name="login_password">Пароль</string>
     <string name="login_btn">Войти</string>
+    <string name="login_password_error">Пароль должен содержать не менее 8 символов</string>
     <string name="login_google">Продолжить через Google</string>
     <string name="login_guest">Войти как гость</string>
     <string name="login_no_account">Нет аккаунта? </string>

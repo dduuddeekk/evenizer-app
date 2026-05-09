@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.items.NavItem
 import com.dudek.evenizer.R
+import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.pages.EventPage
 import com.dudek.evenizer.pages.HomePage
@@ -54,6 +55,7 @@ import com.dudek.evenizer.pages.TicketPage
 @Composable
 fun MainScreen(
     themeViewModel: ThemeViewModel,
+    authViewModel: AuthViewModel,
     onNavigateToLogin: () -> Unit
 ) {
     val navItemList = listOf(
@@ -184,6 +186,7 @@ fun MainScreen(
             Box(modifier = Modifier.padding(innerPadding)) {
                 ContentScreen(
                     selectedIndex = selectedIndex,
+                    authViewModel = authViewModel,
                     onNavigateToSettings = { isSettingsVisible = true },
                     onNavigateToLogin = onNavigateToLogin
                 )
@@ -195,6 +198,7 @@ fun MainScreen(
 @Composable
 fun ContentScreen(
     selectedIndex: Int,
+    authViewModel: AuthViewModel,
     onNavigateToSettings: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
@@ -203,6 +207,10 @@ fun ContentScreen(
         1 -> EventPage()
         2 -> OrganizerPage()
         3 -> TicketPage()
-        4 -> ProfilePage(onNavigateToSettings = onNavigateToSettings, onNavigateToLogin = onNavigateToLogin)
+        4 -> ProfilePage(
+            authViewModel = authViewModel,
+            onNavigateToSettings = onNavigateToSettings,
+            onNavigateToLogin = onNavigateToLogin
+        )
     }
 }

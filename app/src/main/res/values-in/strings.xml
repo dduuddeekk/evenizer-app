@@ -15,6 +15,9 @@
     <string name="lang_es">Bahasa Spanyol</string>
     <string name="profile_welcome">Selamat datang kembali!</string>
     <string name="profile_login">Masuk Akun</string>
+    <string name="profile_logout">Keluar</string>
+    <string name="profile_email_verified">Email Terverifikasi</string>
+    <string name="profile_email_unverified">Email Belum Terverifikasi</string>
     <string name="event_empty">Tidak ada acara mendatang</string>
     <string name="organizer_find">Cari penyelenggara Anda di sini</string>
 
@@ -47,9 +50,11 @@
 
     <string name="login_title">Selamat Datang</string>
     <string name="login_subtitle">Masuk ke akun Anda</string>
+    <string name="login_identifier">Username atau Email</string>
     <string name="login_email">Alamat Email</string>
     <string name="login_password">Kata Sandi</string>
     <string name="login_btn">Masuk</string>
+    <string name="login_password_error">Kata sandi minimal harus 8 karakter</string>
     <string name="login_google">Lanjutkan dengan Google</string>
     <string name="login_guest">Masuk sebagai Tamu</string>
     <string name="login_no_account">Belum punya akun? </string>

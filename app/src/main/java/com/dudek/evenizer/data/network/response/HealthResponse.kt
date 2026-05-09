@@ -1,4 +1,4 @@
-package com.dudek.evenizer.data.network
+package com.dudek.evenizer.data.network.response
 
 import kotlinx.serialization.Serializable
 

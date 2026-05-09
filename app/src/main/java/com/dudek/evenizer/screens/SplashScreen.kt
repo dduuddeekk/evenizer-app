@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,17 +22,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
-import com.dudek.evenizer.data.network.NetworkModule
+import com.dudek.evenizer.data.network.module.NetworkModule
 import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onFinished: () -> Unit) {
     val step = remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
 
     val backgroundColor by animateColorAsState(
         targetValue = when (step.intValue) {
@@ -54,7 +59,7 @@ fun SplashScreen(onFinished: () -> Unit) {
     LaunchedEffect(Unit) {
         try {
             // Step 0: Initializing (Wait for health check)
-            val response = NetworkModule.apiService.checkHealth()
+            val response = NetworkModule.getApiService(context).checkHealth()
             
             if (response.success) {
                 // If health check is successful, proceed with steps quickly
@@ -111,19 +116,20 @@ fun SplashScreen(onFinished: () -> Unit) {
                 color = Color.White
             )
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
             CircularProgressIndicator(
                 color = Color.White,
-                strokeWidth = 3.dp
+                modifier = Modifier.size(48.dp)
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
                 text = loadingText,
-                fontSize = 16.sp,
-                color = Color.White.copy(alpha = 0.8f)
+                fontSize = 18.sp,
+                color = Color.White,
+                modifier = Modifier.padding(top = 8.dp)
             )
         }
     }

@@ -47,9 +47,11 @@
 
     <string name="login_title">欢迎回来</string>
     <string name="login_subtitle">登录您的帐户</string>
+    <string name="login_identifier">用户名或电子邮件</string>
     <string name="login_email">电子邮箱</string>
     <string name="login_password">密码</string>
     <string name="login_btn">登录</string>
+    <string name="login_password_error">密码长度必须至少为 8 个字符</string>
     <string name="login_google">使用 Google 继续</string>
     <string name="login_guest">以访客身份登录</string>
     <string name="login_no_account">还没有帐户？</string>

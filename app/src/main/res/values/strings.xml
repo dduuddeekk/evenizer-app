@@ -76,4 +76,6 @@
     <string name="error_invalid_email">Please enter a valid email address.</string>
     <string name="error_password_requirements">Must be 8+ chars, with uppercase, number, and special char.</string>
     <string name="error_password_mismatch">Passwords do not match.</string>
+    <string name="profile_guest_user">Guest User</string>
+    <string name="profile_no_email">No email provided</string>
 </resources>

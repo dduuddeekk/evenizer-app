@@ -76,4 +76,6 @@
     <string name="error_invalid_email">请输入有效的电子邮件地址。</string>
     <string name="error_password_requirements">必须包含 8 个以上字符、大写字母、数字和特殊字符。</string>
     <string name="error_password_mismatch">密码不匹配。</string>
+    <string name="profile_guest_user">访客用户</string>
+    <string name="profile_no_email">未提供电子邮件</string>
 </resources>

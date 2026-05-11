@@ -75,4 +75,6 @@
     <string name="error_invalid_email">Por favor, introduzca una dirección de correo electrónico válida.</string>
     <string name="error_password_requirements">Debe tener 8+ caracteres, con mayúscula, número y carácter especial.</string>
     <string name="error_password_mismatch">Las contraseñas no coinciden.</string>
+    <string name="profile_guest_user">Usuario Invitado</string>
+    <string name="profile_no_email">Correo no proporcionado</string>
 </resources>

@@ -76,4 +76,6 @@
     <string name="error_invalid_email">Masukkan alamat email yang valid.</string>
     <string name="error_password_requirements">Harus 8+ karakter, dengan huruf kapital, angka, dan karakter spesial.</string>
     <string name="error_password_mismatch">Kata sandi tidak cocok.</string>
+    <string name="profile_guest_user">Pengguna Tamu</string>
+    <string name="profile_no_email">Email tidak tersedia</string>
 </resources>

@@ -75,4 +75,6 @@
     <string name="error_invalid_email">Пожалуйста, введите действительный адрес электронной почты.</string>
     <string name="error_password_requirements">Минимум 8 символов, заглавная буква, цифра и специальный символ.</string>
     <string name="error_password_mismatch">Пароли не совпадают.</string>
+    <string name="profile_guest_user">Гость</string>
+    <string name="profile_no_email">Email не указан</string>
 </resources>

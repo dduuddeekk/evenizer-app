@@ -320,7 +320,7 @@ fun UserProfileSection(
         
         Column {
             Text(
-                text = user?.let { "${it.firstName ?: ""} ${it.lastName ?: ""}".trim() }.takeIf { !it.isNullOrBlank() } ?: "Guest User",
+                text = user?.let { "${it.firstName ?: ""} ${it.lastName ?: ""}".trim() }.takeIf { !it.isNullOrBlank() } ?: stringResource(R.string.profile_guest_user),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -334,7 +334,7 @@ fun UserProfileSection(
                 )
             }
             Text(
-                text = user?.email ?: "No email provided",
+                text = user?.email ?: stringResource(R.string.profile_no_email),
                 fontSize = 14.sp,
                 color = Color.Gray
             )

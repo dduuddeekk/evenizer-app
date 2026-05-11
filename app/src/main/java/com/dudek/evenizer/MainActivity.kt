@@ -11,8 +11,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.dudek.evenizer.data.network.module.NetworkModule
+import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.repository.AuthRepository
+import com.dudek.evenizer.data.repository.UserRepository
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.screens.MainScreen
@@ -34,9 +35,16 @@ class MainActivity : ComponentActivity() {
                 }
             )
             
-            val repository = remember {
+            val authRepository = remember {
                 AuthRepository(
-                    NetworkModule.getApiService(applicationContext),
+                    NetworkModule.getAuthService(applicationContext),
+                    NetworkModule.getTokenManager(applicationContext)
+                )
+            }
+
+            val userRepository = remember {
+                UserRepository(
+                    NetworkModule.getUserService(applicationContext),
                     NetworkModule.getTokenManager(applicationContext)
                 )
             }
@@ -45,7 +53,7 @@ class MainActivity : ComponentActivity() {
                 factory = object : androidx.lifecycle.ViewModelProvider.Factory {
                     @Suppress("UNCHECKED_CAST")
                     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                        return AuthViewModel(repository) as T
+                        return AuthViewModel(authRepository, userRepository) as T
                     }
                 }
             )

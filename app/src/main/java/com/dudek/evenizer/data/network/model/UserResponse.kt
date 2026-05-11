@@ -1,6 +1,5 @@
-package com.dudek.evenizer.data.network.response
+package com.dudek.evenizer.data.network.model
 
-import com.dudek.evenizer.data.network.model.UserData
 import kotlinx.serialization.Serializable
 
 @Serializable

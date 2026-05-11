@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
-import com.dudek.evenizer.data.network.module.NetworkModule
+import com.dudek.evenizer.data.network.di.NetworkModule
 import kotlinx.coroutines.delay
 
 @Composable

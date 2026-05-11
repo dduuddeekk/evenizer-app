@@ -2,7 +2,7 @@ package com.dudek.evenizer.data.network.authenticator
 
 import com.dudek.evenizer.data.local.TokenManager
 import com.dudek.evenizer.data.network.model.RefreshRequest
-import com.dudek.evenizer.data.network.service.ApiService
+import com.dudek.evenizer.data.network.service.AuthService
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Request
@@ -11,7 +11,7 @@ import okhttp3.Route
 
 class TokenAuthenticator(
     private val tokenManager: TokenManager,
-    private val apiService: ApiService
+    private val authService: AuthService
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
@@ -31,7 +31,7 @@ class TokenAuthenticator(
             }
 
             // Otherwise, refresh the token
-            val refreshResponse = apiService.refreshTokens(RefreshRequest(refreshToken)).execute()
+            val refreshResponse = authService.refreshTokens(RefreshRequest(refreshToken)).execute()
 
             if (refreshResponse.isSuccessful && refreshResponse.body()?.success == true) {
                 val newAccessToken = refreshResponse.body()?.data?.accessToken ?: return null

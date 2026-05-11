@@ -1,19 +1,17 @@
 package com.dudek.evenizer.data.repository
 
 import com.dudek.evenizer.data.local.TokenManager
-import com.dudek.evenizer.data.network.service.ApiService
 import com.dudek.evenizer.data.network.model.LoginRequest
-import com.dudek.evenizer.data.network.model.UserData
-import com.dudek.evenizer.data.network.response.LoginResponse
-import com.dudek.evenizer.utils.JwtUtils
+import com.dudek.evenizer.data.network.model.LoginResponse
+import com.dudek.evenizer.data.network.service.AuthService
 
 class AuthRepository(
-    private val apiService: ApiService,
+    private val authService: AuthService,
     private val tokenManager: TokenManager
 ) {
     suspend fun login(identifier: String, password: String): Result<LoginResponse> {
         return try {
-            val response = apiService.login(LoginRequest(identifier, password))
+            val response = authService.login(LoginRequest(identifier, password))
             if (response.success && response.data != null) {
                 tokenManager.saveTokens(
                     accessToken = response.data.accessToken,
@@ -31,7 +29,7 @@ class AuthRepository(
 
     suspend fun logout(): Result<Unit> {
         return try {
-            val response = apiService.logout()
+            val response = authService.logout()
             if (response.success) {
                 tokenManager.clearTokens()
                 Result.success(Unit)
@@ -42,23 +40,6 @@ class AuthRepository(
         } catch (_: Exception) {
             tokenManager.clearTokens()
             Result.success(Unit)
-        }
-    }
-
-    suspend fun getUserProfile(): Result<UserData> {
-        return try {
-            val token = tokenManager.getAccessTokenBlocking() ?: return Result.failure(Exception("No token"))
-            val uuid = JwtUtils.getSubFromToken(token) ?: return Result.failure(Exception("Invalid token"))
-            
-            val response = apiService.getUserProfile(uuid)
-            if (response.success && response.data != null) {
-                Result.success(response.data)
-            } else {
-                val errorMsg = response.error ?: response.message
-                Result.failure(Exception(errorMsg))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
         }
     }
 }

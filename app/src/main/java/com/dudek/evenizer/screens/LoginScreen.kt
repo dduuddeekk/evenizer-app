@@ -27,8 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dudek.evenizer.R
-import com.dudek.evenizer.data.network.module.NetworkModule
+import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.repository.AuthRepository
+import com.dudek.evenizer.data.repository.UserRepository
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.LoginState
 
@@ -39,9 +40,15 @@ fun LoginScreen(
     onLoginAsGuest: () -> Unit
 ) {
     val context = LocalContext.current
-    val repository = remember {
+    val authRepository = remember {
         AuthRepository(
-            NetworkModule.getApiService(context),
+            NetworkModule.getAuthService(context),
+            NetworkModule.getTokenManager(context)
+        )
+    }
+    val userRepository = remember {
+        UserRepository(
+            NetworkModule.getUserService(context),
             NetworkModule.getTokenManager(context)
         )
     }
@@ -49,7 +56,7 @@ fun LoginScreen(
         factory = object : androidx.lifecycle.ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return AuthViewModel(repository) as T
+                return AuthViewModel(authRepository, userRepository) as T
             }
         }
     )

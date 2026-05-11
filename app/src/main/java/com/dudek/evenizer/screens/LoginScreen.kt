@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -25,11 +24,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dudek.evenizer.R
-import com.dudek.evenizer.data.network.di.NetworkModule
-import com.dudek.evenizer.data.repository.AuthRepository
-import com.dudek.evenizer.data.repository.UserRepository
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.LoginState
 
@@ -37,30 +32,9 @@ import com.dudek.evenizer.models.LoginState
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onLoginAsGuest: () -> Unit
+    onLoginAsGuest: () -> Unit,
+    authViewModel: AuthViewModel
 ) {
-    val context = LocalContext.current
-    val authRepository = remember {
-        AuthRepository(
-            NetworkModule.getAuthService(context),
-            NetworkModule.getTokenManager(context)
-        )
-    }
-    val userRepository = remember {
-        UserRepository(
-            NetworkModule.getUserService(context),
-            NetworkModule.getTokenManager(context)
-        )
-    }
-    val authViewModel: AuthViewModel = viewModel(
-        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                return AuthViewModel(authRepository, userRepository) as T
-            }
-        }
-    )
-
     var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }

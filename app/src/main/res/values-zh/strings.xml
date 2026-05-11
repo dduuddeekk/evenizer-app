@@ -66,4 +66,10 @@
     <string name="register_btn">注册</string>
     <string name="register_have_account">已经有帐户了？</string>
     <string name="register_login">登录</string>
+    <string name="register_first_name">名字</string>
+    <string name="register_last_name">姓氏</string>
+    <string name="register_confirm_password">确认密码</string>
+    <string name="error_invalid_email">请输入有效的电子邮件地址。</string>
+    <string name="error_password_requirements">必须包含 8 个以上字符、大写字母、数字和特殊字符。</string>
+    <string name="error_password_mismatch">密码不匹配。</string>
 </resources>

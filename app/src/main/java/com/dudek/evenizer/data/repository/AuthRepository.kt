@@ -27,6 +27,10 @@ class AuthRepository(
         }
     }
 
+    suspend fun isLoggedIn(): Boolean {
+        return tokenManager.getAccessTokenBlocking() != null
+    }
+
     suspend fun logout(): Result<Unit> {
         return try {
             val response = authService.logout()

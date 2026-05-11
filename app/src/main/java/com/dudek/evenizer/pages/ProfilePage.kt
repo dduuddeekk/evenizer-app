@@ -43,27 +43,32 @@ import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.AuthViewModel
+import com.dudek.evenizer.models.UserViewModel
 
 @Composable
 fun ProfilePage(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel,
+    userViewModel: UserViewModel,
     onNavigateToSettings: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
-    val userProfile by authViewModel.userProfile.collectAsState()
-    val isLoading by authViewModel.profileLoading.collectAsState()
+    val userProfile by userViewModel.userProfile.collectAsState()
+    val isLoading by userViewModel.profileLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         if (userProfile == null) {
-            authViewModel.fetchProfile()
+            userViewModel.fetchProfile()
         }
     }
 
     val menuItems = listOf(
         ProfileMenuItem(stringResource(R.string.settings_title), Icons.Default.Settings, onNavigateToSettings),
         ProfileMenuItem(stringResource(R.string.profile_logout), Icons.AutoMirrored.Filled.Logout) {
-            authViewModel.logout { onNavigateToLogin() }
+            authViewModel.logout { 
+                userViewModel.clearProfile()
+                onNavigateToLogin() 
+            }
         }
     )
 
@@ -148,6 +153,21 @@ fun UserProfileSection(user: UserData?) {
                         text = stringResource(R.string.profile_email_verified),
                         fontSize = 12.sp,
                         color = Color(0xFF4CAF50)
+                    )
+                }
+            } else if (user != null) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Email,
+                        contentDescription = null,
+                        tint = Color(0xFFF44336),
+                        modifier = Modifier.size(12.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(R.string.profile_email_unverified),
+                        fontSize = 12.sp,
+                        color = Color(0xFFF44336)
                     )
                 }
             }

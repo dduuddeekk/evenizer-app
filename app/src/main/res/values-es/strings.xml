@@ -65,4 +65,10 @@
     <string name="register_btn">Registrarse</string>
     <string name="register_have_account">¿Ya tienes una cuenta? </string>
     <string name="register_login">Iniciar Sesión</string>
+    <string name="register_first_name">Nombre</string>
+    <string name="register_last_name">Apellido</string>
+    <string name="register_confirm_password">Confirmar contraseña</string>
+    <string name="error_invalid_email">Por favor, introduzca una dirección de correo electrónico válida.</string>
+    <string name="error_password_requirements">Debe tener 8+ caracteres, con mayúscula, número y carácter especial.</string>
+    <string name="error_password_mismatch">Las contraseñas no coinciden.</string>
 </resources>

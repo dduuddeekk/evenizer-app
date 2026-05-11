@@ -66,4 +66,10 @@
     <string name="register_btn">Register</string>
     <string name="register_have_account">Already have an account? </string>
     <string name="register_login">Login</string>
+    <string name="register_first_name">First Name</string>
+    <string name="register_last_name">Last Name</string>
+    <string name="register_confirm_password">Confirm Password</string>
+    <string name="error_invalid_email">Please enter a valid email address.</string>
+    <string name="error_password_requirements">Must be 8+ chars, with uppercase, number, and special char.</string>
+    <string name="error_password_mismatch">Passwords do not match.</string>
 </resources>

@@ -65,4 +65,10 @@
     <string name="register_btn">Зарегистрироваться</string>
     <string name="register_have_account">Уже есть аккаунт? </string>
     <string name="register_login">Войти</string>
+    <string name="register_first_name">Имя</string>
+    <string name="register_last_name">Фамилия</string>
+    <string name="register_confirm_password">Подтвердите пароль</string>
+    <string name="error_invalid_email">Пожалуйста, введите действительный адрес электронной почты.</string>
+    <string name="error_password_requirements">Минимум 8 символов, заглавная буква, цифра и специальный символ.</string>
+    <string name="error_password_mismatch">Пароли не совпадают.</string>
 </resources>

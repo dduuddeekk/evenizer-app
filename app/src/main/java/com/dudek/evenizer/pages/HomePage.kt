@@ -20,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.Event
 import com.dudek.evenizer.data.MockData
@@ -28,7 +27,7 @@ import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.utils.DateUtils
 
 @Composable
-fun HomePage(themeViewModel: ThemeViewModel = viewModel()) {
+fun HomePage(themeViewModel: ThemeViewModel) {
     val scrollState = rememberScrollState()
     val language by themeViewModel.language.collectAsState(initial = "id")
 

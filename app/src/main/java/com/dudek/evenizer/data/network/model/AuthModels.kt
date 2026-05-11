@@ -25,3 +25,11 @@ data class RefreshRequest(
 data class RefreshData(
     val accessToken: String
 )
+
+@Serializable
+data class RegisterRequest(
+    val firstName: String,
+    val lastName: String,
+    val email: String,
+    val password: String
+)

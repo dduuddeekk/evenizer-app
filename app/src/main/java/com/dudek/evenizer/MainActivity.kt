@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import com.dudek.evenizer.data.repository.AuthRepository
 import com.dudek.evenizer.data.repository.UserRepository
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.ThemeViewModel
+import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.screens.MainScreen
 import com.dudek.evenizer.screens.SplashScreen
 import com.dudek.evenizer.ui.theme.EvenizerTheme
@@ -34,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             )
-            
+
             val authRepository = remember {
                 AuthRepository(
                     NetworkModule.getAuthService(applicationContext),
@@ -53,7 +55,16 @@ class MainActivity : ComponentActivity() {
                 factory = object : androidx.lifecycle.ViewModelProvider.Factory {
                     @Suppress("UNCHECKED_CAST")
                     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-                        return AuthViewModel(authRepository, userRepository) as T
+                        return AuthViewModel(authRepository) as T
+                    }
+                }
+            )
+
+            val userViewModel: UserViewModel = viewModel(
+                factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                        return UserViewModel(userRepository) as T
                     }
                 }
             )
@@ -66,6 +77,15 @@ class MainActivity : ComponentActivity() {
             var showSplash by remember { mutableStateOf(true) }
             var isAuthenticated by remember { mutableStateOf(false) }
             var currentAuthScreen by remember { mutableStateOf("login") } // "login" or "register"
+
+            LaunchedEffect(Unit) {
+                authViewModel.checkAuthStatus { loggedIn ->
+                    if (loggedIn) {
+                        userViewModel.fetchProfile()
+                        isAuthenticated = true
+                    }
+                }
+            }
             
             EvenizerTheme(darkTheme = isDarkMode) {
                 if (showSplash) {
@@ -73,22 +93,30 @@ class MainActivity : ComponentActivity() {
                 } else if (!isAuthenticated) {
                     if (currentAuthScreen == "login") {
                         com.dudek.evenizer.screens.LoginScreen(
-                            onLoginSuccess = { isAuthenticated = true },
+                            onLoginSuccess = { 
+                                userViewModel.fetchProfile()
+                                isAuthenticated = true 
+                            },
                             onNavigateToRegister = { currentAuthScreen = "register" },
-                            onLoginAsGuest = { isAuthenticated = true }
+                            onLoginAsGuest = { isAuthenticated = true },
+                            authViewModel = authViewModel
                         )
                     } else {
                         com.dudek.evenizer.screens.RegisterScreen(
                             onRegisterSuccess = { isAuthenticated = true },
-                            onNavigateToLogin = { currentAuthScreen = "login" }
+                            onNavigateToLogin = { currentAuthScreen = "login" },
+                            authViewModel = authViewModel,
+                            userViewModel = userViewModel
                         )
                     }
                 } else {
                     MainScreen(
                         themeViewModel = themeViewModel,
                         authViewModel = authViewModel,
+                        userViewModel = userViewModel,
                         onNavigateToLogin = {
                             authViewModel.logout {
+                                userViewModel.clearProfile()
                                 isAuthenticated = false
                                 currentAuthScreen = "login"
                             }

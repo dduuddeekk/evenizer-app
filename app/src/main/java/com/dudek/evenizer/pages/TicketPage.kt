@@ -19,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.MockData
 import com.dudek.evenizer.data.Ticket
@@ -27,7 +26,7 @@ import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.utils.DateUtils
 
 @Composable
-fun TicketPage(themeViewModel: ThemeViewModel = viewModel()) {
+fun TicketPage(themeViewModel: ThemeViewModel) {
     val language by themeViewModel.language.collectAsState(initial = "id")
     val tickets = MockData.tickets
 

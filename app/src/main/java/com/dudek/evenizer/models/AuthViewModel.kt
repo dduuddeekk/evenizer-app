@@ -3,59 +3,39 @@ package com.dudek.evenizer.models
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudek.evenizer.data.repository.AuthRepository
-import com.dudek.evenizer.data.repository.UserRepository
-import com.dudek.evenizer.data.network.model.UserData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel(
-    private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
-) : ViewModel() {
+class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
     val loginState: StateFlow<LoginState> = _loginState.asStateFlow()
 
-    private val _userProfile = MutableStateFlow<UserData?>(null)
-    val userProfile: StateFlow<UserData?> = _userProfile.asStateFlow()
+    fun checkAuthStatus(onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val loggedIn = authRepository.isLoggedIn()
+            onResult(loggedIn)
+        }
+    }
 
-    private val _profileLoading = MutableStateFlow(false)
-    val profileLoading: StateFlow<Boolean> = _profileLoading.asStateFlow()
-
-    fun login(email: String, password: String) {
+    fun login(email: String, password: String, onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             _loginState.value = LoginState.Loading
             val result = authRepository.login(email, password)
             result.onSuccess {
                 _loginState.value = LoginState.Success
-                fetchProfile() // Fetch profile after successful login
+                onSuccess()
             }.onFailure { error ->
                 _loginState.value = LoginState.Error(error.message ?: "Unknown error")
             }
         }
     }
 
-    fun fetchProfile() {
-        viewModelScope.launch {
-            _profileLoading.value = true
-            val result = userRepository.getUserProfile()
-            result.onSuccess { profile ->
-                _userProfile.value = profile
-            }.onFailure {
-                // If profile fetch fails, we might still be logged in, 
-                // but let's clear profile data.
-                _userProfile.value = null
-            }
-            _profileLoading.value = false
-        }
-    }
-
     fun logout(onSuccess: () -> Unit) {
         viewModelScope.launch {
             authRepository.logout()
-            _userProfile.value = null
             _loginState.value = LoginState.Idle
             onSuccess()
         }

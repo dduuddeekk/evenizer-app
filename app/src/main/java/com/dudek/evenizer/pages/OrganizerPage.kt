@@ -21,7 +21,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.MockData
 import com.dudek.evenizer.data.Organizer
@@ -32,7 +31,7 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrganizerPage(themeViewModel: ThemeViewModel = viewModel()) {
+fun OrganizerPage(themeViewModel: ThemeViewModel) {
     var selectedDate by remember { mutableStateOf("") }
     val showDatePicker = remember { mutableStateOf(false) }
     

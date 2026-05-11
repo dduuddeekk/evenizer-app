@@ -20,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.Event
 import com.dudek.evenizer.data.MockData
@@ -31,7 +30,7 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EventPage(themeViewModel: ThemeViewModel = viewModel()) {
+fun EventPage(themeViewModel: ThemeViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
     val showDatePicker = remember { mutableStateOf(false) }

@@ -66,4 +66,10 @@
     <string name="register_btn">Daftar</string>
     <string name="register_have_account">Sudah punya akun? </string>
     <string name="register_login">Masuk</string>
+    <string name="register_first_name">Nama Depan</string>
+    <string name="register_last_name">Nama Belakang</string>
+    <string name="register_confirm_password">Konfirmasi Kata Sandi</string>
+    <string name="error_invalid_email">Masukkan alamat email yang valid.</string>
+    <string name="error_password_requirements">Harus 8+ karakter, dengan huruf kapital, angka, dan karakter spesial.</string>
+    <string name="error_password_mismatch">Kata sandi tidak cocok.</string>
 </resources>

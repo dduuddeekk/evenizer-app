@@ -296,7 +296,7 @@ fun UserProfileSection(
                 }
             }
 
-            if (!isUploading) {
+            if (!isUploading && user != null) {
                 Surface(
                     modifier = Modifier
                         .size(28.dp)

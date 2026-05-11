@@ -17,6 +17,7 @@ import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.repository.AuthRepository
 import com.dudek.evenizer.data.repository.UserRepository
 import com.dudek.evenizer.models.AuthViewModel
+import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.screens.MainScreen
@@ -70,6 +71,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             )
+
+            val eventViewModel: EventViewModel = viewModel()
             
             val isDarkMode by themeViewModel.isDarkMode.collectAsState(initial = false)
             val language by themeViewModel.language.collectAsState(initial = "id")
@@ -122,6 +125,7 @@ class MainActivity : ComponentActivity() {
                         themeViewModel = themeViewModel,
                         authViewModel = authViewModel,
                         userViewModel = userViewModel,
+                        eventViewModel = eventViewModel,
                         onNavigateToLogin = {
                             authViewModel.logout {
                                 userViewModel.clearProfile()

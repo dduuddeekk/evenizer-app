@@ -7,6 +7,7 @@ import com.dudek.evenizer.data.network.authenticator.TokenAuthenticator
 import com.dudek.evenizer.data.network.interceptor.AuthInterceptor
 import com.dudek.evenizer.data.network.service.ApiService
 import com.dudek.evenizer.data.network.service.AuthService
+import com.dudek.evenizer.data.network.service.EventService
 import com.dudek.evenizer.data.network.service.UserService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -35,6 +36,9 @@ object NetworkModule {
     
     @Volatile
     private var userServiceInstance: UserService? = null
+
+    @Volatile
+    private var eventServiceInstance: EventService? = null
     
     @Volatile
     private var tokenManagerInstance: TokenManager? = null
@@ -60,6 +64,12 @@ object NetworkModule {
     fun getUserService(context: Context): UserService {
         return userServiceInstance ?: synchronized(this) {
             userServiceInstance ?: buildUserService(context.applicationContext).also { userServiceInstance = it }
+        }
+    }
+
+    fun getEventService(context: Context): EventService {
+        return eventServiceInstance ?: synchronized(this) {
+            eventServiceInstance ?: buildEventService(context.applicationContext).also { eventServiceInstance = it }
         }
     }
 
@@ -120,5 +130,29 @@ object NetworkModule {
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(UserService::class.java)
+    }
+
+    private fun buildEventService(context: Context): EventService {
+        val tokenManager = getTokenManager(context)
+        
+        val authRetrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+
+        val simpleAuthService = authRetrofit.create(AuthService::class.java)
+
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(tokenManager))
+            .addInterceptor(loggingInterceptor)
+            .authenticator(TokenAuthenticator(tokenManager, simpleAuthService))
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(EventService::class.java)
     }
 }

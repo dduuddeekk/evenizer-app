@@ -28,6 +28,8 @@ import com.dudek.evenizer.R
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.models.EventViewModel
+import com.dudek.evenizer.pages.CreateEventPage
 import com.dudek.evenizer.pages.EventPage
 import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.OrganizerPage
@@ -43,6 +45,7 @@ fun MainScreen(
     themeViewModel: ThemeViewModel,
     authViewModel: AuthViewModel,
     userViewModel: UserViewModel,
+    eventViewModel: EventViewModel,
     onNavigateToLogin: () -> Unit
 ) {
     val navController = rememberNavController()
@@ -106,7 +109,25 @@ fun MainScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("home") { HomePage(themeViewModel = themeViewModel) }
-            composable("event") { EventPage(themeViewModel = themeViewModel) }
+            composable("event") { 
+                EventPage(
+                    themeViewModel = themeViewModel,
+                    userViewModel = userViewModel,
+                    eventViewModel = eventViewModel,
+                    onNavigateToCreate = { navController.navigate("create_event") },
+                    onNavigateToLogin = onNavigateToLogin
+                ) 
+            }
+            composable("create_event") {
+                CreateEventPage(
+                    eventViewModel = eventViewModel,
+                    onBack = { navController.popBackStack() },
+                    onSuccess = { 
+                        navController.popBackStack()
+                        // Optionally refresh events here
+                    }
+                )
+            }
             composable("organizer") { OrganizerPage(themeViewModel = themeViewModel) }
             composable("ticket") { TicketPage(themeViewModel = themeViewModel) }
             composable("profile") {

@@ -1,24 +1,20 @@
 package com.dudek.evenizer.pages
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -29,10 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.AuthViewModel
@@ -51,9 +50,21 @@ fun ProfilePage(
 ) {
     val userProfile by userViewModel.userProfile.collectAsState()
     val isLoading by userViewModel.profileLoading.collectAsState()
+    val isUploading by userViewModel.uploadLoading.collectAsState()
 
     var isRefreshing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    var showCropDialog by remember { mutableStateOf<Uri?>(null) }
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            showCropDialog = uri
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (userProfile == null) {
@@ -61,27 +72,82 @@ fun ProfilePage(
         }
     }
 
+    if (showCropDialog != null) {
+        AlertDialog(
+            onDismissRequest = { showCropDialog = null },
+            title = { Text("Update Profile Picture") },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Would you like to upload this photo? It will be cropped to a 1:1 ratio.")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    AsyncImage(
+                        model = showCropDialog,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(150.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showCropDialog?.let { uri ->
+                        userViewModel.updateProfileImage(uri, context)
+                    }
+                    showCropDialog = null
+                }) {
+                    Text("Upload")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCropDialog = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = {
             isRefreshing = true
             scope.launch {
-                userViewModel.fetchProfile()
-                delay(1000) // Ensure spinner is visible for a moment
+                userViewModel.clearProfile()
+                val fetchJob = launch { userViewModel.fetchProfile() }
+                delay(2000)
+                fetchJob.join()
                 isRefreshing = false
             }
         },
         modifier = Modifier.fillMaxSize()
     ) {
-        val menuItems = listOf(
-            ProfileMenuItem(stringResource(R.string.settings_title), Icons.Default.Settings, onNavigateToSettings),
-            ProfileMenuItem(stringResource(R.string.profile_logout), Icons.AutoMirrored.Filled.Logout) {
-                authViewModel.logout { 
-                    userViewModel.clearProfile()
-                    onNavigateToLogin() 
-                }
+        val settingsTitle = stringResource(R.string.settings_title)
+        val logoutText = stringResource(R.string.profile_logout)
+        val loginText = stringResource(R.string.profile_login)
+
+        val menuItems = remember(userProfile, settingsTitle, logoutText, loginText) {
+            val list = mutableListOf(
+                ProfileMenuItem(settingsTitle, Icons.Default.Settings, onNavigateToSettings)
+            )
+            if (userProfile != null) {
+                list.add(
+                    ProfileMenuItem(logoutText, Icons.AutoMirrored.Filled.Logout) {
+                        authViewModel.logout { 
+                            userViewModel.clearProfile()
+                            onNavigateToLogin() 
+                        }
+                    }
+                )
+            } else {
+                list.add(
+                    ProfileMenuItem(loginText, Icons.AutoMirrored.Filled.Login) {
+                        onNavigateToLogin()
+                    }
+                )
             }
-        )
+            list
+        }
 
         Column(
             modifier = modifier
@@ -104,7 +170,11 @@ fun ProfilePage(
                     CircularProgressIndicator(color = Color(0xFFF44336))
                 }
             } else {
-                UserProfileSection(userProfile)
+                UserProfileSection(
+                    user = userProfile,
+                    isUploading = isUploading,
+                    onEditClick = { imagePicker.launch("image/*") }
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -120,21 +190,68 @@ fun ProfilePage(
 }
 
 @Composable
-fun UserProfileSection(user: UserData?) {
+fun UserProfileSection(
+    user: UserData?,
+    isUploading: Boolean,
+    onEditClick: () -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Surface(
-            modifier = Modifier.size(80.dp).clip(CircleShape),
-            color = Color(0xFFF44336).copy(alpha = 0.1f)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = Color(0xFFF44336),
-                modifier = Modifier.padding(16.dp)
-            )
+        Box(contentAlignment = Alignment.BottomEnd) {
+            Surface(
+                modifier = Modifier.size(80.dp).clip(CircleShape),
+                color = Color(0xFFF44336).copy(alpha = 0.1f)
+            ) {
+                if (user?.profile != null) {
+                    AsyncImage(
+                        model = user.profile,
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null,
+                        tint = Color(0xFFF44336),
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                if (isUploading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
+            }
+
+            if (!isUploading) {
+                Surface(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .offset(x = 4.dp, y = 4.dp)
+                        .clip(CircleShape)
+                        .clickable { onEditClick() },
+                    color = MaterialTheme.colorScheme.primary,
+                    tonalElevation = 4.dp
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit Profile Picture",
+                        tint = Color.White,
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
+            }
         }
         
         Spacer(modifier = Modifier.width(20.dp))

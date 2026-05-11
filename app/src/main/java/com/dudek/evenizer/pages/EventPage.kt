@@ -48,7 +48,9 @@ fun EventPage(themeViewModel: ThemeViewModel) {
         onRefresh = {
             isRefreshing = true
             scope.launch {
-                delay(1500) // Simulate data reload
+                searchQuery = ""
+                selectedDate = ""
+                delay(2000) // Simulate data reload
                 isRefreshing = false
             }
         },

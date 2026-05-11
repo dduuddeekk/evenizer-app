@@ -29,6 +29,7 @@ import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.RegisterState
 import com.dudek.evenizer.models.LoginState
 import com.dudek.evenizer.models.UserViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
@@ -47,6 +48,7 @@ fun RegisterScreen(
 
     val registerState by userViewModel.registerState.collectAsState()
     val loginState by authViewModel.loginState.collectAsState()
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
@@ -204,7 +206,9 @@ fun RegisterScreen(
             onClick = { 
                 userViewModel.register(firstName, lastName, email, password) {
                     authViewModel.login(email, password) {
-                        userViewModel.fetchProfile()
+                        scope.launch {
+                            userViewModel.fetchProfile()
+                        }
                     }
                 } 
             },

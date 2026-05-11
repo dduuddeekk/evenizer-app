@@ -40,7 +40,7 @@ fun TicketPage(themeViewModel: ThemeViewModel) {
         onRefresh = {
             isRefreshing = true
             scope.launch {
-                delay(1500) // Simulate data reload
+                delay(2000) // Simulate data reload
                 isRefreshing = false
             }
         },

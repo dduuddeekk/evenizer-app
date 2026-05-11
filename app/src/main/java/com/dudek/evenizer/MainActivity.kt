@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dudek.evenizer.data.network.di.NetworkModule
@@ -21,6 +22,7 @@ import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.screens.MainScreen
 import com.dudek.evenizer.screens.SplashScreen
 import com.dudek.evenizer.ui.theme.EvenizerTheme
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
@@ -78,10 +80,14 @@ class MainActivity : ComponentActivity() {
             var isAuthenticated by remember { mutableStateOf(false) }
             var currentAuthScreen by remember { mutableStateOf("login") } // "login" or "register"
 
+            val scope = rememberCoroutineScope()
+
             LaunchedEffect(Unit) {
                 authViewModel.checkAuthStatus { loggedIn ->
                     if (loggedIn) {
-                        userViewModel.fetchProfile()
+                        scope.launch {
+                            userViewModel.fetchProfile()
+                        }
                         isAuthenticated = true
                     }
                 }
@@ -94,7 +100,9 @@ class MainActivity : ComponentActivity() {
                     if (currentAuthScreen == "login") {
                         com.dudek.evenizer.screens.LoginScreen(
                             onLoginSuccess = { 
-                                userViewModel.fetchProfile()
+                                scope.launch {
+                                    userViewModel.fetchProfile()
+                                }
                                 isAuthenticated = true 
                             },
                             onNavigateToRegister = { currentAuthScreen = "register" },

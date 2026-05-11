@@ -48,6 +48,10 @@
     <string name="ticket_status_used">Used</string>
     <string name="ticket_empty">You don\'t have any tickets yet</string>
 
+    <string name="profile_update_title">Update Profile Picture</string>
+    <string name="profile_update_desc">Adjust your photo. It will be cropped to a 1:1 ratio.</string>
+    <string name="btn_upload">Upload</string>
+
     <string name="login_title">Welcome Back</string>
     <string name="login_subtitle">Login to your account</string>
     <string name="login_identifier">Username or Email</string>

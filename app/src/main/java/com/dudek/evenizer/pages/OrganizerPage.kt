@@ -35,31 +35,31 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrganizerPage(themeViewModel: ThemeViewModel) {
-    var selectedDate by remember { mutableStateOf("") }
+    val selectedDate = remember { mutableStateOf("") }
     val showDatePicker = remember { mutableStateOf(false) }
     
     val language by themeViewModel.language.collectAsState(initial = "id")
 
-    var isRefreshing by remember { mutableStateOf(false) }
+    val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
 
     PullToRefreshBox(
-        isRefreshing = isRefreshing,
+        isRefreshing = isRefreshing.value,
         onRefresh = {
-            isRefreshing = true
             scope.launch {
-                selectedDate = ""
+                isRefreshing.value = true
+                selectedDate.value = ""
                 delay(2000) // Simulate data reload
-                isRefreshing = false
+                isRefreshing.value = false
             }
         },
         modifier = Modifier.fillMaxSize()
     ) {
         val datePickerState = rememberDatePickerState()
 
-        val availableOrganizers = remember(selectedDate) {
+        val availableOrganizers = remember(selectedDate.value) {
             MockData.organizers.filter {
-                selectedDate.isEmpty() || it.availableDates.contains(selectedDate)
+                selectedDate.value.isEmpty() || it.availableDates.contains(selectedDate.value)
             }
         }
 
@@ -71,16 +71,16 @@ fun OrganizerPage(themeViewModel: ThemeViewModel) {
                     TextButton(onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
                             val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            selectedDate = formatter.format(Date(millis))
+                            selectedDate.value = formatter.format(Date(millis))
                         }
                         onDismiss()
                     }) {
-                        Text(stringResource(R.string.btn_ok), color = Color(0xFF2196F3))
+                        Text(text = stringResource(R.string.btn_ok), color = Color(0xFF2196F3))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.btn_cancel))
+                        Text(text = stringResource(R.string.btn_cancel))
                     }
                 }
             ) {
@@ -132,17 +132,17 @@ fun OrganizerPage(themeViewModel: ThemeViewModel) {
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = if (selectedDate.isEmpty()) {
+                    text = if (selectedDate.value.isEmpty()) {
                         stringResource(R.string.filter_any_day)
                     } else {
-                        DateUtils.formatLocaleDate(selectedDate, language)
+                        DateUtils.formatLocaleDate(selectedDate.value, language)
                     },
-                    color = if (selectedDate.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
+                    color = if (selectedDate.value.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
-                if (selectedDate.isNotEmpty()) {
+                if (selectedDate.value.isNotEmpty()) {
                     IconButton(
-                        onClick = { selectedDate = "" },
+                        onClick = { selectedDate.value = "" },
                         modifier = Modifier.size(24.dp)
                     ) {
                         Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)

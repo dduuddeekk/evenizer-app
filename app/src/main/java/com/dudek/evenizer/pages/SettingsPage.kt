@@ -55,16 +55,16 @@ fun SettingsPage(
     
     var expanded by remember { mutableStateOf(false) }
     
-    var isRefreshing by remember { mutableStateOf(false) }
+    val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
 
     PullToRefreshBox(
-        isRefreshing = isRefreshing,
+        isRefreshing = isRefreshing.value,
         onRefresh = {
-            isRefreshing = true
             scope.launch {
+                isRefreshing.value = true
                 delay(2000)
-                isRefreshing = false
+                isRefreshing.value = false
             }
         },
         modifier = modifier.fillMaxSize()

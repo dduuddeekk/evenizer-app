@@ -48,6 +48,10 @@
     <string name="ticket_status_used">已使用</string>
     <string name="ticket_empty">您还没有门票</string>
 
+    <string name="profile_update_title">更新个人资料照片</string>
+    <string name="profile_update_desc">调整您的照片。它将被裁剪为 1:1 的比例。</string>
+    <string name="btn_upload">上传</string>
+
     <string name="login_title">欢迎回来</string>
     <string name="login_subtitle">登录您的帐户</string>
     <string name="login_identifier">用户名或电子邮件</string>

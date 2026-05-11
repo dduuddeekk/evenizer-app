@@ -47,6 +47,10 @@
     <string name="ticket_status_used">Использован</string>
     <string name="ticket_empty">У вас пока нет билетов</string>
 
+    <string name="profile_update_title">Обновить фото профиля</string>
+    <string name="profile_update_desc">Настройте свою фотографию. Она будет обрезана до соотношения 1:1.</string>
+    <string name="btn_upload">Загрузить</string>
+
     <string name="login_title">С возвращением</string>
     <string name="login_subtitle">Войдите в свой аккаунт</string>
     <string name="login_identifier">Имя пользователя или почта</string>

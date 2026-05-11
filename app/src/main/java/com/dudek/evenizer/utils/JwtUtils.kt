@@ -16,7 +16,7 @@ object JwtUtils {
             val payload = String(Base64.decode(parts[1], Base64.URL_SAFE), Charset.forName("UTF-8"))
             val jwtPayload = json.decodeFromString<JwtPayload>(payload)
             jwtPayload.sub
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

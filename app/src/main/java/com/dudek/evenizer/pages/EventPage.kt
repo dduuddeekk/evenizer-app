@@ -34,34 +34,34 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventPage(themeViewModel: ThemeViewModel) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf("") }
+    val searchQuery = remember { mutableStateOf("") }
+    val selectedDate = remember { mutableStateOf("") }
     val showDatePicker = remember { mutableStateOf(false) }
     
     val language by themeViewModel.language.collectAsState(initial = "id")
 
-    var isRefreshing by remember { mutableStateOf(false) }
+    val isRefreshing = remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     PullToRefreshBox(
-        isRefreshing = isRefreshing,
+        isRefreshing = isRefreshing.value,
         onRefresh = {
-            isRefreshing = true
             scope.launch {
-                searchQuery = ""
-                selectedDate = ""
+                isRefreshing.value = true
+                searchQuery.value = ""
+                selectedDate.value = ""
                 delay(2000) // Simulate data reload
-                isRefreshing = false
+                isRefreshing.value = false
             }
         },
         modifier = Modifier.fillMaxSize()
     ) {
         val datePickerState = rememberDatePickerState()
 
-        val filteredEvents = remember(searchQuery, selectedDate) {
+        val filteredEvents = remember(searchQuery.value, selectedDate.value) {
             MockData.events.filter {
-                (searchQuery.isEmpty() || it.title.contains(searchQuery, ignoreCase = true)) &&
-                (selectedDate.isEmpty() || it.date == selectedDate)
+                (searchQuery.value.isEmpty() || it.title.contains(searchQuery.value, ignoreCase = true)) &&
+                (selectedDate.value.isEmpty() || it.date == selectedDate.value)
             }
         }
 
@@ -73,16 +73,16 @@ fun EventPage(themeViewModel: ThemeViewModel) {
                     TextButton(onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
                             val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                            selectedDate = formatter.format(Date(millis))
+                            selectedDate.value = formatter.format(Date(millis))
                         }
                         onDismiss()
                     }) {
-                        Text(stringResource(R.string.btn_ok), color = Color(0xFF4CAF50))
+                        Text(text = stringResource(R.string.btn_ok), color = Color(0xFF4CAF50))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.btn_cancel))
+                        Text(text = stringResource(R.string.btn_cancel))
                     }
                 }
             ) {
@@ -108,10 +108,10 @@ fun EventPage(themeViewModel: ThemeViewModel) {
 
             // Search Bar
             OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+                value = searchQuery.value,
+                onValueChange = { searchQuery.value = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(stringResource(R.string.search_events_placeholder)) },
+                placeholder = { Text(text = stringResource(R.string.search_events_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -142,17 +142,17 @@ fun EventPage(themeViewModel: ThemeViewModel) {
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = if (selectedDate.isEmpty()) {
+                    text = if (selectedDate.value.isEmpty()) {
                         stringResource(R.string.filter_by_date)
                     } else {
-                        DateUtils.formatLocaleDate(selectedDate, language)
+                        DateUtils.formatLocaleDate(selectedDate.value, language)
                     },
-                    color = if (selectedDate.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
+                    color = if (selectedDate.value.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
-                if (selectedDate.isNotEmpty()) {
+                if (selectedDate.value.isNotEmpty()) {
                     IconButton(
-                        onClick = { selectedDate = "" },
+                        onClick = { selectedDate.value = "" },
                         modifier = Modifier.size(24.dp)
                     ) {
                         Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)

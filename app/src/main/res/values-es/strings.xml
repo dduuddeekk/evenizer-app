@@ -47,6 +47,10 @@
     <string name="ticket_status_used">Usado</string>
     <string name="ticket_empty">Aún no tienes entradas</string>
 
+    <string name="profile_update_title">Actualizar Foto de Perfil</string>
+    <string name="profile_update_desc">Ajusta tu foto. Se recortará en una proporción de 1:1.</string>
+    <string name="btn_upload">Subir</string>
+
     <string name="login_title">Bienvenido de Nuevo</string>
     <string name="login_subtitle">Inicia sesión en tu cuenta</string>
     <string name="login_identifier">Usuario o Correo Electrónico</string>

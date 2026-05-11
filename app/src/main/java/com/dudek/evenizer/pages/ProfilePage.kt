@@ -5,6 +5,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,14 +26,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.UserData
@@ -46,24 +54,24 @@ fun ProfilePage(
     authViewModel: AuthViewModel,
     userViewModel: UserViewModel,
     onNavigateToSettings: () -> Unit,
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
 ) {
     val userProfile by userViewModel.userProfile.collectAsState()
     val isLoading by userViewModel.profileLoading.collectAsState()
     val isUploading by userViewModel.uploadLoading.collectAsState()
 
-    var isRefreshing by remember { mutableStateOf(false) }
+    val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val density = LocalDensity.current
 
-    var showCropDialog by remember { mutableStateOf<Uri?>(null) }
+    val showCropDialog = remember { mutableStateOf<Uri?>(null) }
+    val showFullPreview = remember { mutableStateOf<String?>(null) }
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        if (uri != null) {
-            showCropDialog = uri
-        }
+        uri?.let { showCropDialog.value = it }
     }
 
     LaunchedEffect(Unit) {
@@ -72,52 +80,84 @@ fun ProfilePage(
         }
     }
 
-    if (showCropDialog != null) {
+    if (showFullPreview.value != null) {
+        ProfileImagePreviewDialog(
+            imageUrl = showFullPreview.value!!
+        ) {
+            showFullPreview.value = null
+        }
+    }
+
+    if (showCropDialog.value != null) {
+        var scale by remember { mutableFloatStateOf(1f) }
+        var offset by remember { mutableStateOf(Offset.Zero) }
+
         AlertDialog(
-            onDismissRequest = { showCropDialog = null },
-            title = { Text("Update Profile Picture") },
+            onDismissRequest = { showCropDialog.value = null },
+            title = { Text(text = stringResource(R.string.profile_update_title)) },
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Would you like to upload this photo? It will be cropped to a 1:1 ratio.")
+                    Text(text = stringResource(R.string.profile_update_desc))
                     Spacer(modifier = Modifier.height(16.dp))
-                    AsyncImage(
-                        model = showCropDialog,
-                        contentDescription = null,
+                    
+                    val state = rememberTransformableState { zoomChange, offsetChange, _ ->
+                        scale *= zoomChange
+                        offset += offsetChange
+                    }
+
+                    Box(
                         modifier = Modifier
-                            .size(150.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
+                            .size(200.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray)
+                            .transformable(state = state),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = showCropDialog.value,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer(
+                                    scaleX = scale,
+                                    scaleY = scale,
+                                    translationX = offset.x,
+                                    translationY = offset.y
+                                ),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
             },
             confirmButton = {
+                val containerSizePx = with(density) { 200.dp.toPx() }
                 TextButton(onClick = {
-                    showCropDialog?.let { uri ->
-                        userViewModel.updateProfileImage(uri, context)
+                    showCropDialog.value?.let { uri ->
+                        userViewModel.updateProfileImage(uri, context, scale, offset, containerSizePx)
                     }
-                    showCropDialog = null
+                    showCropDialog.value = null
                 }) {
-                    Text("Upload")
+                    Text(text = stringResource(R.string.btn_upload))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showCropDialog = null }) {
-                    Text("Cancel")
+                TextButton(onClick = { showCropDialog.value = null }) {
+                    Text(text = stringResource(R.string.btn_cancel))
                 }
             }
         )
     }
 
     PullToRefreshBox(
-        isRefreshing = isRefreshing,
+        isRefreshing = isRefreshing.value,
         onRefresh = {
-            isRefreshing = true
             scope.launch {
+                isRefreshing.value = true
                 userViewModel.clearProfile()
                 val fetchJob = launch { userViewModel.fetchProfile() }
                 delay(2000)
                 fetchJob.join()
-                isRefreshing = false
+                isRefreshing.value = false
             }
         },
         modifier = Modifier.fillMaxSize()
@@ -165,7 +205,7 @@ fun ProfilePage(
             
             Spacer(modifier = Modifier.height(32.dp))
             
-            if (isLoading && !isRefreshing) {
+            if (isLoading && !isRefreshing.value) {
                 Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = Color(0xFFF44336))
                 }
@@ -173,7 +213,8 @@ fun ProfilePage(
                 UserProfileSection(
                     user = userProfile,
                     isUploading = isUploading,
-                    onEditClick = { imagePicker.launch("image/*") }
+                    onEditClick = { imagePicker.launch("image/*") },
+                    onImageClick = { url -> showFullPreview.value = url }
                 )
             }
 
@@ -193,20 +234,41 @@ fun ProfilePage(
 fun UserProfileSection(
     user: UserData?,
     isUploading: Boolean,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onImageClick: (String) -> Unit
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
         Box(contentAlignment = Alignment.BottomEnd) {
-            Surface(
-                modifier = Modifier.size(80.dp).clip(CircleShape),
-                color = Color(0xFFF44336).copy(alpha = 0.1f)
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .border(2.dp, Color(0xFFF44336), CircleShape)
+                    .padding(3.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFF44336).copy(alpha = 0.1f))
+                    .clickable(enabled = user?.profile != null) {
+                        user?.profile?.let { url ->
+                            val buster = user.updatedAt ?: System.currentTimeMillis().toString()
+                            val fullUrl = if (url.contains("?")) "$url&t=$buster" else "$url?t=$buster"
+                            onImageClick(fullUrl)
+                        }
+                    },
+                contentAlignment = Alignment.Center
             ) {
                 if (user?.profile != null) {
+                    val imageUrl = remember(user.profile, user.updatedAt) {
+                        val buster = user.updatedAt ?: System.currentTimeMillis().toString()
+                        if (user.profile.contains("?")) {
+                            "${user.profile}&t=$buster"
+                        } else {
+                            "${user.profile}?t=$buster"
+                        }
+                    }
                     AsyncImage(
-                        model = user.profile,
+                        model = imageUrl,
                         contentDescription = "Profile Picture",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -241,7 +303,7 @@ fun UserProfileSection(
                         .offset(x = 4.dp, y = 4.dp)
                         .clip(CircleShape)
                         .clickable { onEditClick() },
-                    color = MaterialTheme.colorScheme.primary,
+                    color = Color(0xFFF44336),
                     tonalElevation = 4.dp
                 ) {
                     Icon(
@@ -263,6 +325,14 @@ fun UserProfileSection(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
+            if (!user?.username.isNullOrBlank()) {
+                Text(
+                    text = "@${user.username}",
+                    fontSize = 14.sp,
+                    color = Color(0xFFF44336),
+                    fontWeight = FontWeight.Medium
+                )
+            }
             Text(
                 text = user?.email ?: "No email provided",
                 fontSize = 14.sp,
@@ -337,5 +407,31 @@ fun ProfileMenuButton(item: ProfileMenuItem) {
             contentDescription = null,
             tint = Color.LightGray
         )
+    }
+}
+
+@Composable
+fun ProfileImagePreviewDialog(
+    imageUrl: String,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .clickable { onDismiss() },
+            contentAlignment = Alignment.Center
+        ) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Full Profile Picture",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+        }
     }
 }

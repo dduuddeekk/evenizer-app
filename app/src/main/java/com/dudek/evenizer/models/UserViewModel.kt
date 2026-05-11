@@ -2,13 +2,16 @@ package com.dudek.evenizer.models
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.data.repository.UserRepository
+import com.dudek.evenizer.utils.ImageUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
@@ -25,11 +28,19 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _uploadLoading = MutableStateFlow(false)
     val uploadLoading: StateFlow<Boolean> = _uploadLoading.asStateFlow()
 
-    fun updateProfileImage(uri: Uri, context: Context) {
+    fun updateProfileImage(uri: Uri, context: Context, scale: Float = 1f, offset: Offset = Offset.Zero, containerSizePx: Float = 0f) {
         viewModelScope.launch {
             _uploadLoading.value = true
-            val result = userRepository.updateProfileImage(uri, context)
+            
+            val finalUri = if (containerSizePx > 0) {
+                ImageUtils.cropImage(context, uri, scale, offset, containerSizePx) ?: uri
+            } else {
+                uri
+            }
+
+            val result = userRepository.updateProfileImage(finalUri, context)
             result.onSuccess {
+                delay(2000) // Ensure a "hard refresh" feel for uploads
                 fetchProfile() // Refresh profile after upload
             }
             _uploadLoading.value = false

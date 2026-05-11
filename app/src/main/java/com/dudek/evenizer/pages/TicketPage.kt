@@ -32,16 +32,16 @@ fun TicketPage(themeViewModel: ThemeViewModel) {
     val language by themeViewModel.language.collectAsState(initial = "id")
     val tickets = MockData.tickets
 
-    var isRefreshing by remember { mutableStateOf(false) }
+    val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
 
     PullToRefreshBox(
-        isRefreshing = isRefreshing,
+        isRefreshing = isRefreshing.value,
         onRefresh = {
-            isRefreshing = true
             scope.launch {
+                isRefreshing.value = true
                 delay(2000) // Simulate data reload
-                isRefreshing = false
+                isRefreshing.value = false
             }
         },
         modifier = Modifier.fillMaxSize()

@@ -19,10 +19,17 @@ class UserRepository(
     suspend fun updateProfileImage(uri: Uri, context: Context): Result<UserResponse> {
         return try {
             val contentResolver = context.contentResolver
+            val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
+            val extension = when (mimeType) {
+                "image/png" -> "png"
+                "image/webp" -> "webp"
+                else -> "jpg"
+            }
+
             val inputStream = contentResolver.openInputStream(uri) ?: throw Exception("Cannot open image")
             val bytes = inputStream.use { it.readBytes() }
-            val requestFile = bytes.toRequestBody("image/*".toMediaTypeOrNull())
-            val body = MultipartBody.Part.createFormData("file", "profile_image.jpg", requestFile)
+            val requestFile = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+            val body = MultipartBody.Part.createFormData("file", "profile_image.$extension", requestFile)
             
             val response = userService.updateProfileImage(body)
             if (response.success && response.data != null) {

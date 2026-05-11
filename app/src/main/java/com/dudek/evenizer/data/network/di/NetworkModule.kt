@@ -12,6 +12,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
 object NetworkModule {
@@ -20,6 +21,10 @@ object NetworkModule {
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
+    }
+
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
     }
 
     @Volatile
@@ -40,7 +45,7 @@ object NetworkModule {
         }
     }
 
-    fun getApiService(context: Context): ApiService {
+    fun getApiService(): ApiService {
         return apiServiceInstance ?: synchronized(this) {
             apiServiceInstance ?: buildApiService().also { apiServiceInstance = it }
         }
@@ -79,6 +84,7 @@ object NetworkModule {
 
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(tokenManager))
+            .addInterceptor(loggingInterceptor)
             .authenticator(TokenAuthenticator(tokenManager, simpleAuthService))
             .build()
 
@@ -104,6 +110,7 @@ object NetworkModule {
 
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(tokenManager))
+            .addInterceptor(loggingInterceptor)
             .authenticator(TokenAuthenticator(tokenManager, simpleAuthService))
             .build()
 

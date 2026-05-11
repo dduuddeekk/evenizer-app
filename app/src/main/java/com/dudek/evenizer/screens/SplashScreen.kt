@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,7 +32,6 @@ import kotlinx.coroutines.delay
 @Composable
 fun SplashScreen(onFinished: () -> Unit) {
     val step = remember { mutableIntStateOf(0) }
-    val context = LocalContext.current
 
     val backgroundColor by animateColorAsState(
         targetValue = when (step.intValue) {
@@ -58,7 +56,7 @@ fun SplashScreen(onFinished: () -> Unit) {
     LaunchedEffect(Unit) {
         try {
             // Step 0: Initializing (Wait for health check)
-            val response = NetworkModule.getApiService(context).checkHealth()
+            val response = NetworkModule.getApiService().checkHealth()
             
             if (response.success) {
                 // If health check is successful, proceed with steps quickly

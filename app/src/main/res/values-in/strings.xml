@@ -48,6 +48,10 @@
     <string name="ticket_status_used">Digunakan</string>
     <string name="ticket_empty">Anda belum memiliki tiket</string>
 
+    <string name="profile_update_title">Perbarui Foto Profil</string>
+    <string name="profile_update_desc">Sesuaikan foto Anda. Foto akan dipotong menjadi rasio 1:1.</string>
+    <string name="btn_upload">Unggah</string>
+
     <string name="login_title">Selamat Datang</string>
     <string name="login_subtitle">Masuk ke akun Anda</string>
     <string name="login_identifier">Username atau Email</string>

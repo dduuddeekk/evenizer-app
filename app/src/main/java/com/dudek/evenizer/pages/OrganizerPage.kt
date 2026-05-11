@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +27,8 @@ import com.dudek.evenizer.data.MockData
 import com.dudek.evenizer.data.Organizer
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.utils.DateUtils
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,110 +39,126 @@ fun OrganizerPage(themeViewModel: ThemeViewModel) {
     val showDatePicker = remember { mutableStateOf(false) }
     
     val language by themeViewModel.language.collectAsState(initial = "id")
-    val datePickerState = rememberDatePickerState()
 
-    val availableOrganizers = remember(selectedDate) {
-        MockData.organizers.filter {
-            selectedDate.isEmpty() || it.availableDates.contains(selectedDate)
-        }
-    }
+    var isRefreshing by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
-    if (showDatePicker.value) {
-        val onDismiss = { showDatePicker.value = false }
-        DatePickerDialog(
-            onDismissRequest = onDismiss,
-            confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                        selectedDate = formatter.format(Date(millis))
-                    }
-                    onDismiss()
-                }) {
-                    Text(stringResource(R.string.btn_ok), color = Color(0xFF2196F3))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.btn_cancel))
-                }
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            scope.launch {
+                delay(1500) // Simulate data reload
+                isRefreshing = false
             }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 24.dp)
+        },
+        modifier = Modifier.fillMaxSize()
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = stringResource(R.string.nav_organizer),
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF2196F3)
-        )
+        val datePickerState = rememberDatePickerState()
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = stringResource(R.string.check_availability),
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Calendar Filter Button
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .clickable { showDatePicker.value = true }
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Default.CalendarToday,
-                contentDescription = null,
-                tint = Color(0xFF2196F3),
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = if (selectedDate.isEmpty()) {
-                    stringResource(R.string.filter_any_day)
-                } else {
-                    DateUtils.formatLocaleDate(selectedDate, language)
-                },
-                color = if (selectedDate.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f)
-            )
-            if (selectedDate.isNotEmpty()) {
-                IconButton(
-                    onClick = { selectedDate = "" },
-                    modifier = Modifier.size(24.dp)
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)
-                }
+        val availableOrganizers = remember(selectedDate) {
+            MockData.organizers.filter {
+                selectedDate.isEmpty() || it.availableDates.contains(selectedDate)
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        if (showDatePicker.value) {
+            val onDismiss = { showDatePicker.value = false }
+            DatePickerDialog(
+                onDismissRequest = onDismiss,
+                confirmButton = {
+                    TextButton(onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                            selectedDate = formatter.format(Date(millis))
+                        }
+                        onDismiss()
+                    }) {
+                        Text(stringResource(R.string.btn_ok), color = Color(0xFF2196F3))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(R.string.btn_cancel))
+                    }
+                }
+            ) {
+                DatePicker(state = datePickerState)
+            }
+        }
 
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 24.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 24.dp)
         ) {
-            items(availableOrganizers) { organizer ->
-                OrganizerCard(organizer, language)
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = stringResource(R.string.nav_organizer),
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF2196F3)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.check_availability),
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Calendar Filter Button
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clickable { showDatePicker.value = true }
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.CalendarToday,
+                    contentDescription = null,
+                    tint = Color(0xFF2196F3),
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = if (selectedDate.isEmpty()) {
+                        stringResource(R.string.filter_any_day)
+                    } else {
+                        DateUtils.formatLocaleDate(selectedDate, language)
+                    },
+                    color = if (selectedDate.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                if (selectedDate.isNotEmpty()) {
+                    IconButton(
+                        onClick = { selectedDate = "" },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 24.dp)
+            ) {
+                items(availableOrganizers) { organizer ->
+                    OrganizerCard(organizer, language)
+                }
             }
         }
     }

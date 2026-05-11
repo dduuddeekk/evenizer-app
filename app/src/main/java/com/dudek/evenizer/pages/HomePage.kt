@@ -10,9 +10,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,88 +24,106 @@ import com.dudek.evenizer.data.Event
 import com.dudek.evenizer.data.MockData
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.utils.DateUtils
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(themeViewModel: ThemeViewModel) {
     val scrollState = rememberScrollState()
     val language by themeViewModel.language.collectAsState(initial = "id")
+    
+    var isRefreshing by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(scrollState)
-            .padding(horizontal = 24.dp)
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            scope.launch {
+                delay(1500) // Simulate data reload
+                isRefreshing = false
+            }
+        },
+        modifier = Modifier.fillMaxSize()
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(scrollState)
+                .padding(horizontal = 24.dp)
         ) {
-            Column {
-                Text(
-                    text = stringResource(R.string.nav_home),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF9C27B0)
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.nav_home),
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF9C27B0)
+                    )
+                    Text(
+                        text = stringResource(R.string.profile_welcome),
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+                }
+                IconButton(onClick = { /* TODO */ }) {
+                    Icon(Icons.Default.Notifications, contentDescription = null, tint = Color(0xFF9C27B0))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Quick Stats Summary
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                StatCard(
+                    title = stringResource(R.string.home_stat_total_events),
+                    value = MockData.events.size.toString(),
+                    color = Color(0xFF4CAF50),
+                    modifier = Modifier.weight(1f)
                 )
-                Text(
-                    text = stringResource(R.string.profile_welcome),
-                    fontSize = 16.sp,
-                    color = Color.Gray
+                StatCard(
+                    title = stringResource(R.string.home_stat_organizers),
+                    value = MockData.organizers.size.toString(),
+                    color = Color(0xFF2196F3),
+                    modifier = Modifier.weight(1f)
                 )
             }
-            IconButton(onClick = { /* TODO */ }) {
-                Icon(Icons.Default.Notifications, contentDescription = null, tint = Color(0xFF9C27B0))
-            }
-        }
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        // Quick Stats Summary
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            StatCard(
-                title = stringResource(R.string.home_stat_total_events),
-                value = MockData.events.size.toString(),
-                color = Color(0xFF4CAF50),
-                modifier = Modifier.weight(1f)
-            )
-            StatCard(
-                title = stringResource(R.string.home_stat_organizers),
-                value = MockData.organizers.size.toString(),
-                color = Color(0xFF2196F3),
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Recent Events Preview
-        SectionHeader(title = stringResource(R.string.home_section_upcoming), actionText = stringResource(R.string.home_see_all))
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 8.dp)
-        ) {
-            items(MockData.events.take(3)) { event ->
-                HomeEventCard(event, language)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        // Top Organizers Preview
-        SectionHeader(title = stringResource(R.string.home_section_available_organizers), actionText = stringResource(R.string.home_see_all))
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        MockData.organizers.take(2).forEach { organizer ->
-            OrganizerCard(organizer, language)
+            // Recent Events Preview
+            SectionHeader(title = stringResource(R.string.home_section_upcoming), actionText = stringResource(R.string.home_see_all))
             Spacer(modifier = Modifier.height(12.dp))
+            
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 8.dp)
+            ) {
+                items(MockData.events.take(3)) { event ->
+                    HomeEventCard(event, language)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Top Organizers Preview
+            SectionHeader(title = stringResource(R.string.home_section_available_organizers), actionText = stringResource(R.string.home_see_all))
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            MockData.organizers.take(2).forEach { organizer ->
+                OrganizerCard(organizer, language)
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
     }
 }

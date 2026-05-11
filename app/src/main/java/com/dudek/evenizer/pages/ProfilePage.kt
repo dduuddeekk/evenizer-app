@@ -21,16 +21,9 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,7 +37,10 @@ import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.UserViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfilePage(
     modifier: Modifier = Modifier,
@@ -56,52 +52,68 @@ fun ProfilePage(
     val userProfile by userViewModel.userProfile.collectAsState()
     val isLoading by userViewModel.profileLoading.collectAsState()
 
+    var isRefreshing by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         if (userProfile == null) {
             userViewModel.fetchProfile()
         }
     }
 
-    val menuItems = listOf(
-        ProfileMenuItem(stringResource(R.string.settings_title), Icons.Default.Settings, onNavigateToSettings),
-        ProfileMenuItem(stringResource(R.string.profile_logout), Icons.AutoMirrored.Filled.Logout) {
-            authViewModel.logout { 
-                userViewModel.clearProfile()
-                onNavigateToLogin() 
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            scope.launch {
+                userViewModel.fetchProfile()
+                delay(1000) // Ensure spinner is visible for a moment
+                isRefreshing = false
             }
-        }
-    )
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 24.dp)
+        },
+        modifier = Modifier.fillMaxSize()
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = stringResource(R.string.nav_profile),
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFFF44336)
-        )
-        
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color(0xFFF44336))
+        val menuItems = listOf(
+            ProfileMenuItem(stringResource(R.string.settings_title), Icons.Default.Settings, onNavigateToSettings),
+            ProfileMenuItem(stringResource(R.string.profile_logout), Icons.AutoMirrored.Filled.Logout) {
+                authViewModel.logout { 
+                    userViewModel.clearProfile()
+                    onNavigateToLogin() 
+                }
             }
-        } else {
-            UserProfileSection(userProfile)
-        }
+        )
 
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(menuItems) { item ->
-                ProfileMenuButton(item)
-                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 24.dp)
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = stringResource(R.string.nav_profile),
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFF44336)
+            )
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            if (isLoading && !isRefreshing) {
+                Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color(0xFFF44336))
+                }
+            } else {
+                UserProfileSection(userProfile)
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(menuItems) { item ->
+                    ProfileMenuButton(item)
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+                }
             }
         }
     }

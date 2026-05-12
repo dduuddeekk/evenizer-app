@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -17,7 +19,15 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "BASE_URL", "\"https://evenizer-api.vercel.app/api/\"")
+        val envFile = rootProject.file(".env")
+        val properties = Properties()
+        if (envFile.exists()) {
+            val inputStream = envFile.inputStream()
+            properties.load(inputStream)
+            inputStream.close()
+        }
+        val baseUrl = properties.getProperty("BASE_URL") ?: ""
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 
     buildTypes {

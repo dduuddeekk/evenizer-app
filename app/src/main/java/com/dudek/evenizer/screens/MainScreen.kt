@@ -31,6 +31,7 @@ import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.pages.CreateEventPage
 import com.dudek.evenizer.pages.EventPage
+import com.dudek.evenizer.pages.MyEventsPage
 import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.OrganizerPage
 import com.dudek.evenizer.pages.ProfilePage
@@ -71,7 +72,7 @@ fun MainScreen(
                 navItems.forEach { item ->
                     val selected = currentRoute == item.route || 
                                    (item.route == "profile" && currentRoute == "settings") ||
-                                   (item.route == "event" && currentRoute == "create_event")
+                                   (item.route == "event" && (currentRoute == "create_event" || currentRoute == "my_events"))
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = null) },
                         label = { 
@@ -117,6 +118,7 @@ fun MainScreen(
                     userViewModel = userViewModel,
                     eventViewModel = eventViewModel,
                     onNavigateToCreate = { navController.navigate("create_event") },
+                    onNavigateToMyEvents = { navController.navigate("my_events") },
                     onNavigateToLogin = onNavigateToLogin
                 ) 
             }
@@ -126,8 +128,14 @@ fun MainScreen(
                     onBack = { navController.popBackStack() },
                     onSuccess = { 
                         navController.popBackStack()
-                        // Optionally refresh events here
                     }
+                )
+            }
+            composable("my_events") {
+                MyEventsPage(
+                    themeViewModel = themeViewModel,
+                    eventViewModel = eventViewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable("organizer") { OrganizerPage(themeViewModel = themeViewModel) }

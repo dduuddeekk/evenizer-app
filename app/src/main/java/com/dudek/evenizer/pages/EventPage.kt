@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -24,6 +25,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -43,6 +45,7 @@ fun EventPage(
     userViewModel: UserViewModel,
     eventViewModel: EventViewModel,
     onNavigateToCreate: () -> Unit,
+    onNavigateToMyEvents: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
     val context = LocalContext.current
@@ -52,6 +55,7 @@ fun EventPage(
     
     val showLoginDialog = remember { mutableStateOf(false) }
     val showVerifyDialog = remember { mutableStateOf(false) }
+    var showFabMenu by remember { mutableStateOf(false) }
     
     val userProfile by userViewModel.userProfile.collectAsState()
     val language by themeViewModel.language.collectAsState(initial = "id")
@@ -230,25 +234,52 @@ fun EventPage(
             }
         }
 
-        // FAB positioned manually to avoid Scaffold innerPadding gap
-        FloatingActionButton(
-            onClick = {
-                if (userProfile == null) {
-                    showLoginDialog.value = true
-                } else if (userProfile?.isEmailVerified == false) {
-                    showVerifyDialog.value = true
-                } else {
-                    onNavigateToCreate()
-                }
-            },
-            containerColor = Color(0xFF4CAF50),
-            contentColor = Color.White,
-            shape = CircleShape,
+        // Expanded FAB Menu
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add Event")
+            DropdownMenu(
+                expanded = showFabMenu,
+                onDismissRequest = { showFabMenu = false },
+                offset = DpOffset(0.dp, (-8).dp),
+                modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.event_menu_create)) },
+                    onClick = {
+                        showFabMenu = false
+                        if (userProfile == null) {
+                            showLoginDialog.value = true
+                        } else if (userProfile?.isEmailVerified == false) {
+                            showVerifyDialog.value = true
+                        } else {
+                            onNavigateToCreate()
+                        }
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.event_menu_my_events)) },
+                    onClick = {
+                        showFabMenu = false
+                        if (userProfile == null) {
+                            showLoginDialog.value = true
+                        } else {
+                            onNavigateToMyEvents()
+                        }
+                    }
+                )
+            }
+
+            FloatingActionButton(
+                onClick = { showFabMenu = !showFabMenu },
+                containerColor = Color(0xFF4CAF50),
+                contentColor = Color.White,
+                shape = CircleShape
+            ) {
+                Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+            }
         }
     }
 }

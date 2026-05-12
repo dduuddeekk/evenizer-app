@@ -54,6 +54,7 @@ fun CreateEventPage(
     val categories = remember { mutableStateOf("") }
     val location = remember { mutableStateOf("") }
     val locationType = remember { mutableStateOf("ONLINE") }
+    val status = remember { mutableStateOf("DRAFT") }
     val isPublic = remember { mutableStateOf(true) }
     val bannerUri = remember { mutableStateOf<Uri?>(null) }
 
@@ -253,7 +254,11 @@ fun CreateEventPage(
                 onExpandedChange = { expanded = !expanded }
             ) {
                 OutlinedTextField(
-                    value = locationType.value,
+                    value = when(locationType.value) {
+                        "ONLINE" -> stringResource(R.string.create_event_loc_online)
+                        "OFFLINE" -> stringResource(R.string.create_event_loc_offline)
+                        else -> stringResource(R.string.create_event_loc_hybrid)
+                    },
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.create_event_field_location_type)) },
@@ -338,6 +343,46 @@ fun CreateEventPage(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Status (Draft/Publish)
+            var statusExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = statusExpanded,
+                onExpandedChange = { statusExpanded = !statusExpanded }
+            ) {
+                OutlinedTextField(
+                    value = if (status.value == "DRAFT") stringResource(R.string.create_event_status_draft) else stringResource(R.string.create_event_status_publish),
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.create_event_field_status)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = statusExpanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                ExposedDropdownMenu(
+                    expanded = statusExpanded,
+                    onDismissRequest = { statusExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.create_event_status_draft)) },
+                        onClick = {
+                            status.value = "DRAFT"
+                            statusExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.create_event_status_publish)) },
+                        onClick = {
+                            status.value = "UPCOMING"
+                            statusExpanded = false
+                        }
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
@@ -355,6 +400,7 @@ fun CreateEventPage(
                         categories = categoryList,
                         location = location.value,
                         locationType = locationType.value,
+                        status = status.value,
                         isPublic = isPublic.value,
                         bannerUri = bannerUri.value
                     )

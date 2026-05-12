@@ -99,12 +99,19 @@
     <string name="create_event_progress_error">Failed to Create Event</string>
     <string name="create_event_back_desc">Back</string>
     <string name="create_event_banner_desc">Event Banner</string>
-    <string name="create_event_loc_online">ONLINE</string>
-    <string name="create_event_loc_offline">OFFLINE</string>
-    <string name="create_event_loc_hybrid">HYBRID</string>
+    <string name="create_event_loc_online">Online</string>
+    <string name="create_event_loc_offline">Offline</string>
+    <string name="create_event_loc_hybrid">Hybrid</string>
     <string name="create_event_status_label">Status: %1$s</string>
     <string name="create_event_organizer_label">Organizer: %1$s</string>
     <string name="create_event_field_publication">Publication</string>
     <string name="create_event_pub_public">Public</string>
     <string name="create_event_pub_private">Private</string>
+    <string name="event_menu_create">Create Event</string>
+    <string name="event_menu_my_events">My Event</string>
+    <string name="my_events_title">My Events</string>
+    <string name="my_events_empty">You haven\'t created any events yet</string>
+    <string name="create_event_field_status">Event Status</string>
+    <string name="create_event_status_draft">Draft</string>
+    <string name="create_event_status_publish">Publish</string>
 </resources>

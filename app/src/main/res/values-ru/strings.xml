@@ -98,12 +98,19 @@
     <string name="create_event_progress_error">Не удалось создать мероприятие</string>
     <string name="create_event_back_desc">Назад</string>
     <string name="create_event_banner_desc">Баннер мероприятия</string>
-    <string name="create_event_loc_online">ОНЛАЙН</string>
-    <string name="create_event_loc_offline">ОФФЛАЙН</string>
-    <string name="create_event_loc_hybrid">ГИБРИД</string>
+    <string name="create_event_loc_online">Онлайн</string>
+    <string name="create_event_loc_offline">Оффлайн</string>
+    <string name="create_event_loc_hybrid">Гибрид</string>
     <string name="create_event_status_label">Статус: %1$s</string>
     <string name="create_event_organizer_label">Организатор: %1$s</string>
     <string name="create_event_field_publication">Публикация</string>
     <string name="create_event_pub_public">Публичный (Открытый)</string>
     <string name="create_event_pub_private">Приватный (Закрытый)</string>
+    <string name="event_menu_create">Создать мероприятие</string>
+    <string name="event_menu_my_events">Мои мероприятия</string>
+    <string name="my_events_title">Мои мероприятия</string>
+    <string name="my_events_empty">Вы еще не создали ни одного мероприятия</string>
+    <string name="create_event_field_status">Статус мероприятия</string>
+    <string name="create_event_status_draft">Черновик (Draft)</string>
+    <string name="create_event_status_publish">Опубликовать (Upcoming)</string>
 </resources>

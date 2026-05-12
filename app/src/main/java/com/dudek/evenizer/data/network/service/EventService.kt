@@ -29,4 +29,17 @@ interface EventService {
         @Path("uuid") uuid: String,
         @Part file: MultipartBody.Part
     ): EventResponse
+
+    @GET("event/my-event")
+    suspend fun getMyEvents(
+        @Query("search") search: String? = null,
+        @Query("category") category: String? = null,
+        @Query("status") status: Map<String, Boolean>? = null,
+        @Query("isPublic") isPublic: Boolean? = null,
+        @Query("page") page: Int? = null,
+        @Query("limit") limit: Int? = null,
+        @Query("sortBy") sortBy: String? = "createdAt",
+        @Query("sortOrder") sortOrder: String? = "desc",
+        @Query("groupBy") groupBy: String? = null
+    ): EventListResponse
 }

@@ -25,6 +25,9 @@ class EventViewModel : ViewModel() {
     private val _events = MutableStateFlow<List<EventData>>(emptyList())
     val events: StateFlow<List<EventData>> = _events
 
+    private val _myEvents = MutableStateFlow<List<EventData>>(emptyList())
+    val myEvents: StateFlow<List<EventData>> = _myEvents
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
@@ -51,6 +54,23 @@ class EventViewModel : ViewModel() {
         }
     }
 
+    fun fetchMyEvents(context: Context, search: String? = null, category: String? = null) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getEventService(context)
+                val response = service.getMyEvents(search = search, category = category)
+                if (response.success) {
+                    _myEvents.value = response.data?.data ?: emptyList()
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to fetch your events: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     fun createEvent(
         context: Context,
         title: String,
@@ -60,6 +80,7 @@ class EventViewModel : ViewModel() {
         categories: List<String>,
         location: String,
         locationType: String,
+        status: String,
         isPublic: Boolean,
         bannerUri: Uri?
     ) {
@@ -74,7 +95,7 @@ class EventViewModel : ViewModel() {
                     title = title,
                     start = startTime,
                     end = endTime,
-                    status = "DRAFT",
+                    status = status,
                     isPublic = isPublic,
                     description = description,
                     categories = categories,
@@ -104,10 +125,17 @@ class EventViewModel : ViewModel() {
     private suspend fun uploadBanner(context: Context, uuid: String, bannerUri: Uri) {
         try {
             val eventService = NetworkModule.getEventService(context)
-            val file = getFileFromUri(context, bannerUri)
+            val mimeType = context.contentResolver.getType(bannerUri) ?: "image/jpeg"
+            val extension = when (mimeType) {
+                "image/png" -> "png"
+                "image/webp" -> "webp"
+                else -> "jpg"
+            }
+            
+            val file = getFileFromUri(context, bannerUri, extension)
             
             if (file != null) {
-                val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                val requestFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
                 val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
                 
                 val response = eventService.uploadBanner(uuid, body)
@@ -124,9 +152,9 @@ class EventViewModel : ViewModel() {
         }
     }
 
-    private fun getFileFromUri(context: Context, uri: Uri): File? {
+    private fun getFileFromUri(context: Context, uri: Uri, extension: String): File? {
         val inputStream = context.contentResolver.openInputStream(uri)
-        val file = File(context.cacheDir, "temp_banner_${System.currentTimeMillis()}.jpg")
+        val file = File(context.cacheDir, "temp_banner_${System.currentTimeMillis()}.$extension")
         inputStream?.use { input ->
             file.outputStream().use { output ->
                 input.copyTo(output)

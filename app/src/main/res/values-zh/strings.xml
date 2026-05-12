@@ -107,4 +107,11 @@
     <string name="create_event_field_publication">发布范围</string>
     <string name="create_event_pub_public">公开（开放）</string>
     <string name="create_event_pub_private">私密（不公开）</string>
+    <string name="event_menu_create">创建活动</string>
+    <string name="event_menu_my_events">我的活动</string>
+    <string name="my_events_title">我的活动列表</string>
+    <string name="my_events_empty">您还没有创建任何活动</string>
+    <string name="create_event_field_status">活动状态</string>
+    <string name="create_event_status_draft">草稿 (Draft)</string>
+    <string name="create_event_status_publish">发布 (Upcoming)</string>
 </resources>

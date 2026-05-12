@@ -22,11 +22,13 @@ import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
+import com.dudek.evenizer.models.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyEventsPage(
     themeViewModel: ThemeViewModel,
+    userViewModel: UserViewModel,
     eventViewModel: EventViewModel,
     onNavigateToDetail: (String) -> Unit,
     onBack: () -> Unit
@@ -36,6 +38,7 @@ fun MyEventsPage(
     val myEvents by eventViewModel.myEvents.collectAsState()
     val isLoading by eventViewModel.isLoading.collectAsState()
     val language by themeViewModel.language.collectAsState(initial = "id")
+    val userProfile by userViewModel.userProfile.collectAsState()
 
     LaunchedEffect(Unit) {
         eventViewModel.fetchMyEvents(context)
@@ -103,9 +106,13 @@ fun MyEventsPage(
                         contentPadding = PaddingValues(bottom = 24.dp)
                     ) {
                         items(filteredEvents) { event ->
-                            EventCard(event, language) {
-                                onNavigateToDetail(event.uuid)
-                            }
+                            EventCard(
+                                event = event,
+                                languageCode = language,
+                                userProfile = userProfile,
+                                eventViewModel = eventViewModel,
+                                onClick = { onNavigateToDetail(event.uuid) }
+                            )
                         }
                     }
                 }

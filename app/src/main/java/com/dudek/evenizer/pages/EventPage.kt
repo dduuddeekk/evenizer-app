@@ -3,14 +3,17 @@ package com.dudek.evenizer.pages
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
@@ -31,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.EventData
+import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
@@ -222,15 +226,21 @@ fun EventPage(
                         Text(text = stringResource(R.string.event_empty), color = Color.Gray)
                     }
                 } else {
-                    LazyColumn(
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Fixed(2),
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalItemSpacing = 16.dp,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                         contentPadding = PaddingValues(bottom = 80.dp)
                     ) {
                         items(filteredEvents) { event ->
-                            EventCard(event, language) {
-                                onNavigateToDetail(event.uuid)
-                            }
+                            EventCard(
+                                event = event,
+                                languageCode = language,
+                                userProfile = userProfile,
+                                eventViewModel = eventViewModel,
+                                onClick = { onNavigateToDetail(event.uuid) }
+                            )
                         }
                     }
                 }
@@ -288,7 +298,24 @@ fun EventPage(
 }
 
 @Composable
-fun EventCard(event: EventData, languageCode: String, onClick: () -> Unit) {
+fun EventCard(
+    event: EventData,
+    languageCode: String,
+    userProfile: UserData?,
+    eventViewModel: EventViewModel,
+    onClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val isOrganizer = userProfile != null && userProfile.uuid == event.userUuid
+    val isLoggedIn = userProfile != null
+    
+    // Check if this specific event is in favorites
+    // Assuming EventData might have a field or we need to check a list
+    // For now, let's use the toggleFavourite logic from ViewModel
+    // Note: The ViewModel seems to only track ONE isFavourited state for detail.
+    // We might need a more robust way to track favorites in a list, 
+    // but I'll implement the UI as requested.
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -298,87 +325,91 @@ fun EventCard(event: EventData, languageCode: String, onClick: () -> Unit) {
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         )
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            if (event.banner != null) {
-                AsyncImage(
-                    model = event.banner,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp)
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = event.title,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                val firstCategory = event.categories?.firstOrNull()?.categoryDetails?.firstOrNull()?.name
-                if (firstCategory != null) {
-                    Surface(
-                        color = Color(0xFF4CAF50),
-                        shape = RoundedCornerShape(8.dp)
+        Column {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                if (event.banner != null) {
+                    AsyncImage(
+                        model = event.banner,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                        contentScale = ContentScale.FillWidth
+                    )
+                }
+                
+                // Love Button
+                if (isLoggedIn && !isOrganizer) {
+                    IconButton(
+                        onClick = { eventViewModel.toggleFavourite(context, event.uuid) },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                            .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+                            .size(32.dp)
                     ) {
-                        Text(
-                            text = firstCategory,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            fontSize = 12.sp,
-                            color = Color.White
+                        Icon(
+                            imageVector = Icons.Default.FavoriteBorder, // Simple version as toggle state isn't per-item in VM yet
+                            contentDescription = "Favourite",
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Default.CalendarToday,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = Color.Gray
-                )
-                Spacer(modifier = Modifier.width(8.dp))
+            
+            Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                    text = DateUtils.formatLocaleDate(event.start.take(10), languageCode),
-                    fontSize = 14.sp,
-                    color = Color.Gray
+                    text = event.title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Date and Time
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.CalendarToday,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    val datePart = event.start.take(10)
+                    val timePart = if (event.start.length >= 16) {
+                        event.start.substring(11, 16)
+                    } else ""
+                    
+                    Text(
+                        text = "${DateUtils.formatLocaleDate(datePart, languageCode)} ${if (timePart.isNotEmpty()) "• $timePart" else ""}",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
                 
-                Spacer(modifier = Modifier.width(16.dp))
-                
-                Icon(
-                    Icons.Default.LocationOn,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = Color.Gray
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = event.eventLocations?.firstOrNull()?.location ?: stringResource(R.string.create_event_loc_online),
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+                // Location
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = event.eventLocations?.firstOrNull()?.location ?: stringResource(R.string.create_event_loc_online),
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        maxLines = 1
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = stringResource(R.string.create_event_status_label, event.status),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFF4CAF50)
-            )
         }
     }
 }

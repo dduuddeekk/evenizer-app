@@ -146,6 +146,7 @@ fun MainScreen(
             composable("my_events") {
                 MyEventsPage(
                     themeViewModel = themeViewModel,
+                    userViewModel = userViewModel,
                     eventViewModel = eventViewModel,
                     onNavigateToDetail = { uuid -> navController.navigate("event_detail/$uuid") },
                     onBack = { navController.popBackStack() }

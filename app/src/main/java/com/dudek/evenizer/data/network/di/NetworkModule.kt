@@ -22,6 +22,7 @@ object NetworkModule {
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
+        encodeDefaults = true
     }
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {

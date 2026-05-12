@@ -69,7 +69,9 @@ fun MainScreen(
                 tonalElevation = 8.dp
             ) {
                 navItems.forEach { item ->
-                    val selected = currentRoute == item.route || (item.route == "profile" && currentRoute == "settings")
+                    val selected = currentRoute == item.route || 
+                                   (item.route == "profile" && currentRoute == "settings") ||
+                                   (item.route == "event" && currentRoute == "create_event")
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = null) },
                         label = { 

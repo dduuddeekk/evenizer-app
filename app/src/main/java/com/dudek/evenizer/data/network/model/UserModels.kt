@@ -22,3 +22,11 @@ data class UserData(
     val updatedAt: String? = null,
     val deletedAt: String? = null
 )
+
+@Serializable
+data class RegisterRequest(
+    val firstName: String,
+    val lastName: String,
+    val email: String,
+    val password: String
+)

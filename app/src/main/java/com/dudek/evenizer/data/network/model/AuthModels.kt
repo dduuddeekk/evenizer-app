@@ -13,7 +13,8 @@ data class LoginRequest(
 data class LoginData(
     val user: UserData,
     val accessToken: String,
-    val refreshToken: String
+    val refreshToken: String,
+    val device: String? = null
 )
 
 @Serializable
@@ -24,12 +25,4 @@ data class RefreshRequest(
 @Serializable
 data class RefreshData(
     val accessToken: String
-)
-
-@Serializable
-data class RegisterRequest(
-    val firstName: String,
-    val lastName: String,
-    val email: String,
-    val password: String
 )

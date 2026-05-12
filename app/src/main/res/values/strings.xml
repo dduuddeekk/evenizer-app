@@ -114,4 +114,12 @@
     <string name="create_event_field_status">Event Status</string>
     <string name="create_event_status_draft">Draft</string>
     <string name="create_event_status_publish">Publish</string>
+    <string name="event_detail_title">Event Details</string>
+    <string name="event_detail_desc_title">About This Event</string>
+    <string name="event_detail_loc_title">Location</string>
+    <string name="event_detail_fav_added">Added to favourites</string>
+    <string name="event_detail_fav_removed">Removed from favourites</string>
+    <string name="event_detail_loading">Loading event details...</string>
+    <string name="event_detail_start">Start</string>
+    <string name="event_detail_end">End</string>
 </resources>

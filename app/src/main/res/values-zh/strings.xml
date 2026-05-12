@@ -114,4 +114,12 @@
     <string name="create_event_field_status">活动状态</string>
     <string name="create_event_status_draft">草稿 (Draft)</string>
     <string name="create_event_status_publish">发布 (Upcoming)</string>
+    <string name="event_detail_title">活动详情</string>
+    <string name="event_detail_desc_title">关于此活动</string>
+    <string name="event_detail_loc_title">地点</string>
+    <string name="event_detail_fav_added">已添加到收藏</string>
+    <string name="event_detail_fav_removed">已从收藏中移除</string>
+    <string name="event_detail_loading">正在加载活动详情...</string>
+    <string name="event_detail_start">开始</string>
+    <string name="event_detail_end">结束</string>
 </resources>

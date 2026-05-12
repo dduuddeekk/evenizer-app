@@ -28,11 +28,17 @@ class EventViewModel : ViewModel() {
     private val _myEvents = MutableStateFlow<List<EventData>>(emptyList())
     val myEvents: StateFlow<List<EventData>> = _myEvents
 
+    private val _eventDetail = MutableStateFlow<EventData?>(null)
+    val eventDetail: StateFlow<EventData?> = _eventDetail
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _createStep = MutableStateFlow(CreateEventStep.IDLE)
     val createStep: StateFlow<CreateEventStep> = _createStep
+
+    private val _isFavourited = MutableStateFlow(false)
+    val isFavourited: StateFlow<Boolean> = _isFavourited
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
@@ -67,6 +73,43 @@ class EventViewModel : ViewModel() {
                 _error.value = "Failed to fetch your events: ${e.message}"
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    fun fetchEventDetail(context: Context, uuid: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _eventDetail.value = null
+            try {
+                val service = NetworkModule.getEventService(context)
+                val response = service.getEventDetail(uuid)
+                if (response.success) {
+                    _eventDetail.value = response.data
+                    // Assuming we track favorite status locally or API provides it
+                    // For now let's say it's based on user data which we'll implement later
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to fetch event details: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun toggleFavourite(context: Context, uuid: String) {
+        viewModelScope.launch {
+            try {
+                val service = NetworkModule.getEventService(context)
+                if (_isFavourited.value) {
+                    val response = service.unfavouriteEvent(uuid)
+                    if (response.success) _isFavourited.value = false
+                } else {
+                    val response = service.favouriteEvent(uuid)
+                    if (response.success) _isFavourited.value = true
+                }
+            } catch (e: Exception) {
+                _error.value = "Favourite action failed: ${e.message}"
             }
         }
     }

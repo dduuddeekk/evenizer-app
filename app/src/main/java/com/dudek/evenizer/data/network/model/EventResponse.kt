@@ -31,3 +31,16 @@ data class Meta(
     val limit: Int,
     val totalPages: Int
 )
+
+@Serializable
+data class FavouriteResponse(
+    val success: Boolean,
+    val code: String,
+    val message: String,
+    val data: FavouriteData? = null
+)
+
+@Serializable
+data class FavouriteData(
+    val message: String
+)

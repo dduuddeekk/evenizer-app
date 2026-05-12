@@ -114,4 +114,12 @@
     <string name="create_event_field_status">Status Acara</string>
     <string name="create_event_status_draft">Simpan sebagai Draft (Draft)</string>
     <string name="create_event_status_publish">Terbitkan (Upcoming)</string>
+    <string name="event_detail_title">Detail Acara</string>
+    <string name="event_detail_desc_title">Tentang Acara Ini</string>
+    <string name="event_detail_loc_title">Lokasi</string>
+    <string name="event_detail_fav_added">Ditambahkan ke favorit</string>
+    <string name="event_detail_fav_removed">Dihapus dari favorit</string>
+    <string name="event_detail_loading">Memuat detail acara...</string>
+    <string name="event_detail_start">Mulai</string>
+    <string name="event_detail_end">Selesai</string>
 </resources>

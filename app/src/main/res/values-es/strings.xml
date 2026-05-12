@@ -113,4 +113,12 @@
     <string name="create_event_field_status">Estado del Evento</string>
     <string name="create_event_status_draft">Borrador (Draft)</string>
     <string name="create_event_status_publish">Publicar (Upcoming)</string>
+    <string name="event_detail_title">Detalles del Evento</string>
+    <string name="event_detail_desc_title">Sobre este Evento</string>
+    <string name="event_detail_loc_title">Ubicación</string>
+    <string name="event_detail_fav_added">Añadido a favoritos</string>
+    <string name="event_detail_fav_removed">Eliminado de favoritos</string>
+    <string name="event_detail_loading">Cargando detalles del evento...</string>
+    <string name="event_detail_start">Inicio</string>
+    <string name="event_detail_end">Fin</string>
 </resources>

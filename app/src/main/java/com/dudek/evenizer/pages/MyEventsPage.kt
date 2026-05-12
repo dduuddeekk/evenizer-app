@@ -28,6 +28,7 @@ import com.dudek.evenizer.models.ThemeViewModel
 fun MyEventsPage(
     themeViewModel: ThemeViewModel,
     eventViewModel: EventViewModel,
+    onNavigateToDetail: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -102,7 +103,9 @@ fun MyEventsPage(
                         contentPadding = PaddingValues(bottom = 24.dp)
                     ) {
                         items(filteredEvents) { event ->
-                            EventCard(event, language)
+                            EventCard(event, language) {
+                                onNavigateToDetail(event.uuid)
+                            }
                         }
                     }
                 }

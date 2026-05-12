@@ -113,4 +113,12 @@
     <string name="create_event_field_status">Статус мероприятия</string>
     <string name="create_event_status_draft">Черновик (Draft)</string>
     <string name="create_event_status_publish">Опубликовать (Upcoming)</string>
+    <string name="event_detail_title">Детали мероприятия</string>
+    <string name="event_detail_desc_title">Об этом мероприятии</string>
+    <string name="event_detail_loc_title">Локация</string>
+    <string name="event_detail_fav_added">Добавлено в избранное</string>
+    <string name="event_detail_fav_removed">Удалено из избранного</string>
+    <string name="event_detail_loading">Загрузка деталей мероприятия...</string>
+    <string name="event_detail_start">Начало</string>
+    <string name="event_detail_end">Конец</string>
 </resources>

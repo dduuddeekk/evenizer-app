@@ -46,6 +46,7 @@ fun EventPage(
     eventViewModel: EventViewModel,
     onNavigateToCreate: () -> Unit,
     onNavigateToMyEvents: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
     val context = LocalContext.current
@@ -227,7 +228,9 @@ fun EventPage(
                         contentPadding = PaddingValues(bottom = 80.dp)
                     ) {
                         items(filteredEvents) { event ->
-                            EventCard(event, language)
+                            EventCard(event, language) {
+                                onNavigateToDetail(event.uuid)
+                            }
                         }
                     }
                 }
@@ -285,9 +288,11 @@ fun EventPage(
 }
 
 @Composable
-fun EventCard(event: EventData, languageCode: String) {
+fun EventCard(event: EventData, languageCode: String, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)

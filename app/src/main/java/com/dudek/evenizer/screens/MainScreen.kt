@@ -30,6 +30,7 @@ import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.pages.CreateEventPage
+import com.dudek.evenizer.pages.EventDetailPage
 import com.dudek.evenizer.pages.EventPage
 import com.dudek.evenizer.pages.MyEventsPage
 import com.dudek.evenizer.pages.HomePage
@@ -119,8 +120,19 @@ fun MainScreen(
                     eventViewModel = eventViewModel,
                     onNavigateToCreate = { navController.navigate("create_event") },
                     onNavigateToMyEvents = { navController.navigate("my_events") },
+                    onNavigateToDetail = { uuid -> navController.navigate("event_detail/$uuid") },
                     onNavigateToLogin = onNavigateToLogin
                 ) 
+            }
+            composable("event_detail/{uuid}") { backStackEntry ->
+                val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                EventDetailPage(
+                    uuid = uuid,
+                    themeViewModel = themeViewModel,
+                    userViewModel = userViewModel,
+                    eventViewModel = eventViewModel,
+                    onBack = { navController.popBackStack() }
+                )
             }
             composable("create_event") {
                 CreateEventPage(
@@ -135,6 +147,7 @@ fun MainScreen(
                 MyEventsPage(
                     themeViewModel = themeViewModel,
                     eventViewModel = eventViewModel,
+                    onNavigateToDetail = { uuid -> navController.navigate("event_detail/$uuid") },
                     onBack = { navController.popBackStack() }
                 )
             }

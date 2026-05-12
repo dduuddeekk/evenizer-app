@@ -3,6 +3,7 @@ package com.dudek.evenizer.data.network.service
 import com.dudek.evenizer.data.network.model.CreateEventRequest
 import com.dudek.evenizer.data.network.model.EventListResponse
 import com.dudek.evenizer.data.network.model.EventResponse
+import com.dudek.evenizer.data.network.model.FavouriteResponse
 import okhttp3.MultipartBody
 import retrofit2.http.*
 
@@ -42,4 +43,13 @@ interface EventService {
         @Query("sortOrder") sortOrder: String? = "desc",
         @Query("groupBy") groupBy: String? = null
     ): EventListResponse
+
+    @GET("event/{uuid}")
+    suspend fun getEventDetail(@Path("uuid") uuid: String): EventResponse
+
+    @POST("event/{uuid}/favourite")
+    suspend fun favouriteEvent(@Path("uuid") uuid: String): FavouriteResponse
+
+    @DELETE("event/{uuid}/favourite")
+    suspend fun unfavouriteEvent(@Path("uuid") uuid: String): FavouriteResponse
 }

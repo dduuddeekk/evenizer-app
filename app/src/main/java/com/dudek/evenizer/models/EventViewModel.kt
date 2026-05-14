@@ -64,41 +64,11 @@ class EventViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Mock Data for testing spacing and layout (10 events)
-                val mockEvents = (1..10).map { i ->
-                    EventData(
-                        uuid = "$i",
-                        title = when(i) {
-                            1 -> "Music Concert 2024"
-                            2 -> "Tech Workshop: Jetpack Compose"
-                            3 -> "Art Gallery Exhibition"
-                            4 -> "Food & Beverage Festival"
-                            5 -> "Startup Networking Night"
-                            6 -> "Yoga & Wellness Retreat"
-                            7 -> "Photography Masterclass"
-                            8 -> "Business Strategy Summit"
-                            9 -> "Charity Run for Education"
-                            else -> "Movie Premiere Night"
-                        },
-                        description = "This is a detailed description for event number $i. It includes information about the venue and agenda.",
-                        start = "2024-06-${10 + i}T19:00:00Z",
-                        end = "2024-06-${10 + i}T22:00:00Z",
-                        status = if (i % 3 == 0) "DRAFT" else "UPCOMING",
-                        isPublic = i % 2 != 0,
-                        createdAt = "2024-05-01T10:00:00Z",
-                        updatedAt = "2024-05-01T10:00:00Z"
-                    )
-                }
-                _myEvents.value = mockEvents
-                
-                // Actual API call commented out for now
-                /*
                 val service = NetworkModule.getEventService(context)
                 val response = service.getMyEvents(search = search, category = category)
                 if (response.success) {
                     _myEvents.value = response.data?.data ?: emptyList()
                 }
-                */
             } catch (e: Exception) {
                 _error.value = "Failed to fetch your events: ${e.message}"
             } finally {

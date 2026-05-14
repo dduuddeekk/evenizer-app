@@ -121,4 +121,7 @@
     <string name="event_detail_loading">Cargando detalles del evento...</string>
     <string name="event_detail_start">Inicio</string>
     <string name="event_detail_end">Fin</string>
+    <string name="delete_event_title">¿Eliminar evento?</string>
+    <string name="delete_event_desc">¿Estás seguro de que quieres eliminar este evento? Esta acción no se dapat deshacer.</string>
+    <string name="btn_delete">Eliminar</string>
 </resources>

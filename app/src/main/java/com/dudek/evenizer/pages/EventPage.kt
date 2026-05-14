@@ -65,7 +65,6 @@ fun EventPage(
     val showLoginDialog = remember { mutableStateOf(false) }
     val showVerifyDialog = remember { mutableStateOf(false) }
     var showFabMenu by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf<EventData?>(null) }
     
     val userProfile by userViewModel.userProfile.collectAsState()
     val language by themeViewModel.language.collectAsState(initial = "id")
@@ -149,31 +148,6 @@ fun EventPage(
                     confirmButton = {
                         TextButton(onClick = { showVerifyDialog.value = false }) {
                             Text(stringResource(R.string.btn_ok), color = Color(0xFF4CAF50))
-                        }
-                    }
-                )
-            }
-
-            if (showDeleteDialog != null) {
-                AlertDialog(
-                    onDismissRequest = { showDeleteDialog = null },
-                    title = { Text(stringResource(R.string.delete_event_title)) },
-                    text = { Text(stringResource(R.string.delete_event_desc, showDeleteDialog?.title ?: "")) },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showDeleteDialog?.let { event ->
-                                    eventViewModel.deleteEvent(context, event.uuid)
-                                }
-                                showDeleteDialog = null
-                            }
-                        ) {
-                            Text(stringResource(R.string.btn_delete), color = Color.Red)
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showDeleteDialog = null }) {
-                            Text(stringResource(R.string.btn_cancel))
                         }
                     }
                 )
@@ -270,7 +244,7 @@ fun EventPage(
                                 userProfile = userProfile,
                                 eventViewModel = eventViewModel,
                                 onNavigateToDetail = { onNavigateToDetail(event.uuid) },
-                                onDelete = { showDeleteDialog = event }
+                                onDelete = null
                             )
                         }
                     }
@@ -387,7 +361,7 @@ fun EventCard(
     userProfile: UserData?,
     eventViewModel: EventViewModel,
     onNavigateToDetail: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val isOrganizer = userProfile != null && userProfile.uuid == event.userUuid
@@ -423,7 +397,7 @@ fun EventCard(
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    if (isOrganizer) {
+                    if (isOrganizer && onDelete != null) {
                         IconButton(
                             onClick = onDelete,
                             modifier = Modifier

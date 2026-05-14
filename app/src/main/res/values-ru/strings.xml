@@ -121,4 +121,7 @@
     <string name="event_detail_loading">Загрузка деталей мероприятия...</string>
     <string name="event_detail_start">Начало</string>
     <string name="event_detail_end">Конец</string>
+    <string name="delete_event_title">Удалить мероприятие?</string>
+    <string name="delete_event_desc">Вы уверены, что хотите удалить это мероприятие? Это действие невозможно отменить.</string>
+    <string name="btn_delete">Удалить</string>
 </resources>

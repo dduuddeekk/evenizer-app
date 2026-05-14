@@ -122,4 +122,7 @@
     <string name="event_detail_loading">正在加载活动详情...</string>
     <string name="event_detail_start">开始</string>
     <string name="event_detail_end">结束</string>
+    <string name="delete_event_title">删除活动？</string>
+    <string name="delete_event_desc">您确定要删除此活动吗？此操作无法撤销。</string>
+    <string name="btn_delete">删除</string>
 </resources>

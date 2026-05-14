@@ -15,9 +15,14 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 object NetworkModule {
-    private const val BASE_URL = BuildConfig.BASE_URL
+    private val BASE_URL = if (BuildConfig.BASE_URL.endsWith("/")) {
+        BuildConfig.BASE_URL
+    } else {
+        "${BuildConfig.BASE_URL}/"
+    }
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -43,6 +48,9 @@ object NetworkModule {
     
     @Volatile
     private var tokenManagerInstance: TokenManager? = null
+
+    @Volatile
+    private var authenticatedClient: OkHttpClient? = null
 
     fun getTokenManager(context: Context): TokenManager {
         return tokenManagerInstance ?: synchronized(this) {
@@ -74,84 +82,67 @@ object NetworkModule {
         }
     }
 
+    private fun getBaseOkHttpClientBuilder(): OkHttpClient.Builder {
+        return OkHttpClient.Builder()
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
+            .addInterceptor(loggingInterceptor)
+    }
+
+    private fun getAuthenticatedClient(context: Context): OkHttpClient {
+        return authenticatedClient ?: synchronized(this) {
+            authenticatedClient ?: run {
+                val tokenManager = getTokenManager(context)
+                
+                // Base retrofit for "simple" auth service used in authenticator
+                val authRetrofit = Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+                    .build()
+                val simpleAuthService = authRetrofit.create(AuthService::class.java)
+
+                getBaseOkHttpClientBuilder()
+                    .addInterceptor(AuthInterceptor(tokenManager))
+                    .authenticator(TokenAuthenticator(tokenManager, simpleAuthService))
+                    .build()
+                    .also { authenticatedClient = it }
+            }
+        }
+    }
+
     private fun buildApiService(): ApiService {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .client(getBaseOkHttpClientBuilder().build())
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(ApiService::class.java)
     }
 
     private fun buildAuthService(context: Context): AuthService {
-        val tokenManager = getTokenManager(context)
-
-        // Separate retrofit for auth to avoid circular dependency in Authenticator
-        val authRetrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-
-        val simpleAuthService = authRetrofit.create(AuthService::class.java)
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(tokenManager))
-            .addInterceptor(loggingInterceptor)
-            .authenticator(TokenAuthenticator(tokenManager, simpleAuthService))
-            .build()
-
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient)
+            .client(getAuthenticatedClient(context))
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(AuthService::class.java)
     }
 
     private fun buildUserService(context: Context): UserService {
-        val tokenManager = getTokenManager(context)
-        
-        // We need an AuthService for the TokenAuthenticator
-        // To avoid redundant builds, we can use the simpleAuthService pattern or just use the same client
-        val authRetrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-
-        val simpleAuthService = authRetrofit.create(AuthService::class.java)
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(tokenManager))
-            .addInterceptor(loggingInterceptor)
-            .authenticator(TokenAuthenticator(tokenManager, simpleAuthService))
-            .build()
-
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient)
+            .client(getAuthenticatedClient(context))
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(UserService::class.java)
     }
 
     private fun buildEventService(context: Context): EventService {
-        val tokenManager = getTokenManager(context)
-        
-        val authRetrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .build()
-
-        val simpleAuthService = authRetrofit.create(AuthService::class.java)
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(tokenManager))
-            .addInterceptor(loggingInterceptor)
-            .authenticator(TokenAuthenticator(tokenManager, simpleAuthService))
-            .build()
-
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient)
+            .client(getAuthenticatedClient(context))
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(EventService::class.java)

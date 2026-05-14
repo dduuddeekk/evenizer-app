@@ -24,6 +24,9 @@ interface EventService {
     @POST("event")
     suspend fun createEvent(@Body request: CreateEventRequest): EventResponse
 
+    @DELETE("event/{uuid}")
+    suspend fun deleteEvent(@Path("uuid") uuid: String): com.dudek.evenizer.data.network.model.DeleteEventResponse
+
     @Multipart
     @PATCH("event/{uuid}/banner")
     suspend fun uploadBanner(

@@ -122,4 +122,7 @@
     <string name="event_detail_loading">Loading event details...</string>
     <string name="event_detail_start">Start</string>
     <string name="event_detail_end">End</string>
+    <string name="delete_event_title">Delete Event</string>
+    <string name="delete_event_desc">Are you sure you want to delete \"%1$s\"? This action cannot be undone.</string>
+    <string name="btn_delete">Delete</string>
 </resources>

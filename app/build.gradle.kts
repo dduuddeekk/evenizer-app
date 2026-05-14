@@ -26,7 +26,7 @@ android {
             properties.load(inputStream)
             inputStream.close()
         }
-        val baseUrl = properties.getProperty("BASE_URL") ?: ""
+        val baseUrl = properties.getProperty("BASE_URL")?.removeSurrounding("\"") ?: ""
         buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 

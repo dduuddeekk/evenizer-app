@@ -64,11 +64,41 @@ class EventViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                // Mock Data for testing spacing and layout (10 events)
+                val mockEvents = (1..10).map { i ->
+                    EventData(
+                        uuid = "$i",
+                        title = when(i) {
+                            1 -> "Music Concert 2024"
+                            2 -> "Tech Workshop: Jetpack Compose"
+                            3 -> "Art Gallery Exhibition"
+                            4 -> "Food & Beverage Festival"
+                            5 -> "Startup Networking Night"
+                            6 -> "Yoga & Wellness Retreat"
+                            7 -> "Photography Masterclass"
+                            8 -> "Business Strategy Summit"
+                            9 -> "Charity Run for Education"
+                            else -> "Movie Premiere Night"
+                        },
+                        description = "This is a detailed description for event number $i. It includes information about the venue and agenda.",
+                        start = "2024-06-${10 + i}T19:00:00Z",
+                        end = "2024-06-${10 + i}T22:00:00Z",
+                        status = if (i % 3 == 0) "DRAFT" else "UPCOMING",
+                        isPublic = i % 2 != 0,
+                        createdAt = "2024-05-01T10:00:00Z",
+                        updatedAt = "2024-05-01T10:00:00Z"
+                    )
+                }
+                _myEvents.value = mockEvents
+                
+                // Actual API call commented out for now
+                /*
                 val service = NetworkModule.getEventService(context)
                 val response = service.getMyEvents(search = search, category = category)
                 if (response.success) {
                     _myEvents.value = response.data?.data ?: emptyList()
                 }
+                */
             } catch (e: Exception) {
                 _error.value = "Failed to fetch your events: ${e.message}"
             } finally {
@@ -148,9 +178,17 @@ class EventViewModel : ViewModel() {
                 val response = eventService.createEvent(request)
                 
                 if (response.success && response.data != null) {
+                    val eventUuid = response.data.uuid
                     if (bannerUri != null) {
                         _createStep.value = CreateEventStep.UPLOADING_BANNER
-                        uploadBanner(context, response.data.uuid, bannerUri)
+                        val uploadSuccess = uploadBanner(context, eventUuid, bannerUri)
+                        if (uploadSuccess) {
+                            _createStep.value = CreateEventStep.SUCCESS
+                        } else {
+                            // Cleanup: Delete the event if banner upload failed
+                            deleteEventSilently(context, eventUuid)
+                            _createStep.value = CreateEventStep.ERROR
+                        }
                     } else {
                         _createStep.value = CreateEventStep.SUCCESS
                     }
@@ -165,8 +203,8 @@ class EventViewModel : ViewModel() {
         }
     }
 
-    private suspend fun uploadBanner(context: Context, uuid: String, bannerUri: Uri) {
-        try {
+    private suspend fun uploadBanner(context: Context, uuid: String, bannerUri: Uri): Boolean {
+        return try {
             val eventService = NetworkModule.getEventService(context)
             val mimeType = context.contentResolver.getType(bannerUri) ?: "image/jpeg"
             val extension = when (mimeType) {
@@ -183,15 +221,18 @@ class EventViewModel : ViewModel() {
                 
                 val response = eventService.uploadBanner(uuid, body)
                 if (response.success) {
-                    _createStep.value = CreateEventStep.SUCCESS
+                    true
                 } else {
                     _error.value = response.message
-                    _createStep.value = CreateEventStep.ERROR
+                    false
                 }
+            } else {
+                _error.value = "Could not process image file"
+                false
             }
         } catch (e: Exception) {
             _error.value = "Failed to upload banner: ${e.message}"
-            _createStep.value = CreateEventStep.ERROR
+            false
         }
     }
 
@@ -209,5 +250,37 @@ class EventViewModel : ViewModel() {
     fun resetState() {
         _createStep.value = CreateEventStep.IDLE
         _error.value = null
+    }
+
+    fun deleteEvent(context: Context, uuid: String, onSuccess: () -> Unit = {}) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getEventService(context)
+                val response = service.deleteEvent(uuid)
+                if (response.success) {
+                    // Update the lists
+                    _myEvents.value = _myEvents.value.filter { it.uuid != uuid }
+                    _events.value = _events.value.filter { it.uuid != uuid }
+                    onSuccess()
+                } else {
+                    _error.value = response.message
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to delete event: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    private suspend fun deleteEventSilently(context: Context, uuid: String) {
+        try {
+            val service = NetworkModule.getEventService(context)
+            service.deleteEvent(uuid)
+        } catch (e: Exception) {
+            // Log error but don't show to user as we are already showing a creation error
+            e.printStackTrace()
+        }
     }
 }

@@ -139,7 +139,9 @@ fun MainScreen(
                     eventViewModel = eventViewModel,
                     onBack = { navController.popBackStack() },
                     onSuccess = { 
-                        navController.popBackStack()
+                        navController.navigate("my_events") {
+                            popUpTo("event") { inclusive = false }
+                        }
                     }
                 )
             }
@@ -149,6 +151,7 @@ fun MainScreen(
                     userViewModel = userViewModel,
                     eventViewModel = eventViewModel,
                     onNavigateToDetail = { uuid -> navController.navigate("event_detail/$uuid") },
+                    onNavigateToCreate = { navController.navigate("create_event") },
                     onBack = { navController.popBackStack() }
                 )
             }

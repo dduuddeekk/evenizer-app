@@ -122,4 +122,7 @@
     <string name="event_detail_loading">Memuat detail acara...</string>
     <string name="event_detail_start">Mulai</string>
     <string name="event_detail_end">Selesai</string>
+    <string name="delete_event_title">Hapus Acara</string>
+    <string name="delete_event_desc">Apakah Anda yakin ingin menghapus \"%1$s\"? Tindakan ini tidak dapat dibatalkan.</string>
+    <string name="btn_delete">Hapus</string>
 </resources>

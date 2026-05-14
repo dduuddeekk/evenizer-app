@@ -1,7 +1,10 @@
 package com.dudek.evenizer.pages
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -12,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
@@ -61,6 +65,7 @@ fun EventPage(
     val showLoginDialog = remember { mutableStateOf(false) }
     val showVerifyDialog = remember { mutableStateOf(false) }
     var showFabMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf<EventData?>(null) }
     
     val userProfile by userViewModel.userProfile.collectAsState()
     val language by themeViewModel.language.collectAsState(initial = "id")
@@ -144,6 +149,31 @@ fun EventPage(
                     confirmButton = {
                         TextButton(onClick = { showVerifyDialog.value = false }) {
                             Text(stringResource(R.string.btn_ok), color = Color(0xFF4CAF50))
+                        }
+                    }
+                )
+            }
+
+            if (showDeleteDialog != null) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = null },
+                    title = { Text(stringResource(R.string.delete_event_title)) },
+                    text = { Text(stringResource(R.string.delete_event_desc, showDeleteDialog?.title ?: "")) },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                showDeleteDialog?.let { event ->
+                                    eventViewModel.deleteEvent(context, event.uuid)
+                                }
+                                showDeleteDialog = null
+                            }
+                        ) {
+                            Text(stringResource(R.string.btn_delete), color = Color.Red)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteDialog = null }) {
+                            Text(stringResource(R.string.btn_cancel))
                         }
                     }
                 )
@@ -239,7 +269,8 @@ fun EventPage(
                                 languageCode = language,
                                 userProfile = userProfile,
                                 eventViewModel = eventViewModel,
-                                onClick = { onNavigateToDetail(event.uuid) }
+                                onNavigateToDetail = { onNavigateToDetail(event.uuid) },
+                                onDelete = { showDeleteDialog = event }
                             )
                         }
                     }
@@ -247,52 +278,104 @@ fun EventPage(
             }
         }
 
+        // Background Dim when FAB is open
+        if (showFabMenu) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { showFabMenu = false }
+            )
+        }
+
         // Expanded FAB Menu
-        Box(
+        Column(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            DropdownMenu(
-                expanded = showFabMenu,
-                onDismissRequest = { showFabMenu = false },
-                offset = DpOffset(0.dp, (-8).dp),
-                modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+            AnimatedVisibility(
+                visible = showFabMenu,
+                enter = fadeIn() + expandVertically() + slideInVertically { it / 2 },
+                exit = fadeOut() + shrinkVertically() + slideOutVertically { it / 2 }
             ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.event_menu_create)) },
-                    onClick = {
-                        showFabMenu = false
-                        if (userProfile == null) {
-                            showLoginDialog.value = true
-                        } else if (userProfile?.isEmailVerified == false) {
-                            showVerifyDialog.value = true
-                        } else {
-                            onNavigateToCreate()
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Create Event Menu Item
+                    FabMenuItem(
+                        label = stringResource(R.string.event_menu_create),
+                        onClick = {
+                            showFabMenu = false
+                            if (userProfile == null) {
+                                showLoginDialog.value = true
+                            } else if (userProfile?.isEmailVerified == false) {
+                                showVerifyDialog.value = true
+                            } else {
+                                onNavigateToCreate()
+                            }
                         }
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.event_menu_my_events)) },
-                    onClick = {
-                        showFabMenu = false
-                        if (userProfile == null) {
-                            showLoginDialog.value = true
-                        } else {
-                            onNavigateToMyEvents()
+                    )
+
+                    // My Events Menu Item
+                    FabMenuItem(
+                        label = stringResource(R.string.event_menu_my_events),
+                        onClick = {
+                            showFabMenu = false
+                            if (userProfile == null) {
+                                showLoginDialog.value = true
+                            } else {
+                                onNavigateToMyEvents()
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
 
             FloatingActionButton(
                 onClick = { showFabMenu = !showFabMenu },
                 containerColor = Color(0xFF4CAF50),
                 contentColor = Color.White,
-                shape = CircleShape
+                shape = CircleShape,
+                modifier = Modifier.size(56.dp)
             ) {
-                Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
+                    Icon(
+                        imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
+                        contentDescription = "More Options",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun FabMenuItem(
+    label: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 4.dp,
+        modifier = Modifier.wrapContentSize()
+    ) {
+        PaddingValues(horizontal = 16.dp, vertical = 8.dp).let {
+            Text(
+                text = label,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
@@ -303,23 +386,17 @@ fun EventCard(
     languageCode: String,
     userProfile: UserData?,
     eventViewModel: EventViewModel,
-    onClick: () -> Unit
+    onNavigateToDetail: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val context = LocalContext.current
     val isOrganizer = userProfile != null && userProfile.uuid == event.userUuid
     val isLoggedIn = userProfile != null
     
-    // Check if this specific event is in favorites
-    // Assuming EventData might have a field or we need to check a list
-    // For now, let's use the toggleFavourite logic from ViewModel
-    // Note: The ViewModel seems to only track ONE isFavourited state for detail.
-    // We might need a more robust way to track favorites in a list, 
-    // but I'll implement the UI as requested.
-    
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onNavigateToDetail() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
@@ -339,22 +416,43 @@ fun EventCard(
                     )
                 }
                 
-                // Love Button
-                if (isLoggedIn && !isOrganizer) {
-                    IconButton(
-                        onClick = { eventViewModel.toggleFavourite(context, event.uuid) },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(4.dp)
-                            .background(Color.Black.copy(alpha = 0.3f), CircleShape)
-                            .size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FavoriteBorder, // Simple version as toggle state isn't per-item in VM yet
-                            contentDescription = "Favourite",
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
-                        )
+                // Action Buttons
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (isOrganizer) {
+                        IconButton(
+                            onClick = onDelete,
+                            modifier = Modifier
+                                .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+                                .size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+
+                    if (isLoggedIn && !isOrganizer) {
+                        IconButton(
+                            onClick = { eventViewModel.toggleFavourite(context, event.uuid) },
+                            modifier = Modifier
+                                .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+                                .size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.FavoriteBorder,
+                                contentDescription = "Favourite",
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
                 }
             }

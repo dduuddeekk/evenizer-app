@@ -117,19 +117,31 @@ fun CreateEventPage(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        TopAppBar(
-            title = { Text(stringResource(R.string.create_event_title), fontWeight = FontWeight.Bold) },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.create_event_back_desc))
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                titleContentColor = Color(0xFF4CAF50)
+        // Header (Algorithm from SettingsPage)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color(0xFF4CAF50)
+                )
+            }
+            Text(
+                text = stringResource(R.string.create_event_title),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4CAF50),
+                modifier = Modifier.padding(start = 8.dp)
             )
-        )
-        
+        }
+
+        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
         Column(
             modifier = Modifier
                 .fillMaxSize()

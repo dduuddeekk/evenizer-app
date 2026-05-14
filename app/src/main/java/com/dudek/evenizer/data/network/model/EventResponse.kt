@@ -44,3 +44,16 @@ data class FavouriteResponse(
 data class FavouriteData(
     val message: String
 )
+
+@Serializable
+data class DeleteEventResponse(
+    val success: Boolean,
+    val code: String,
+    val message: String,
+    val data: DeleteEventData? = null
+)
+
+@Serializable
+data class DeleteEventData(
+    val message: String
+)

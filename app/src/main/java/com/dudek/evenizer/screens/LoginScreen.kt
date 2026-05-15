@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
@@ -35,9 +36,6 @@ fun LoginScreen(
     onLoginAsGuest: () -> Unit,
     authViewModel: AuthViewModel
 ) {
-    var identifier by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
     val loginState by authViewModel.loginState.collectAsState()
 
     LaunchedEffect(loginState) {
@@ -45,6 +43,25 @@ fun LoginScreen(
             onLoginSuccess()
         }
     }
+
+    LoginScreenContent(
+        loginState = loginState,
+        onLogin = { identifier, password -> authViewModel.login(identifier, password) },
+        onNavigateToRegister = onNavigateToRegister,
+        onLoginAsGuest = onLoginAsGuest
+    )
+}
+
+@Composable
+fun LoginScreenContent(
+    loginState: LoginState,
+    onLogin: (String, String) -> Unit,
+    onNavigateToRegister: () -> Unit,
+    onLoginAsGuest: () -> Unit
+) {
+    var identifier by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -70,7 +87,7 @@ fun LoginScreen(
 
         if (loginState is LoginState.Error) {
             Text(
-                text = (loginState as LoginState.Error).message,
+                text = loginState.message,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -128,7 +145,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { authViewModel.login(identifier, password) },
+            onClick = { onLogin(identifier, password) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -206,4 +223,15 @@ fun LoginScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    LoginScreenContent(
+        loginState = LoginState.Idle,
+        onLogin = { _, _ -> },
+        onNavigateToRegister = {},
+        onLoginAsGuest = {}
+    )
 }

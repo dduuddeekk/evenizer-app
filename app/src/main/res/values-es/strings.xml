@@ -124,4 +124,13 @@
     <string name="delete_event_title">¿Eliminar evento?</string>
     <string name="delete_event_desc">¿Estás seguro de que quieres eliminar este evento? Esta acción no se dapat deshacer.</string>
     <string name="btn_delete">Eliminar</string>
+    <string name="organizer_menu_create">Crear Organizador</string>
+    <string name="organizer_menu_my">Mis Organizadores</string>
+    <string name="my_organizers_title">Mis Organizadores</string>
+    <string name="my_organizers_empty">Aún no has registrado ningún organizador</string>
+    <string name="create_organizer_title">Crear Organizador</string>
+    <string name="create_organizer_field_name">Nombre del Organizador</string>
+    <string name="create_organizer_field_desc">Descripción</string>
+    <string name="create_organizer_field_contact">Email/Teléfono de Contacto</string>
+    <string name="create_organizer_btn_create">Registrar Organizador</string>
 </resources>

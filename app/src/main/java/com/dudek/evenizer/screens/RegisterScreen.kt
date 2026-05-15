@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
@@ -38,14 +39,6 @@ fun RegisterScreen(
     authViewModel: AuthViewModel,
     userViewModel: UserViewModel
 ) {
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
-
     val registerState by userViewModel.registerState.collectAsState()
     val loginState by authViewModel.loginState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -55,6 +48,37 @@ fun RegisterScreen(
             onRegisterSuccess()
         }
     }
+
+    RegisterScreenContent(
+        registerState = registerState,
+        loginState = loginState,
+        onRegister = { fn, ln, email, pwd ->
+            userViewModel.register(fn, ln, email, pwd) {
+                authViewModel.login(email, pwd) {
+                    scope.launch {
+                        userViewModel.fetchProfile()
+                    }
+                }
+            }
+        },
+        onNavigateToLogin = onNavigateToLogin
+    )
+}
+
+@Composable
+fun RegisterScreenContent(
+    registerState: RegisterState,
+    loginState: LoginState,
+    onRegister: (String, String, String, String) -> Unit,
+    onNavigateToLogin: () -> Unit
+) {
+    var firstName by remember { mutableStateOf("") }
+    var lastName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     // Validation
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
@@ -91,7 +115,7 @@ fun RegisterScreen(
 
         if (registerState is RegisterState.Error) {
             Text(
-                text = (registerState as RegisterState.Error).message,
+                text = registerState.message,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -203,15 +227,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { 
-                userViewModel.register(firstName, lastName, email, password) {
-                    authViewModel.login(email, password) {
-                        scope.launch {
-                            userViewModel.fetchProfile()
-                        }
-                    }
-                } 
-            },
+            onClick = { onRegister(firstName, lastName, email, password) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -283,4 +299,15 @@ fun RegisterScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RegisterScreenPreview() {
+    RegisterScreenContent(
+        registerState = RegisterState.Idle,
+        loginState = LoginState.Idle,
+        onRegister = { _, _, _, _ -> },
+        onNavigateToLogin = {}
+    )
 }

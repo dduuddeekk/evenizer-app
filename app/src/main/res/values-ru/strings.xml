@@ -124,4 +124,13 @@
     <string name="delete_event_title">Удалить мероприятие?</string>
     <string name="delete_event_desc">Вы уверены, что хотите удалить это мероприятие? Это действие невозможно отменить.</string>
     <string name="btn_delete">Удалить</string>
+    <string name="organizer_menu_create">Создать организатора</string>
+    <string name="organizer_menu_my">Мои организаторы</string>
+    <string name="my_organizers_title">Мои организаторы</string>
+    <string name="my_organizers_empty">Вы еще не зарегистрировали ни одного организатора</string>
+    <string name="create_organizer_title">Создать организатора</string>
+    <string name="create_organizer_field_name">Название организатора</string>
+    <string name="create_organizer_field_desc">Описание</string>
+    <string name="create_organizer_field_contact">Контактный Email/Телефон</string>
+    <string name="create_organizer_btn_create">Зарегистрировать организатора</string>
 </resources>

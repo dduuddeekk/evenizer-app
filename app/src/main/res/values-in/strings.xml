@@ -125,4 +125,13 @@
     <string name="delete_event_title">Hapus Acara?</string>
     <string name="delete_event_desc">Apakah Anda yakin ingin menghapus acara ini? Tindakan ini tidak dapat dibatalkan.</string>
     <string name="btn_delete">Hapus</string>
+    <string name="organizer_menu_create">Daftarkan Penyelenggara</string>
+    <string name="organizer_menu_my">Penyelenggara Saya</string>
+    <string name="my_organizers_title">Penyelenggara Saya</string>
+    <string name="my_organizers_empty">Anda belum mendaftarkan penyelenggara apa pun</string>
+    <string name="create_organizer_title">Daftar Penyelenggara</string>
+    <string name="create_organizer_field_name">Nama Penyelenggara</string>
+    <string name="create_organizer_field_desc">Deskripsi</string>
+    <string name="create_organizer_field_contact">Email/Telepon Kontak</string>
+    <string name="create_organizer_btn_create">Daftarkan Penyelenggara</string>
 </resources>

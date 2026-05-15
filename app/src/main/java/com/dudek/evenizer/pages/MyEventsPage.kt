@@ -19,15 +19,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.EventData
+import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyEventsPage(
     themeViewModel: ThemeViewModel,
@@ -38,22 +39,48 @@ fun MyEventsPage(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val searchQuery = remember { mutableStateOf("") }
     val myEvents by eventViewModel.myEvents.collectAsState()
     val isLoading by eventViewModel.isLoading.collectAsState()
     val language by themeViewModel.language.collectAsState(initial = "id")
     val userProfile by userViewModel.userProfile.collectAsState()
-    
-    var showDeleteDialog by remember { mutableStateOf<EventData?>(null) }
 
     LaunchedEffect(Unit) {
         eventViewModel.fetchMyEvents(context)
     }
 
+    MyEventsPageContent(
+        myEvents = myEvents,
+        isLoading = isLoading,
+        language = language,
+        userProfile = userProfile,
+        onBack = onBack,
+        onRefresh = { eventViewModel.fetchMyEvents(context) },
+        onDeleteEvent = { uuid -> eventViewModel.deleteEvent(context, uuid) },
+        onNavigateToDetail = onNavigateToDetail,
+        onNavigateToCreate = onNavigateToCreate
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyEventsPageContent(
+    myEvents: List<EventData>,
+    isLoading: Boolean,
+    language: String,
+    userProfile: UserData?,
+    onBack: () -> Unit,
+    onRefresh: () -> Unit,
+    onDeleteEvent: (String) -> Unit,
+    onNavigateToDetail: (String) -> Unit,
+    onNavigateToCreate: () -> Unit
+) {
+    val searchQuery = remember { mutableStateOf("") }
+    var showDeleteDialog by remember { mutableStateOf<EventData?>(null) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         PullToRefreshBox(
             isRefreshing = isLoading,
-            onRefresh = { eventViewModel.fetchMyEvents(context) },
+            onRefresh = onRefresh,
             modifier = Modifier.fillMaxSize()
         ) {
             Column(
@@ -90,12 +117,12 @@ fun MyEventsPage(
                     AlertDialog(
                         onDismissRequest = { showDeleteDialog = null },
                         title = { Text(stringResource(R.string.delete_event_title)) },
-                        text = { Text(stringResource(R.string.delete_event_desc, showDeleteDialog?.title ?: "")) },
+                        text = { Text(stringResource(R.string.delete_event_desc)) },
                         confirmButton = {
                             TextButton(
                                 onClick = {
                                     showDeleteDialog?.let { event ->
-                                        eventViewModel.deleteEvent(context, event.uuid)
+                                        onDeleteEvent(event.uuid)
                                     }
                                     showDeleteDialog = null
                                 }
@@ -154,7 +181,6 @@ fun MyEventsPage(
                                     event = event,
                                     languageCode = language,
                                     userProfile = userProfile,
-                                    eventViewModel = eventViewModel,
                                     onNavigateToDetail = { onNavigateToDetail(event.uuid) },
                                     onDelete = { showDeleteDialog = event }
                                 )
@@ -177,4 +203,20 @@ fun MyEventsPage(
             Icon(Icons.Default.Add, contentDescription = "Create Event")
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MyEventsPagePreview() {
+    MyEventsPageContent(
+        myEvents = emptyList(),
+        isLoading = false,
+        language = "id",
+        userProfile = null,
+        onBack = {},
+        onRefresh = {},
+        onDeleteEvent = {},
+        onNavigateToDetail = {},
+        onNavigateToCreate = {}
+    )
 }

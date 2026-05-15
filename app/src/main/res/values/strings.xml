@@ -125,4 +125,13 @@
     <string name="delete_event_title">Delete Event?</string>
     <string name="delete_event_desc">Are you sure you want to delete this event? This action cannot be undone.</string>
     <string name="btn_delete">Delete</string>
+    <string name="organizer_menu_create">Create Organizer</string>
+    <string name="organizer_menu_my">My Organizers</string>
+    <string name="my_organizers_title">My Organizers</string>
+    <string name="my_organizers_empty">You haven\'t registered any organizers yet</string>
+    <string name="create_organizer_title">Create Organizer</string>
+    <string name="create_organizer_field_name">Organizer Name</string>
+    <string name="create_organizer_field_desc">Description</string>
+    <string name="create_organizer_field_contact">Contact Email/Phone</string>
+    <string name="create_organizer_btn_create">Register Organizer</string>
 </resources>

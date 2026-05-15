@@ -22,16 +22,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
+import com.dudek.evenizer.data.network.model.EventData
+import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.utils.DateUtils
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailPage(
     uuid: String,
@@ -47,12 +49,34 @@ fun EventDetailPage(
     val language by themeViewModel.language.collectAsState(initial = "id")
     val userProfile by userViewModel.userProfile.collectAsState()
 
-    val isOrganizer = userProfile != null && event != null && userProfile!!.uuid == event!!.userUuid
-    val isLoggedIn = userProfile != null
-
     LaunchedEffect(uuid) {
         eventViewModel.fetchEventDetail(context, uuid)
     }
+
+    EventDetailPageContent(
+        event = event,
+        isFavourited = isFavourited,
+        isLoading = isLoading,
+        language = language,
+        userProfile = userProfile,
+        onBack = onBack,
+        onToggleFavourite = { eventViewModel.toggleFavourite(context, uuid) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EventDetailPageContent(
+    event: EventData?,
+    isFavourited: Boolean,
+    isLoading: Boolean,
+    language: String,
+    userProfile: UserData?,
+    onBack: () -> Unit,
+    onToggleFavourite: () -> Unit
+) {
+    val isOrganizer = userProfile != null && event != null && userProfile.uuid == event.userUuid
+    val isLoggedIn = userProfile != null
 
     Scaffold(
         topBar = {
@@ -65,7 +89,7 @@ fun EventDetailPage(
                 },
                 actions = {
                     if (isLoggedIn && !isOrganizer) {
-                        IconButton(onClick = { eventViewModel.toggleFavourite(context, uuid) }) {
+                        IconButton(onClick = onToggleFavourite) {
                             Icon(
                                 imageVector = if (isFavourited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favourite",
@@ -94,7 +118,7 @@ fun EventDetailPage(
             ) {
                 // Banner
                 AsyncImage(
-                    model = event!!.banner,
+                    model = event.banner,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -105,7 +129,7 @@ fun EventDetailPage(
                 Column(modifier = Modifier.padding(24.dp)) {
                     // Title
                     Text(
-                        text = event!!.title,
+                        text = event.title,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -119,12 +143,12 @@ fun EventDetailPage(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "${stringResource(R.string.event_detail_start)}: ${DateUtils.formatLocaleDateTime(event!!.start, language)}",
+                                text = "${stringResource(R.string.event_detail_start)}: ${DateUtils.formatLocaleDateTime(event.start, language)}",
                                 fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = "${stringResource(R.string.event_detail_end)}:   ${DateUtils.formatLocaleDateTime(event!!.end, language)}",
+                                text = "${stringResource(R.string.event_detail_end)}:   ${DateUtils.formatLocaleDateTime(event.end, language)}",
                                 fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -138,7 +162,7 @@ fun EventDetailPage(
                         Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
-                            val loc = event!!.eventLocations?.firstOrNull()
+                            val loc = event.eventLocations?.firstOrNull()
                             Text(
                                 text = loc?.location ?: stringResource(R.string.create_event_loc_online),
                                 fontSize = 16.sp,
@@ -169,7 +193,7 @@ fun EventDetailPage(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = event!!.description,
+                        text = event.description,
                         fontSize = 16.sp,
                         lineHeight = 24.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -180,4 +204,18 @@ fun EventDetailPage(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EventDetailPagePreview() {
+    EventDetailPageContent(
+        event = null,
+        isFavourited = false,
+        isLoading = true,
+        language = "id",
+        userProfile = null,
+        onBack = {},
+        onToggleFavourite = {}
+    )
 }

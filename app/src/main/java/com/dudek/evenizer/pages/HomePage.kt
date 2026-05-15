@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
@@ -27,12 +28,16 @@ import com.dudek.evenizer.utils.DateUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(themeViewModel: ThemeViewModel) {
-    val scrollState = rememberScrollState()
     val language by themeViewModel.language.collectAsState(initial = "id")
-    
+    HomePageContent(language = language)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomePageContent(language: String) {
+    val scrollState = rememberScrollState()
     val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
 
@@ -180,4 +185,10 @@ fun HomeEventCard(event: Event, languageCode: String) {
             Text(text = event.location, fontSize = 12.sp, color = Color.Gray)
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomePagePreview() {
+    HomePageContent(language = "id")
 }

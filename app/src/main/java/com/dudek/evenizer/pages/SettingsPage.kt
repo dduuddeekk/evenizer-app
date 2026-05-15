@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
@@ -42,7 +43,6 @@ import com.dudek.evenizer.models.ThemeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsPage(
     modifier: Modifier = Modifier,
@@ -52,9 +52,28 @@ fun SettingsPage(
     val context = LocalContext.current
     val isDarkMode by themeViewModel.isDarkMode.collectAsState(initial = false)
     val language by themeViewModel.language.collectAsState(initial = "id")
-    
+
+    SettingsPageContent(
+        modifier = modifier,
+        isDarkMode = isDarkMode,
+        language = language,
+        onBack = onBack,
+        onToggleDarkMode = { themeViewModel.toggleDarkMode(context) },
+        onSetLanguage = { lang -> themeViewModel.setLanguage(context, lang) }
+    )
+}
+
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsPageContent(
+    modifier: Modifier = Modifier,
+    isDarkMode: Boolean,
+    language: String,
+    onBack: () -> Unit,
+    onToggleDarkMode: () -> Unit,
+    onSetLanguage: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    
     val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
 
@@ -123,7 +142,7 @@ fun SettingsPage(
                     }
                     Switch(
                         checked = isDarkMode,
-                        onCheckedChange = { themeViewModel.toggleDarkMode(context) },
+                        onCheckedChange = { onToggleDarkMode() },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
                             checkedTrackColor = Color(0xFFF44336),
@@ -181,35 +200,35 @@ fun SettingsPage(
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.lang_id)) },
                                 onClick = {
-                                    themeViewModel.setLanguage(context, "id")
+                                    onSetLanguage("id")
                                     expanded = false
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.lang_en)) },
                                 onClick = {
-                                    themeViewModel.setLanguage(context, "en")
+                                    onSetLanguage("en")
                                     expanded = false
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.lang_zh)) },
                                 onClick = {
-                                    themeViewModel.setLanguage(context, "zh")
+                                    onSetLanguage("zh")
                                     expanded = false
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.lang_ru)) },
                                 onClick = {
-                                    themeViewModel.setLanguage(context, "ru")
+                                    onSetLanguage("ru")
                                     expanded = false
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.lang_es)) },
                                 onClick = {
-                                    themeViewModel.setLanguage(context, "es")
+                                    onSetLanguage("es")
                                     expanded = false
                                 }
                             )
@@ -219,4 +238,16 @@ fun SettingsPage(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsPagePreview() {
+    SettingsPageContent(
+        isDarkMode = false,
+        language = "id",
+        onBack = {},
+        onToggleDarkMode = {},
+        onSetLanguage = {}
+    )
 }

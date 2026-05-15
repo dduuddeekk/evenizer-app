@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -47,7 +48,6 @@ import com.dudek.evenizer.models.UserViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfilePage(
     modifier: Modifier = Modifier,
@@ -60,6 +60,36 @@ fun ProfilePage(
     val isLoading by userViewModel.profileLoading.collectAsState()
     val isUploading by userViewModel.uploadLoading.collectAsState()
 
+    ProfilePageContent(
+        modifier = modifier,
+        userProfile = userProfile,
+        isLoading = isLoading,
+        isUploading = isUploading,
+        onFetchProfile = { userViewModel.fetchProfile() },
+        onClearProfile = { userViewModel.clearProfile() },
+        onUpdateProfileImage = { uri, context, scale, offset, size -> 
+            userViewModel.updateProfileImage(uri, context, scale, offset, size) 
+        },
+        onLogout = { callback -> authViewModel.logout(callback) },
+        onNavigateToSettings = onNavigateToSettings,
+        onNavigateToLogin = onNavigateToLogin
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfilePageContent(
+    modifier: Modifier = Modifier,
+    userProfile: UserData?,
+    isLoading: Boolean,
+    isUploading: Boolean,
+    onFetchProfile: suspend () -> Unit,
+    onClearProfile: () -> Unit,
+    onUpdateProfileImage: (Uri, android.content.Context, Float, Offset, Float) -> Unit,
+    onLogout: (() -> Unit) -> Unit,
+    onNavigateToSettings: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+) {
     val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -76,7 +106,7 @@ fun ProfilePage(
 
     LaunchedEffect(Unit) {
         if (userProfile == null) {
-            userViewModel.fetchProfile()
+            onFetchProfile()
         }
     }
 
@@ -133,7 +163,7 @@ fun ProfilePage(
                 val containerSizePx = with(density) { 200.dp.toPx() }
                 TextButton(onClick = {
                     showCropDialog.value?.let { uri ->
-                        userViewModel.updateProfileImage(uri, context, scale, offset, containerSizePx)
+                        onUpdateProfileImage(uri, context, scale, offset, containerSizePx)
                     }
                     showCropDialog.value = null
                 }) {
@@ -153,8 +183,8 @@ fun ProfilePage(
         onRefresh = {
             scope.launch {
                 isRefreshing.value = true
-                userViewModel.clearProfile()
-                val fetchJob = launch { userViewModel.fetchProfile() }
+                onClearProfile()
+                val fetchJob = launch { onFetchProfile() }
                 delay(2000)
                 fetchJob.join()
                 isRefreshing.value = false
@@ -173,8 +203,8 @@ fun ProfilePage(
             if (userProfile != null) {
                 list.add(
                     ProfileMenuItem(logoutText, Icons.AutoMirrored.Filled.Logout) {
-                        authViewModel.logout { 
-                            userViewModel.clearProfile()
+                        onLogout { 
+                            onClearProfile()
                             onNavigateToLogin() 
                         }
                     }
@@ -434,4 +464,29 @@ fun ProfileImagePreviewDialog(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProfilePagePreview() {
+    ProfilePageContent(
+        userProfile = UserData(
+            uuid = "123",
+            username = "johndoe",
+            email = "john@example.com",
+            firstName = "John",
+            lastName = "Doe",
+            isEmailVerified = true,
+            createdAt = "2024-01-01",
+            updatedAt = "2024-01-01"
+        ),
+        isLoading = false,
+        isUploading = false,
+        onFetchProfile = {},
+        onClearProfile = {},
+        onUpdateProfileImage = { _, _, _, _, _ -> },
+        onLogout = {},
+        onNavigateToSettings = {},
+        onNavigateToLogin = {}
+    )
 }

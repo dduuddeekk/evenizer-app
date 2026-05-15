@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -39,12 +40,36 @@ import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEventPage(
     eventViewModel: EventViewModel,
     onBack: () -> Unit,
     onSuccess: () -> Unit
+) {
+    val createStep by eventViewModel.createStep.collectAsState()
+    val error by eventViewModel.error.collectAsState()
+
+    CreateEventPageContent(
+        createStep = createStep,
+        error = error,
+        onBack = onBack,
+        onSuccess = onSuccess,
+        onCreateEvent = { title, desc, start, end, cats, loc, locType, status, isPub, uri, context ->
+            eventViewModel.createEvent(context, title, desc, start, end, cats, loc, locType, status, isPub, uri)
+        },
+        onResetState = { eventViewModel.resetState() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateEventPageContent(
+    createStep: CreateEventStep,
+    error: String?,
+    onBack: () -> Unit,
+    onSuccess: () -> Unit,
+    onCreateEvent: (String, String, String, String, List<String>, String, String, String, Boolean, Uri?, android.content.Context) -> Unit,
+    onResetState: () -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -61,9 +86,6 @@ fun CreateEventPage(
     val startCalendar = remember { mutableStateOf<Calendar?>(null) }
     val endCalendar = remember { mutableStateOf<Calendar?>(null) }
 
-    val createStep by eventViewModel.createStep.collectAsState()
-    val error by eventViewModel.error.collectAsState()
-
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -78,7 +100,7 @@ fun CreateEventPage(
                 if (createStep == CreateEventStep.SUCCESS) {
                     onSuccess()
                 }
-                eventViewModel.resetState()
+                onResetState()
             }
         )
     }
@@ -403,19 +425,7 @@ fun CreateEventPage(
                     val startIso = startCalendar.value?.let { isoFormatter.format(it.time) } ?: ""
                     val endIso = endCalendar.value?.let { isoFormatter.format(it.time) } ?: ""
                     
-                    eventViewModel.createEvent(
-                        context = context,
-                        title = title.value,
-                        description = description.value,
-                        startTime = startIso,
-                        endTime = endIso,
-                        categories = categoryList,
-                        location = location.value,
-                        locationType = locationType.value,
-                        status = status.value,
-                        isPublic = isPublic.value,
-                        bannerUri = bannerUri.value
-                    )
+                    onCreateEvent(title.value, description.value, startIso, endIso, categoryList, location.value, locationType.value, status.value, isPublic.value, bannerUri.value, context)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -507,4 +517,17 @@ fun CreateEventProgressDialog(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CreateEventPagePreview() {
+    CreateEventPageContent(
+        createStep = CreateEventStep.IDLE,
+        error = null,
+        onBack = {},
+        onSuccess = {},
+        onCreateEvent = { _, _, _, _, _, _, _, _, _, _, _ -> },
+        onResetState = {}
+    )
 }

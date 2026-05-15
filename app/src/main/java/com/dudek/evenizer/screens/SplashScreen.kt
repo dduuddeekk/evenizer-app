@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
@@ -29,35 +30,6 @@ fun SplashScreen(onFinished: () -> Unit) {
     val logoScale = remember { Animatable(5f) } // Start big
     val step = remember { mutableIntStateOf(0) }
     val showLoading = remember { mutableStateOf(false) }
-
-    // Colors for transition
-    val colors = listOf(
-        Color(0xFF9C27B0), // Purple
-        Color(0xFF4CAF50), // Green
-        Color(0xFF2196F3), // Blue
-        Color(0xFFFF9800), // Orange
-        Color(0xFFF44336)  // Red
-    )
-
-    val backgroundColor by animateColorAsState(
-        targetValue = if (!showLoading.value) Color.White else colors[step.intValue % colors.size],
-        animationSpec = tween(durationMillis = 800),
-        label = "backgroundColor"
-    )
-
-    val contentColor by animateColorAsState(
-        targetValue = if (!showLoading.value) Color.Black else Color.White,
-        animationSpec = tween(durationMillis = 800),
-        label = "contentColor"
-    )
-
-    val loadingText = when (step.intValue) {
-        0 -> stringResource(R.string.splash_init)
-        1 -> stringResource(R.string.splash_events)
-        2 -> stringResource(R.string.splash_organizers)
-        3 -> stringResource(R.string.splash_tickets)
-        else -> stringResource(R.string.splash_welcome)
-    }
 
     LaunchedEffect(Unit) {
         // Phase 1: Shrink Logo
@@ -107,6 +79,48 @@ fun SplashScreen(onFinished: () -> Unit) {
         onFinished()
     }
 
+    SplashScreenContent(
+        logoScale = logoScale.value,
+        step = step.intValue,
+        showLoading = showLoading.value
+    )
+}
+
+@Composable
+fun SplashScreenContent(
+    logoScale: Float,
+    step: Int,
+    showLoading: Boolean
+) {
+    // Colors for transition
+    val colors = listOf(
+        Color(0xFF9C27B0), // Purple
+        Color(0xFF4CAF50), // Green
+        Color(0xFF2196F3), // Blue
+        Color(0xFFFF9800), // Orange
+        Color(0xFFF44336)  // Red
+    )
+
+    val backgroundColor by animateColorAsState(
+        targetValue = if (!showLoading) Color.White else colors[step % colors.size],
+        animationSpec = tween(durationMillis = 800),
+        label = "backgroundColor"
+    )
+
+    val contentColor by animateColorAsState(
+        targetValue = if (!showLoading) Color.Black else Color.White,
+        animationSpec = tween(durationMillis = 800),
+        label = "contentColor"
+    )
+
+    val loadingText = when (step) {
+        0 -> stringResource(R.string.splash_init)
+        1 -> stringResource(R.string.splash_events)
+        2 -> stringResource(R.string.splash_organizers)
+        3 -> stringResource(R.string.splash_tickets)
+        else -> stringResource(R.string.splash_welcome)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -117,11 +131,11 @@ fun SplashScreen(onFinished: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo Image using ic_launcher components (painterResource doesn't support adaptive icons)
+            // Logo Image using ic_launcher components
             Box(
                 modifier = Modifier
                     .size(120.dp)
-                    .scale(logoScale.value)
+                    .scale(logoScale)
                     .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
@@ -137,7 +151,7 @@ fun SplashScreen(onFinished: () -> Unit) {
                 )
             }
             
-            if (showLoading.value) {
+            if (showLoading) {
                 Spacer(modifier = Modifier.height(48.dp))
                 
                 Text(
@@ -150,4 +164,14 @@ fun SplashScreen(onFinished: () -> Unit) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SplashScreenPreview() {
+    SplashScreenContent(
+        logoScale = 1f,
+        step = 2,
+        showLoading = true
+    )
 }

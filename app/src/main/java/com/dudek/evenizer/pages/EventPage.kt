@@ -1,7 +1,6 @@
 package com.dudek.evenizer.pages
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,11 +11,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
@@ -32,7 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -46,7 +43,6 @@ import com.dudek.evenizer.utils.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventPage(
     themeViewModel: ThemeViewModel,
@@ -58,6 +54,45 @@ fun EventPage(
     onNavigateToLogin: () -> Unit
 ) {
     val context = LocalContext.current
+    val userProfile by userViewModel.userProfile.collectAsState()
+    val language by themeViewModel.language.collectAsState(initial = "id")
+    val events by eventViewModel.events.collectAsState()
+    val isLoading by eventViewModel.isLoading.collectAsState()
+    
+    LaunchedEffect(Unit) {
+        if (events.isEmpty()) {
+            eventViewModel.fetchEvents(context)
+        }
+    }
+
+    EventPageContent(
+        events = events,
+        isLoading = isLoading,
+        userProfile = userProfile,
+        language = language,
+        onRefresh = { eventViewModel.fetchEvents(context) },
+        onToggleFavourite = { uuid -> eventViewModel.toggleFavourite(context, uuid) },
+        onNavigateToCreate = onNavigateToCreate,
+        onNavigateToMyEvents = onNavigateToMyEvents,
+        onNavigateToDetail = onNavigateToDetail,
+        onNavigateToLogin = onNavigateToLogin
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EventPageContent(
+    events: List<EventData>,
+    isLoading: Boolean,
+    userProfile: UserData?,
+    language: String,
+    onRefresh: () -> Unit,
+    onToggleFavourite: (String) -> Unit,
+    onNavigateToCreate: () -> Unit,
+    onNavigateToMyEvents: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
+    onNavigateToLogin: () -> Unit
+) {
     val searchQuery = remember { mutableStateOf("") }
     val selectedDate = remember { mutableStateOf("") }
     val showDatePicker = remember { mutableStateOf(false) }
@@ -66,23 +101,10 @@ fun EventPage(
     val showVerifyDialog = remember { mutableStateOf(false) }
     var showFabMenu by remember { mutableStateOf(false) }
     
-    val userProfile by userViewModel.userProfile.collectAsState()
-    val language by themeViewModel.language.collectAsState(initial = "id")
-    val events by eventViewModel.events.collectAsState()
-    val isRefreshing by eventViewModel.isLoading.collectAsState()
-    
-    LaunchedEffect(Unit) {
-        if (events.isEmpty()) {
-            eventViewModel.fetchEvents(context)
-        }
-    }
-
     Box(modifier = Modifier.fillMaxSize()) {
         PullToRefreshBox(
-            isRefreshing = isRefreshing,
-            onRefresh = {
-                eventViewModel.fetchEvents(context)
-            },
+            isRefreshing = isLoading,
+            onRefresh = onRefresh,
             modifier = Modifier.fillMaxSize()
         ) {
             val datePickerState = rememberDatePickerState()
@@ -225,7 +247,7 @@ fun EventPage(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (filteredEvents.isEmpty() && !isRefreshing) {
+                if (filteredEvents.isEmpty() && !isLoading) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(text = stringResource(R.string.event_empty), color = Color.Gray)
                     }
@@ -242,7 +264,7 @@ fun EventPage(
                                 event = event,
                                 languageCode = language,
                                 userProfile = userProfile,
-                                eventViewModel = eventViewModel,
+                                onToggleFavourite = { onToggleFavourite(event.uuid) },
                                 onNavigateToDetail = { onNavigateToDetail(event.uuid) },
                                 onDelete = null
                             )
@@ -359,11 +381,10 @@ fun EventCard(
     event: EventData,
     languageCode: String,
     userProfile: UserData?,
-    eventViewModel: EventViewModel,
+    onToggleFavourite: () -> Unit = {},
     onNavigateToDetail: () -> Unit,
     onDelete: (() -> Unit)? = null
 ) {
-    val context = LocalContext.current
     val isOrganizer = userProfile != null && userProfile.uuid == event.userUuid
     val isLoggedIn = userProfile != null
     
@@ -415,7 +436,7 @@ fun EventCard(
 
                     if (isLoggedIn && !isOrganizer) {
                         IconButton(
-                            onClick = { eventViewModel.toggleFavourite(context, event.uuid) },
+                            onClick = onToggleFavourite,
                             modifier = Modifier
                                 .background(Color.Black.copy(alpha = 0.3f), CircleShape)
                                 .size(32.dp)
@@ -484,4 +505,21 @@ fun EventCard(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EventPagePreview() {
+    EventPageContent(
+        events = emptyList(),
+        isLoading = false,
+        userProfile = null,
+        language = "id",
+        onRefresh = {},
+        onToggleFavourite = {},
+        onNavigateToCreate = {},
+        onNavigateToMyEvents = {},
+        onNavigateToDetail = {},
+        onNavigateToLogin = {}
+    )
 }

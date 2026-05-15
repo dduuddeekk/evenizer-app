@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -37,6 +38,8 @@ import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.OrganizerPage
 import com.dudek.evenizer.pages.ProfilePage
 import com.dudek.evenizer.pages.SettingsPage
+import com.dudek.evenizer.pages.CreateOrganizerPage
+import com.dudek.evenizer.pages.MyOrganizersPage
 import com.dudek.evenizer.pages.TicketPage
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
@@ -51,7 +54,121 @@ fun MainScreen(
     onNavigateToLogin: () -> Unit
 ) {
     val navController = rememberNavController()
-    
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    MainScreenContent(
+        currentRoute = currentRoute,
+        onNavigate = { route ->
+            navController.navigate(route) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        },
+        content = { innerPadding ->
+            NavHost(
+                navController,
+                startDestination = "home",
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable("home") { HomePage(themeViewModel = themeViewModel) }
+                composable("event") { 
+                    EventPage(
+                        themeViewModel = themeViewModel,
+                        userViewModel = userViewModel,
+                        eventViewModel = eventViewModel,
+                        onNavigateToCreate = { navController.navigate("create_event") },
+                        onNavigateToMyEvents = { navController.navigate("my_events") },
+                        onNavigateToDetail = { uuid -> navController.navigate("event_detail/$uuid") },
+                        onNavigateToLogin = onNavigateToLogin
+                    ) 
+                }
+                composable("event_detail/{uuid}") { backStackEntry ->
+                    val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                    EventDetailPage(
+                        uuid = uuid,
+                        themeViewModel = themeViewModel,
+                        userViewModel = userViewModel,
+                        eventViewModel = eventViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+                composable("create_event") {
+                    CreateEventPage(
+                        eventViewModel = eventViewModel,
+                        onBack = { navController.popBackStack() },
+                        onSuccess = { 
+                            navController.navigate("my_events") {
+                                popUpTo("event") { inclusive = false }
+                            }
+                        }
+                    )
+                }
+                composable("my_events") {
+                    MyEventsPage(
+                        themeViewModel = themeViewModel,
+                        userViewModel = userViewModel,
+                        eventViewModel = eventViewModel,
+                        onNavigateToDetail = { uuid -> navController.navigate("event_detail/$uuid") },
+                        onNavigateToCreate = { navController.navigate("create_event") },
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+            composable("organizer") { 
+                OrganizerPage(
+                    themeViewModel = themeViewModel,
+                    userViewModel = userViewModel,
+                    onNavigateToCreate = { navController.navigate("create_organizer") },
+                    onNavigateToMyOrganizers = { navController.navigate("my_organizers") },
+                    onNavigateToLogin = onNavigateToLogin
+                ) 
+            }
+            composable("create_organizer") {
+                CreateOrganizerPage(
+                    onBack = { navController.popBackStack() },
+                    onSuccess = { 
+                        navController.navigate("my_organizers") {
+                            popUpTo("organizer") { inclusive = false }
+                        }
+                    }
+                )
+            }
+            composable("my_organizers") {
+                MyOrganizersPage(
+                    themeViewModel = themeViewModel,
+                    onNavigateToCreate = { navController.navigate("create_organizer") },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable("ticket") { TicketPage(themeViewModel = themeViewModel) }
+                composable("profile") {
+                    ProfilePage(
+                        authViewModel = authViewModel,
+                        userViewModel = userViewModel,
+                        onNavigateToSettings = { navController.navigate("settings") },
+                        onNavigateToLogin = onNavigateToLogin
+                    )
+                }
+                composable("settings") {
+                    SettingsPage(
+                        themeViewModel = themeViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun MainScreenContent(
+    currentRoute: String?,
+    onNavigate: (String) -> Unit,
+    content: @Composable (androidx.compose.foundation.layout.PaddingValues) -> Unit
+) {
     val navItems = listOf(
         NavigationData("home", R.string.nav_home, Icons.Default.Home, Color(0xFF9C27B0)),
         NavigationData("event", R.string.nav_event, Icons.Default.Event, Color(0xFF4CAF50)),
@@ -62,10 +179,6 @@ fun MainScreen(
 
     Scaffold(
         bottomBar = {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
-            val currentRoute = currentDestination?.route
-
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp
@@ -86,15 +199,7 @@ fun MainScreen(
                         },
                         selected = selected,
                         alwaysShowLabel = false,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
+                        onClick = { onNavigate(item.route) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = item.activeColor,
                             selectedTextColor = item.activeColor,
@@ -107,71 +212,7 @@ fun MainScreen(
             }
         }
     ) { innerPadding ->
-        NavHost(
-            navController,
-            startDestination = "home",
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable("home") { HomePage(themeViewModel = themeViewModel) }
-            composable("event") { 
-                EventPage(
-                    themeViewModel = themeViewModel,
-                    userViewModel = userViewModel,
-                    eventViewModel = eventViewModel,
-                    onNavigateToCreate = { navController.navigate("create_event") },
-                    onNavigateToMyEvents = { navController.navigate("my_events") },
-                    onNavigateToDetail = { uuid -> navController.navigate("event_detail/$uuid") },
-                    onNavigateToLogin = onNavigateToLogin
-                ) 
-            }
-            composable("event_detail/{uuid}") { backStackEntry ->
-                val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
-                EventDetailPage(
-                    uuid = uuid,
-                    themeViewModel = themeViewModel,
-                    userViewModel = userViewModel,
-                    eventViewModel = eventViewModel,
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable("create_event") {
-                CreateEventPage(
-                    eventViewModel = eventViewModel,
-                    onBack = { navController.popBackStack() },
-                    onSuccess = { 
-                        navController.navigate("my_events") {
-                            popUpTo("event") { inclusive = false }
-                        }
-                    }
-                )
-            }
-            composable("my_events") {
-                MyEventsPage(
-                    themeViewModel = themeViewModel,
-                    userViewModel = userViewModel,
-                    eventViewModel = eventViewModel,
-                    onNavigateToDetail = { uuid -> navController.navigate("event_detail/$uuid") },
-                    onNavigateToCreate = { navController.navigate("create_event") },
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable("organizer") { OrganizerPage(themeViewModel = themeViewModel) }
-            composable("ticket") { TicketPage(themeViewModel = themeViewModel) }
-            composable("profile") {
-                ProfilePage(
-                    authViewModel = authViewModel,
-                    userViewModel = userViewModel,
-                    onNavigateToSettings = { navController.navigate("settings") },
-                    onNavigateToLogin = onNavigateToLogin
-                )
-            }
-            composable("settings") {
-                SettingsPage(
-                    themeViewModel = themeViewModel,
-                    onBack = { navController.popBackStack() }
-                )
-            }
-        }
+        content(innerPadding)
     }
 }
 
@@ -181,3 +222,15 @@ private data class NavigationData(
     val icon: ImageVector,
     val activeColor: Color
 )
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    MainScreenContent(
+        currentRoute = "home",
+        onNavigate = {},
+        content = { innerPadding ->
+            Text("Content Area", modifier = Modifier.padding(innerPadding))
+        }
+    )
+}

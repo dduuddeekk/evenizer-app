@@ -42,6 +42,9 @@ interface OrganizerService {
         @Part file: MultipartBody.Part
     ): OrganizerResponse
 
+    @DELETE("organizer/{uuid}")
+    suspend fun deleteOrganizer(@Path("uuid") uuid: String): OrganizerResponse
+
     @POST("organizer/{uuid}/follow")
     suspend fun followOrganizer(@Path("uuid") uuid: String): OrganizerResponse
 

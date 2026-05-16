@@ -124,6 +124,8 @@
     <string name="event_detail_end">Fin</string>
     <string name="delete_event_title">¿Eliminar evento?</string>
     <string name="delete_event_desc">¿Estás seguro de que quieres eliminar este evento? Esta acción no se dapat deshacer.</string>
+    <string name="delete_organizer_title">¿Eliminar organizador?</string>
+    <string name="delete_organizer_desc">¿Estás seguro de que quieres eliminar este organizador? Esta acción no se puede deshacer.</string>
     <string name="btn_delete">Eliminar</string>
     <string name="organizer_menu_create">Crear Organizador</string>
     <string name="organizer_menu_my">Mis Organizadores</string>
@@ -138,4 +140,7 @@
     <string name="create_organizer_field_contact">Email/Teléfono de Contacto</string>
     <string name="create_organizer_add_logo">Añadir Logo</string>
     <string name="create_organizer_btn_create">Registrar Organizador</string>
+    <string name="menu_add_member">Añadir Miembro</string>
+    <string name="menu_add_role">Añadir Rol</string>
+    <string name="menu_edit_organizer">Editar Organizador</string>
 </resources>

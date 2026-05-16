@@ -140,6 +140,7 @@ fun HomePageContent(language: String) {
                         followCount = organizer.projectsCompleted
                     ),
                     languageCode = language,
+                    currentUserUuid = null, // Mock data
                     onToggleFollow = { /* No-op on home page */ }
                 )
                 Spacer(modifier = Modifier.height(12.dp))

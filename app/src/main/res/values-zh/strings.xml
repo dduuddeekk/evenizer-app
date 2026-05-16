@@ -125,6 +125,8 @@
     <string name="event_detail_end">结束</string>
     <string name="delete_event_title">删除活动？</string>
     <string name="delete_event_desc">您确定要删除此活动吗？此操作无法撤销。</string>
+    <string name="delete_organizer_title">删除组织者？</string>
+    <string name="delete_organizer_desc">您确定要删除此组织者吗？此操作无法撤销。</string>
     <string name="btn_delete">删除</string>
     <string name="organizer_menu_create">创建组织者</string>
     <string name="organizer_menu_my">我的组织者</string>
@@ -139,4 +141,7 @@
     <string name="create_organizer_field_contact">联系邮箱/电话</string>
     <string name="create_organizer_add_logo">添加图标</string>
     <string name="create_organizer_btn_create">注册组织者</string>
+    <string name="menu_add_member">添加成员</string>
+    <string name="menu_add_role">添加角色</string>
+    <string name="menu_edit_organizer">编辑组织者</string>
 </resources>

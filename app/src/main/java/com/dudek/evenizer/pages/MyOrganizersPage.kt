@@ -30,6 +30,7 @@ fun MyOrganizersPage(
     themeViewModel: ThemeViewModel,
     organizerViewModel: OrganizerViewModel,
     onNavigateToCreate: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -48,6 +49,8 @@ fun MyOrganizersPage(
         onBack = onBack,
         onRefresh = { organizerViewModel.fetchMyOrganizers(context) },
         onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
+        onDelete = { uuid -> organizerViewModel.deleteOrganizer(context, uuid) {} },
+        onNavigateToDetail = onNavigateToDetail,
         onNavigateToCreate = onNavigateToCreate
     )
 }
@@ -61,6 +64,8 @@ fun MyOrganizersPageContent(
     onBack: () -> Unit,
     onRefresh: () -> Unit,
     onToggleFollow: (String) -> Unit,
+    onDelete: (String) -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     onNavigateToCreate: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -113,7 +118,10 @@ fun MyOrganizersPageContent(
                             OrganizerCard(
                                 organizer = organizer,
                                 languageCode = language,
-                                onToggleFollow = { onToggleFollow(organizer.uuid) }
+                                currentUserUuid = organizer.userUuid, // In MyOrganizers, we are the owner
+                                onToggleFollow = { onToggleFollow(organizer.uuid) },
+                                onDelete = { onDelete(organizer.uuid) },
+                                onClick = { onNavigateToDetail(organizer.uuid) }
                             )
                         }
                     }
@@ -145,6 +153,8 @@ fun MyOrganizersPagePreview() {
         onBack = {},
         onRefresh = {},
         onToggleFollow = {},
+        onDelete = {},
+        onNavigateToDetail = {},
         onNavigateToCreate = {}
     )
 }

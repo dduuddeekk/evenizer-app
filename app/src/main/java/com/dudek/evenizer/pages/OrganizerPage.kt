@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -47,6 +48,7 @@ fun OrganizerPage(
     organizerViewModel: OrganizerViewModel,
     onNavigateToCreate: () -> Unit,
     onNavigateToMyOrganizers: () -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
     val context = LocalContext.current
@@ -68,6 +70,8 @@ fun OrganizerPage(
         isLoading = isLoading,
         onRefresh = { organizerViewModel.fetchOrganizers(context) },
         onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
+        onDelete = { uuid -> organizerViewModel.deleteOrganizer(context, uuid) {} },
+        onNavigateToDetail = onNavigateToDetail,
         onNavigateToCreate = onNavigateToCreate,
         onNavigateToMyOrganizers = onNavigateToMyOrganizers,
         onNavigateToLogin = onNavigateToLogin
@@ -83,6 +87,8 @@ fun OrganizerPageContent(
     isLoading: Boolean,
     onRefresh: () -> Unit,
     onToggleFollow: (String) -> Unit,
+    onDelete: (String) -> Unit,
+    onNavigateToDetail: (String) -> Unit,
     onNavigateToCreate: () -> Unit,
     onNavigateToMyOrganizers: () -> Unit,
     onNavigateToLogin: () -> Unit
@@ -221,7 +227,10 @@ fun OrganizerPageContent(
                         OrganizerCard(
                             organizer = organizer,
                             languageCode = language,
-                            onToggleFollow = { onToggleFollow(organizer.uuid) }
+                            currentUserUuid = userProfile?.uuid,
+                            onToggleFollow = { onToggleFollow(organizer.uuid) },
+                            onDelete = { onDelete(organizer.uuid) },
+                            onClick = { onNavigateToDetail(organizer.uuid) }
                         )
                     }
                 }
@@ -309,10 +318,41 @@ fun OrganizerPageContent(
 fun OrganizerCard(
     organizer: OrganizerData,
     languageCode: String,
-    onToggleFollow: () -> Unit
+    currentUserUuid: String? = null,
+    onToggleFollow: () -> Unit,
+    onDelete: () -> Unit = {},
+    onClick: () -> Unit = {}
 ) {
+    val showDeleteDialog = remember { mutableStateOf(false) }
+
+    if (showDeleteDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog.value = false },
+            title = { Text(text = stringResource(R.string.delete_organizer_title)) },
+            text = { Text(text = stringResource(R.string.delete_organizer_desc)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete()
+                        showDeleteDialog.value = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+                ) {
+                    Text(text = stringResource(R.string.btn_delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog.value = false }) {
+                    Text(text = stringResource(R.string.btn_cancel))
+                }
+            }
+        )
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
@@ -382,16 +422,26 @@ fun OrganizerCard(
                 )
             }
 
-            Button(
-                onClick = onToggleFollow,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (organizer.isFollow) Color.LightGray else Color(0xFF2196F3),
-                    contentColor = if (organizer.isFollow) Color.Black else Color.White
-                ),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(if (organizer.isFollow) stringResource(R.string.btn_following) else stringResource(R.string.btn_follow))
+            if (currentUserUuid == organizer.userUuid) {
+                IconButton(onClick = { showDeleteDialog.value = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Organizer",
+                        tint = Color.Red
+                    )
+                }
+            } else {
+                Button(
+                    onClick = onToggleFollow,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (organizer.isFollow) Color.LightGray else Color(0xFF2196F3),
+                        contentColor = if (organizer.isFollow) Color.Black else Color.White
+                    ),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(if (organizer.isFollow) stringResource(R.string.btn_following) else stringResource(R.string.btn_follow))
+                }
             }
         }
     }
@@ -407,6 +457,8 @@ fun OrganizerPagePreview() {
         isLoading = false,
         onRefresh = {},
         onToggleFollow = {},
+        onDelete = {},
+        onNavigateToDetail = {},
         onNavigateToCreate = {},
         onNavigateToMyOrganizers = {},
         onNavigateToLogin = {}

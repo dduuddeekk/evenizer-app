@@ -37,6 +37,7 @@ import com.dudek.evenizer.pages.EventPage
 import com.dudek.evenizer.pages.MyEventsPage
 import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.OrganizerPage
+import com.dudek.evenizer.pages.OrganizerDetailPage
 import com.dudek.evenizer.pages.ProfilePage
 import com.dudek.evenizer.pages.SettingsPage
 import com.dudek.evenizer.pages.CreateOrganizerPage
@@ -126,8 +127,19 @@ fun MainScreen(
                     organizerViewModel = organizerViewModel,
                     onNavigateToCreate = { navController.navigate("create_organizer") },
                     onNavigateToMyOrganizers = { navController.navigate("my_organizers") },
+                    onNavigateToDetail = { uuid -> navController.navigate("organizer_detail/$uuid") },
                     onNavigateToLogin = onNavigateToLogin
                 ) 
+            }
+            composable("organizer_detail/{uuid}") { backStackEntry ->
+                val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                OrganizerDetailPage(
+                    uuid = uuid,
+                    themeViewModel = themeViewModel,
+                    userViewModel = userViewModel,
+                    organizerViewModel = organizerViewModel,
+                    onBack = { navController.popBackStack() }
+                )
             }
             composable("create_organizer") {
                 CreateOrganizerPage(
@@ -145,6 +157,7 @@ fun MainScreen(
                     themeViewModel = themeViewModel,
                     organizerViewModel = organizerViewModel,
                     onNavigateToCreate = { navController.navigate("create_organizer") },
+                    onNavigateToDetail = { uuid -> navController.navigate("organizer_detail/$uuid") },
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -192,7 +205,7 @@ fun MainScreenContent(
                     val selected = currentRoute == item.route || 
                                    (item.route == "profile" && (currentRoute == "settings")) ||
                                    (item.route == "event" && (currentRoute?.startsWith("event_detail") == true || currentRoute == "create_event" || currentRoute == "my_events")) ||
-                                   (item.route == "organizer" && (currentRoute == "create_organizer" || currentRoute == "my_organizers"))
+                                   (item.route == "organizer" && (currentRoute?.startsWith("organizer_detail") == true || currentRoute == "create_organizer" || currentRoute == "my_organizers"))
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = null) },
                         label = { 

@@ -124,6 +124,8 @@
     <string name="event_detail_end">Конец</string>
     <string name="delete_event_title">Удалить мероприятие?</string>
     <string name="delete_event_desc">Вы уверены, что хотите удалить это мероприятие? Это действие невозможно отменить.</string>
+    <string name="delete_organizer_title">Удалить организатора?</string>
+    <string name="delete_organizer_desc">Вы уверены, что хотите удалить этого организатора? Это действие невозможно отменить.</string>
     <string name="btn_delete">Удалить</string>
     <string name="organizer_menu_create">Создать организатора</string>
     <string name="organizer_menu_my">Мои организаторы</string>
@@ -138,4 +140,7 @@
     <string name="create_organizer_field_contact">Контактный Email/Телефон</string>
     <string name="create_organizer_add_logo">Добавить логотип</string>
     <string name="create_organizer_btn_create">Зарегистрировать организатора</string>
+    <string name="menu_add_member">Добавить участника</string>
+    <string name="menu_add_role">Добавить роль</string>
+    <string name="menu_edit_organizer">Редактировать организатора</string>
 </resources>

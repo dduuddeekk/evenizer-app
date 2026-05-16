@@ -30,6 +30,9 @@ class OrganizerViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+    private val _organizerDetail = MutableStateFlow<OrganizerData?>(null)
+    val organizerDetail: StateFlow<OrganizerData?> = _organizerDetail
+
     fun fetchOrganizers(context: Context, search: String? = null) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -41,6 +44,27 @@ class OrganizerViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _error.value = "Failed to fetch organizers: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun deleteOrganizer(context: Context, uuid: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getOrganizerService(context)
+                val response = service.deleteOrganizer(uuid)
+                if (response.success) {
+                    _organizers.value = _organizers.value.filter { it.uuid != uuid }
+                    _myOrganizers.value = _myOrganizers.value.filter { it.uuid != uuid }
+                    onSuccess()
+                } else {
+                    _error.value = response.message
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to delete organizer: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -131,6 +155,25 @@ class OrganizerViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _error.value = "Failed to create organizer: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun fetchOrganizerDetail(context: Context, uuid: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getOrganizerService(context)
+                val response = service.getOrganizerDetail(uuid)
+                if (response.success) {
+                    _organizerDetail.value = response.data
+                } else {
+                    _error.value = response.message
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to fetch organizer details: ${e.message}"
             } finally {
                 _isLoading.value = false
             }

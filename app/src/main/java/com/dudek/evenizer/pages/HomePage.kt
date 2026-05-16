@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.Event
 import com.dudek.evenizer.data.MockData
+import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.utils.DateUtils
 import kotlinx.coroutines.delay
@@ -126,7 +127,21 @@ fun HomePageContent(language: String) {
             Spacer(modifier = Modifier.height(12.dp))
             
             MockData.organizers.take(2).forEach { organizer ->
-                OrganizerCard(organizer, language)
+                OrganizerCard(
+                    organizer = OrganizerData(
+                        uuid = organizer.id.toString(),
+                        name = organizer.name,
+                        status = "active",
+                        isVerified = true,
+                        isPublic = true,
+                        createdAt = "",
+                        updatedAt = "",
+                        logo = null, // Mock data doesn't have logo URLs
+                        followCount = organizer.projectsCompleted
+                    ),
+                    languageCode = language,
+                    onToggleFollow = { /* No-op on home page */ }
+                )
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }

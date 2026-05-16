@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
@@ -264,6 +265,7 @@ fun EventPageContent(
                                 event = event,
                                 languageCode = language,
                                 userProfile = userProfile,
+                                isFavorited = event.isFavorited,
                                 onToggleFavourite = { onToggleFavourite(event.uuid) },
                                 onNavigateToDetail = { onNavigateToDetail(event.uuid) },
                                 onDelete = null
@@ -381,6 +383,7 @@ fun EventCard(
     event: EventData,
     languageCode: String,
     userProfile: UserData?,
+    isFavorited: Boolean = false,
     onToggleFavourite: () -> Unit = {},
     onNavigateToDetail: () -> Unit,
     onDelete: (() -> Unit)? = null
@@ -442,9 +445,9 @@ fun EventCard(
                                 .size(32.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.FavoriteBorder,
+                                imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favourite",
-                                tint = Color.White,
+                                tint = if (isFavorited) Color.Red else Color.White,
                                 modifier = Modifier.size(18.dp)
                             )
                         }

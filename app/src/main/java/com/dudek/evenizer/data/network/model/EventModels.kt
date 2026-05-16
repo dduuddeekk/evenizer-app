@@ -37,7 +37,19 @@ data class EventData(
     val categories: List<EventCategory>? = null,
     val eventLocations: List<EventLocationData>? = null,
     val ticketTiers: List<TicketTier>? = emptyList(),
-    val _count: Count? = null
+    val eventOrganizers: List<EventOrganizer>? = emptyList(),
+    val _count: Count? = null,
+    val isFavorited: Boolean = false
+)
+
+@Serializable
+data class EventOrganizer(
+    val uuid: String,
+    val eventUuid: String,
+    val organizerUuid: String,
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String? = null
 )
 
 @Serializable
@@ -47,7 +59,8 @@ data class TicketTier(
 
 @Serializable
 data class Count(
-    val favouritedBy: Int
+    val favouritedBy: Int = 0,
+    val rundowns: Int = 0
 )
 
 @Serializable

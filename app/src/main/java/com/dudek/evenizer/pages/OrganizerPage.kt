@@ -21,15 +21,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
-import com.dudek.evenizer.data.MockData
-import com.dudek.evenizer.data.Organizer
+import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.data.network.model.UserData
+import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.utils.DateUtils
@@ -42,16 +44,30 @@ import java.util.*
 fun OrganizerPage(
     themeViewModel: ThemeViewModel,
     userViewModel: UserViewModel,
+    organizerViewModel: OrganizerViewModel,
     onNavigateToCreate: () -> Unit,
     onNavigateToMyOrganizers: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
+    val context = LocalContext.current
     val language by themeViewModel.language.collectAsState(initial = "id")
     val userProfile by userViewModel.userProfile.collectAsState()
+    val organizers by organizerViewModel.organizers.collectAsState()
+    val isLoading by organizerViewModel.isLoading.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (organizers.isEmpty()) {
+            organizerViewModel.fetchOrganizers(context)
+        }
+    }
 
     OrganizerPageContent(
         language = language,
         userProfile = userProfile,
+        organizers = organizers,
+        isLoading = isLoading,
+        onRefresh = { organizerViewModel.fetchOrganizers(context) },
+        onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
         onNavigateToCreate = onNavigateToCreate,
         onNavigateToMyOrganizers = onNavigateToMyOrganizers,
         onNavigateToLogin = onNavigateToLogin
@@ -63,6 +79,10 @@ fun OrganizerPage(
 fun OrganizerPageContent(
     language: String,
     userProfile: UserData?,
+    organizers: List<OrganizerData>,
+    isLoading: Boolean,
+    onRefresh: () -> Unit,
+    onToggleFollow: (String) -> Unit,
     onNavigateToCreate: () -> Unit,
     onNavigateToMyOrganizers: () -> Unit,
     onNavigateToLogin: () -> Unit
@@ -70,31 +90,17 @@ fun OrganizerPageContent(
     val selectedDate = remember { mutableStateOf("") }
     val showDatePicker = remember { mutableStateOf(false) }
     
-    val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
     var showFabMenu by remember { mutableStateOf(false) }
     val showLoginDialog = remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         PullToRefreshBox(
-            isRefreshing = isRefreshing.value,
-            onRefresh = {
-                scope.launch {
-                    isRefreshing.value = true
-                    selectedDate.value = ""
-                    delay(2000) // Simulate data reload
-                    isRefreshing.value = false
-                }
-            },
+            isRefreshing = isLoading,
+            onRefresh = onRefresh,
             modifier = Modifier.fillMaxSize()
         ) {
             val datePickerState = rememberDatePickerState()
-
-            val availableOrganizers = remember(selectedDate.value) {
-                MockData.organizers.filter {
-                    selectedDate.value.isEmpty() || it.availableDates.contains(selectedDate.value)
-                }
-            }
 
             if (showDatePicker.value) {
                 val onDismiss = { showDatePicker.value = false }
@@ -211,8 +217,12 @@ fun OrganizerPageContent(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
-                    items(availableOrganizers) { organizer ->
-                        OrganizerCard(organizer, language)
+                    items(organizers) { organizer ->
+                        OrganizerCard(
+                            organizer = organizer,
+                            languageCode = language,
+                            onToggleFollow = { onToggleFollow(organizer.uuid) }
+                        )
                     }
                 }
             }
@@ -296,7 +306,11 @@ fun OrganizerPageContent(
 }
 
 @Composable
-fun OrganizerCard(organizer: Organizer, languageCode: String) {
+fun OrganizerCard(
+    organizer: OrganizerData,
+    languageCode: String,
+    onToggleFollow: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -310,20 +324,28 @@ fun OrganizerCard(organizer: Organizer, languageCode: String) {
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Placeholder for Profile/Logo
+            // Profile/Logo
             Box(
                 modifier = Modifier
                     .size(60.dp)
                     .clip(CircleShape)
-                    .background(organizer.color),
+                    .background(Color(0xFF2196F3).copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = organizer.name.take(1),
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                if (!organizer.logo.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = organizer.logo,
+                        contentDescription = "Organizer Logo",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Text(
+                        text = organizer.name.take(1),
+                        color = Color(0xFF2196F3),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -345,7 +367,7 @@ fun OrganizerCard(organizer: Organizer, languageCode: String) {
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(R.string.organizer_projects_rating, organizer.projectsCompleted, organizer.rating),
+                        text = stringResource(R.string.organizer_projects_rating, organizer._count?.eventOrganizers ?: 0, 4.5f), // Rating mock for now
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
@@ -353,23 +375,23 @@ fun OrganizerCard(organizer: Organizer, languageCode: String) {
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                val formattedDates = organizer.availableDates.joinToString(", ") { 
-                    DateUtils.formatLocaleDate(it, languageCode) 
-                }
                 Text(
-                    text = stringResource(R.string.organizer_available, formattedDates),
+                    text = stringResource(R.string.home_stat_total_events) + ": ${organizer._count?.eventOrganizers ?: 0}",
                     fontSize = 12.sp,
                     color = Color(0xFF2196F3)
                 )
             }
 
             Button(
-                onClick = { /* TODO */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2196F3)),
+                onClick = onToggleFollow,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (organizer.isFollow) Color.LightGray else Color(0xFF2196F3),
+                    contentColor = if (organizer.isFollow) Color.Black else Color.White
+                ),
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(stringResource(R.string.btn_hire))
+                Text(if (organizer.isFollow) stringResource(R.string.btn_following) else stringResource(R.string.btn_follow))
             }
         }
     }
@@ -381,6 +403,10 @@ fun OrganizerPagePreview() {
     OrganizerPageContent(
         language = "id",
         userProfile = null,
+        organizers = emptyList(),
+        isLoading = false,
+        onRefresh = {},
+        onToggleFollow = {},
         onNavigateToCreate = {},
         onNavigateToMyOrganizers = {},
         onNavigateToLogin = {}

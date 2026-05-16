@@ -181,6 +181,7 @@ fun MyEventsPageContent(
                                     event = event,
                                     languageCode = language,
                                     userProfile = userProfile,
+                                    isFavorited = event.isFavorited,
                                     onNavigateToDetail = { onNavigateToDetail(event.uuid) },
                                     onDelete = { showDeleteDialog = event }
                                 )

@@ -29,7 +29,8 @@
     <string name="filter_any_day">Kapan Saja</string>
     <string name="organizer_projects_rating">%2$.1f • %1$d Proyek</string>
     <string name="organizer_available">Tersedia: %1$s</string>
-    <string name="btn_hire">Rekrut</string>
+    <string name="btn_follow">Ikuti</string>
+    <string name="btn_following">Diikuti</string>
     <string name="home_stat_total_events">Total Acara</string>
     <string name="home_stat_organizers">Penyelenggara</string>
     <string name="home_section_upcoming">Acara Mendatang</string>
@@ -132,6 +133,10 @@
     <string name="create_organizer_title">Daftar Penyelenggara</string>
     <string name="create_organizer_field_name">Nama Penyelenggara</string>
     <string name="create_organizer_field_desc">Deskripsi</string>
+    <string name="create_organizer_public_title">Penyelenggara Publik</string>
+    <string name="create_organizer_public_desc">Terlihat oleh semua orang</string>
+    <string name="create_organizer_private_desc">Komunitas privat</string>
     <string name="create_organizer_field_contact">Email/Telepon Kontak</string>
+    <string name="create_organizer_add_logo">Tambah Logo</string>
     <string name="create_organizer_btn_create">Daftarkan Penyelenggara</string>
 </resources>

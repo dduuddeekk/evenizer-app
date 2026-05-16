@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -15,31 +14,40 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
-import com.dudek.evenizer.data.Organizer
+import com.dudek.evenizer.data.network.model.OrganizerData
+import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun MyOrganizersPage(
     themeViewModel: ThemeViewModel,
+    organizerViewModel: OrganizerViewModel,
     onNavigateToCreate: () -> Unit,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val language by themeViewModel.language.collectAsState(initial = "id")
+    val myOrganizers by organizerViewModel.myOrganizers.collectAsState()
+    val isLoading by organizerViewModel.isLoading.collectAsState()
+
+    LaunchedEffect(Unit) {
+        organizerViewModel.fetchMyOrganizers(context)
+    }
 
     MyOrganizersPageContent(
-        organizers = emptyList(), // Static UI for now
-        isLoading = false,
+        organizers = myOrganizers,
+        isLoading = isLoading,
         language = language,
         onBack = onBack,
-        onRefresh = { /* TODO */ },
+        onRefresh = { organizerViewModel.fetchMyOrganizers(context) },
+        onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
         onNavigateToCreate = onNavigateToCreate
     )
 }
@@ -47,11 +55,12 @@ fun MyOrganizersPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyOrganizersPageContent(
-    organizers: List<Organizer>,
+    organizers: List<OrganizerData>,
     isLoading: Boolean,
     language: String,
     onBack: () -> Unit,
     onRefresh: () -> Unit,
+    onToggleFollow: (String) -> Unit,
     onNavigateToCreate: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -101,7 +110,11 @@ fun MyOrganizersPageContent(
                         contentPadding = PaddingValues(16.dp)
                     ) {
                         items(organizers) { organizer ->
-                            OrganizerCard(organizer, language)
+                            OrganizerCard(
+                                organizer = organizer,
+                                languageCode = language,
+                                onToggleFollow = { onToggleFollow(organizer.uuid) }
+                            )
                         }
                     }
                 }
@@ -131,6 +144,7 @@ fun MyOrganizersPagePreview() {
         language = "id",
         onBack = {},
         onRefresh = {},
+        onToggleFollow = {},
         onNavigateToCreate = {}
     )
 }

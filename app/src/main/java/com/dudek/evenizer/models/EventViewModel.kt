@@ -86,8 +86,7 @@ class EventViewModel : ViewModel() {
                 val response = service.getEventDetail(uuid)
                 if (response.success) {
                     _eventDetail.value = response.data
-                    // Assuming we track favorite status locally or API provides it
-                    // For now let's say it's based on user data which we'll implement later
+                    _isFavourited.value = response.data?.isFavorited ?: false
                 }
             } catch (e: Exception) {
                 _error.value = "Failed to fetch event details: ${e.message}"
@@ -101,12 +100,25 @@ class EventViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val service = NetworkModule.getEventService(context)
-                if (_isFavourited.value) {
-                    val response = service.unfavouriteEvent(uuid)
-                    if (response.success) _isFavourited.value = false
+                val isCurrentlyFavourited = _isFavourited.value
+                
+                val response = if (isCurrentlyFavourited) {
+                    service.unfavouriteEvent(uuid)
                 } else {
-                    val response = service.favouriteEvent(uuid)
-                    if (response.success) _isFavourited.value = true
+                    service.favouriteEvent(uuid)
+                }
+                
+                if (response.success) {
+                    val newState = !isCurrentlyFavourited
+                    _isFavourited.value = newState
+                    
+                    // Update the state in the lists as well
+                    _events.value = _events.value.map { 
+                        if (it.uuid == uuid) it.copy(isFavorited = newState) else it 
+                    }
+                    _myEvents.value = _myEvents.value.map { 
+                        if (it.uuid == uuid) it.copy(isFavorited = newState) else it 
+                    }
                 }
             } catch (e: Exception) {
                 _error.value = "Favourite action failed: ${e.message}"

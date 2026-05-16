@@ -12,7 +12,7 @@ interface EventService {
     suspend fun getAllEvents(
         @Query("search") search: String? = null,
         @Query("category") category: String? = null,
-        @Query("status") status: Map<String, Boolean>? = null,
+        @Query("status") status: String? = null,
         @Query("isPublic") isPublic: Boolean? = null,
         @Query("page") page: Int? = null,
         @Query("limit") limit: Int? = null,
@@ -38,7 +38,7 @@ interface EventService {
     suspend fun getMyEvents(
         @Query("search") search: String? = null,
         @Query("category") category: String? = null,
-        @Query("status") status: Map<String, Boolean>? = null,
+        @Query("status") status: String? = null,
         @Query("isPublic") isPublic: Boolean? = null,
         @Query("page") page: Int? = null,
         @Query("limit") limit: Int? = null,

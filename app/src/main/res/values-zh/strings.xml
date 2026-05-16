@@ -29,7 +29,8 @@
     <string name="filter_any_day">不限日期</string>
     <string name="organizer_projects_rating">%2$.1f • %1$d 个项目</string>
     <string name="organizer_available">可用日期：%1$s</string>
-    <string name="btn_hire">雇用</string>
+    <string name="btn_follow">关注</string>
+    <string name="btn_following">已关注</string>
     <string name="home_stat_total_events">总活动数</string>
     <string name="home_stat_organizers">组织者</string>
     <string name="home_section_upcoming">即将举行的活动</string>
@@ -132,6 +133,10 @@
     <string name="create_organizer_title">创建组织者</string>
     <string name="create_organizer_field_name">组织者名称</string>
     <string name="create_organizer_field_desc">描述</string>
+    <string name="create_organizer_public_title">公开组织者</string>
+    <string name="create_organizer_public_desc">所有人可见</string>
+    <string name="create_organizer_private_desc">私人社区</string>
     <string name="create_organizer_field_contact">联系邮箱/电话</string>
+    <string name="create_organizer_add_logo">添加图标</string>
     <string name="create_organizer_btn_create">注册组织者</string>
 </resources>

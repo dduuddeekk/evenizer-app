@@ -64,7 +64,6 @@ fun EventDetailPage(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailPageContent(
     event: EventData?,
@@ -77,34 +76,48 @@ fun EventDetailPageContent(
 ) {
     val isOrganizer = userProfile != null && event != null && userProfile.uuid == event.userUuid
     val isLoggedIn = userProfile != null
+    val scrollState = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.event_detail_title), fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    if (isLoggedIn && !isOrganizer) {
-                        IconButton(onClick = onToggleFavourite) {
-                            Icon(
-                                imageVector = if (isFavourited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Favourite",
-                                tint = if (isFavourited) Color.Red else MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = Color(0xFF4CAF50)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        // Header (Algorithm from SettingsPage)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color(0xFF4CAF50)
                 )
+            }
+            Text(
+                text = stringResource(R.string.event_detail_title),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4CAF50),
+                modifier = Modifier.weight(1f).padding(start = 8.dp)
             )
+            
+            if (isLoggedIn && !isOrganizer && event != null) {
+                IconButton(onClick = onToggleFavourite) {
+                    Icon(
+                        imageVector = if (isFavourited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favourite",
+                        tint = if (isFavourited) Color.Red else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
         }
-    ) { padding ->
+
+        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = Color(0xFF4CAF50))
@@ -113,8 +126,7 @@ fun EventDetailPageContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
             ) {
                 // Banner
                 AsyncImage(

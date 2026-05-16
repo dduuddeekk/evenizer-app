@@ -30,6 +30,7 @@ import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.models.EventViewModel
+import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.pages.CreateEventPage
 import com.dudek.evenizer.pages.EventDetailPage
 import com.dudek.evenizer.pages.EventPage
@@ -51,6 +52,7 @@ fun MainScreen(
     authViewModel: AuthViewModel,
     userViewModel: UserViewModel,
     eventViewModel: EventViewModel,
+    organizerViewModel: OrganizerViewModel,
     onNavigateToLogin: () -> Unit
 ) {
     val navController = rememberNavController()
@@ -121,6 +123,7 @@ fun MainScreen(
                 OrganizerPage(
                     themeViewModel = themeViewModel,
                     userViewModel = userViewModel,
+                    organizerViewModel = organizerViewModel,
                     onNavigateToCreate = { navController.navigate("create_organizer") },
                     onNavigateToMyOrganizers = { navController.navigate("my_organizers") },
                     onNavigateToLogin = onNavigateToLogin
@@ -128,6 +131,7 @@ fun MainScreen(
             }
             composable("create_organizer") {
                 CreateOrganizerPage(
+                    organizerViewModel = organizerViewModel,
                     onBack = { navController.popBackStack() },
                     onSuccess = { 
                         navController.navigate("my_organizers") {
@@ -139,6 +143,7 @@ fun MainScreen(
             composable("my_organizers") {
                 MyOrganizersPage(
                     themeViewModel = themeViewModel,
+                    organizerViewModel = organizerViewModel,
                     onNavigateToCreate = { navController.navigate("create_organizer") },
                     onBack = { navController.popBackStack() }
                 )
@@ -185,8 +190,9 @@ fun MainScreenContent(
             ) {
                 navItems.forEach { item ->
                     val selected = currentRoute == item.route || 
-                                   (item.route == "profile" && currentRoute == "settings") ||
-                                   (item.route == "event" && (currentRoute == "create_event" || currentRoute == "my_events"))
+                                   (item.route == "profile" && (currentRoute == "settings")) ||
+                                   (item.route == "event" && (currentRoute?.startsWith("event_detail") == true || currentRoute == "create_event" || currentRoute == "my_events")) ||
+                                   (item.route == "organizer" && (currentRoute == "create_organizer" || currentRoute == "my_organizers"))
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = null) },
                         label = { 

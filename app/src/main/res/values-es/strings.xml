@@ -28,7 +28,8 @@
     <string name="filter_any_day">Cualquier día</string>
     <string name="organizer_projects_rating">%2$.1f • %1$d Proyectos</string>
     <string name="organizer_available">Disponible: %1$s</string>
-    <string name="btn_hire">Contratar</string>
+    <string name="btn_follow">Seguir</string>
+    <string name="btn_following">Siguiendo</string>
     <string name="home_stat_total_events">Total de Eventos</string>
     <string name="home_stat_organizers">Organizadores</string>
     <string name="home_section_upcoming">Próximos Eventos</string>
@@ -131,6 +132,10 @@
     <string name="create_organizer_title">Crear Organizador</string>
     <string name="create_organizer_field_name">Nombre del Organizador</string>
     <string name="create_organizer_field_desc">Descripción</string>
+    <string name="create_organizer_public_title">Organizador Público</string>
+    <string name="create_organizer_public_desc">Visible para todos</string>
+    <string name="create_organizer_private_desc">Comunidad privada</string>
     <string name="create_organizer_field_contact">Email/Teléfono de Contacto</string>
+    <string name="create_organizer_add_logo">Añadir Logo</string>
     <string name="create_organizer_btn_create">Registrar Organizador</string>
 </resources>

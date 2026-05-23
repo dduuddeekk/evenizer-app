@@ -38,6 +38,7 @@ import com.dudek.evenizer.pages.MyEventsPage
 import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.OrganizerPage
 import com.dudek.evenizer.pages.OrganizerDetailPage
+import com.dudek.evenizer.pages.CreateOrganizerRolesPage
 import com.dudek.evenizer.pages.ProfilePage
 import com.dudek.evenizer.pages.SettingsPage
 import com.dudek.evenizer.pages.CreateOrganizerPage
@@ -77,7 +78,13 @@ fun MainScreen(
                 startDestination = "home",
                 modifier = Modifier.padding(innerPadding)
             ) {
-                composable("home") { HomePage(themeViewModel = themeViewModel) }
+                composable("home") { 
+                    HomePage(
+                        themeViewModel = themeViewModel,
+                        eventViewModel = eventViewModel,
+                        organizerViewModel = organizerViewModel
+                    ) 
+                }
                 composable("event") { 
                     EventPage(
                         themeViewModel = themeViewModel,
@@ -138,7 +145,17 @@ fun MainScreen(
                     themeViewModel = themeViewModel,
                     userViewModel = userViewModel,
                     organizerViewModel = organizerViewModel,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onNavigateToAddRole = { navController.navigate("create_organizer_roles/$uuid") }
+                )
+            }
+            composable("create_organizer_roles/{uuid}") { backStackEntry ->
+                val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                CreateOrganizerRolesPage(
+                    organizerUuid = uuid,
+                    organizerViewModel = organizerViewModel,
+                    onBack = { navController.popBackStack() },
+                    onSuccess = { navController.popBackStack() }
                 )
             }
             composable("create_organizer") {

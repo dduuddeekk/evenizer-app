@@ -33,6 +33,7 @@ import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.utils.DateUtils
+import com.dudek.evenizer.utils.DetailSkeleton
 
 @Composable
 fun EventDetailPage(
@@ -119,9 +120,7 @@ fun EventDetailPageContent(
         HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color(0xFF4CAF50))
-            }
+            DetailSkeleton()
         } else if (event != null) {
             Column(
                 modifier = Modifier

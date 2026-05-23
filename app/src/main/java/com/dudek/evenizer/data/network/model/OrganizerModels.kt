@@ -32,3 +32,28 @@ data class CreateOrganizerRequest(
     val description: String,
     val isPublic: Boolean = true
 )
+
+@Serializable
+data class CreateRoleRequest(
+    val name: String,
+    val description: String
+)
+
+@Serializable
+data class RoleData(
+    val uuid: String,
+    val name: String,
+    val organizerUuid: String,
+    val description: String,
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String? = null
+)
+
+@Serializable
+data class RoleResponse(
+    val success: Boolean,
+    val code: String,
+    val message: String,
+    val data: RoleData? = null
+)

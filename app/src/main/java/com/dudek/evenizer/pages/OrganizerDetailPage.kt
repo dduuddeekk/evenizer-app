@@ -34,6 +34,7 @@ import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.utils.DetailSkeleton
 
 @Composable
 fun OrganizerDetailPage(
@@ -41,7 +42,8 @@ fun OrganizerDetailPage(
     themeViewModel: ThemeViewModel,
     userViewModel: UserViewModel,
     organizerViewModel: OrganizerViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToAddRole: () -> Unit
 ) {
     val context = LocalContext.current
     val organizer by organizerViewModel.organizerDetail.collectAsState()
@@ -58,7 +60,7 @@ fun OrganizerDetailPage(
         userProfile = userProfile,
         onBack = onBack,
         onAddMember = { /* TODO: Implement add member */ },
-        onAddRole = { /* TODO: Implement add role */ },
+        onAddRole = onNavigateToAddRole,
         onEditOrganizer = { /* TODO: Implement edit */ }
     )
 }
@@ -111,9 +113,7 @@ fun OrganizerDetailPageContent(
             HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
             if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color(0xFF2196F3))
-                }
+                DetailSkeleton()
             } else if (organizer != null) {
                 Column(
                     modifier = Modifier

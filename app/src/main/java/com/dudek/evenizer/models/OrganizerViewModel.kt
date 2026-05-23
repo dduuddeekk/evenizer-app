@@ -7,10 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.network.model.CreateOrganizerRequest
+import com.dudek.evenizer.data.network.model.CreateRoleRequest
 import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.utils.ImageUtils
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -32,6 +35,68 @@ class OrganizerViewModel : ViewModel() {
 
     private val _organizerDetail = MutableStateFlow<OrganizerData?>(null)
     val organizerDetail: StateFlow<OrganizerData?> = _organizerDetail
+
+    private var pollingJob: kotlinx.coroutines.Job? = null
+
+    fun startRealtimeOrganizers(context: Context) {
+        stopRealtimeOrganizers()
+        pollingJob = viewModelScope.launch {
+            while (isActive) {
+                try {
+                    val service = NetworkModule.getOrganizerService(context)
+                    val response = service.getAllOrganizers()
+                    if (response.success) {
+                        _organizers.value = response.data?.data ?: emptyList()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                delay(10000)
+            }
+        }
+    }
+
+    fun addMultipleRoles(
+        context: Context,
+        organizerUuid: String,
+        roles: List<Pair<String, String>>,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                val service = NetworkModule.getOrganizerService(context)
+                var allSuccess = true
+                var lastErrorMessage = ""
+                
+                roles.forEach { (name, description) ->
+                    if (name.isNotBlank()) {
+                        val response = service.createRole(organizerUuid, CreateRoleRequest(name, description))
+                        if (!response.success) {
+                            allSuccess = false
+                            lastErrorMessage = response.message
+                        }
+                    }
+                }
+                
+                if (allSuccess) {
+                    onSuccess()
+                } else {
+                    _error.value = "Some roles failed to save: $lastErrorMessage"
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to add roles: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun stopRealtimeOrganizers() {
+        pollingJob?.cancel()
+        pollingJob = null
+    }
 
     fun fetchOrganizers(context: Context, search: String? = null) {
         viewModelScope.launch {

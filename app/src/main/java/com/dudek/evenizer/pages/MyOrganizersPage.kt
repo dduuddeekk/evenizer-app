@@ -24,6 +24,7 @@ import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
+import com.dudek.evenizer.utils.OrganizerCardSkeleton
 
 @Composable
 fun MyOrganizersPage(
@@ -114,15 +115,21 @@ fun MyOrganizersPageContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(16.dp)
                     ) {
-                        items(organizers) { organizer ->
-                            OrganizerCard(
-                                organizer = organizer,
-                                languageCode = language,
-                                currentUserUuid = organizer.userUuid, // In MyOrganizers, we are the owner
-                                onToggleFollow = { onToggleFollow(organizer.uuid) },
-                                onDelete = { onDelete(organizer.uuid) },
-                                onClick = { onNavigateToDetail(organizer.uuid) }
-                            )
+                        if (isLoading && organizers.isEmpty()) {
+                            items(5) {
+                                OrganizerCardSkeleton()
+                            }
+                        } else {
+                            items(organizers) { organizer ->
+                                OrganizerCard(
+                                    organizer = organizer,
+                                    languageCode = language,
+                                    currentUserUuid = organizer.userUuid, // In MyOrganizers, we are the owner
+                                    onToggleFollow = { onToggleFollow(organizer.uuid) },
+                                    onDelete = { onDelete(organizer.uuid) },
+                                    onClick = { onNavigateToDetail(organizer.uuid) }
+                                )
+                            }
                         }
                     }
                 }

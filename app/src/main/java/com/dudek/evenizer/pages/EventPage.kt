@@ -41,6 +41,7 @@ import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.utils.DateUtils
+import com.dudek.evenizer.utils.EventCardSkeleton
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -60,6 +61,13 @@ fun EventPage(
     val events by eventViewModel.events.collectAsState()
     val isLoading by eventViewModel.isLoading.collectAsState()
     
+    DisposableEffect(Unit) {
+        eventViewModel.startRealtimeEvents(context)
+        onDispose {
+            eventViewModel.stopRealtimeEvents()
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (events.isEmpty()) {
             eventViewModel.fetchEvents(context)
@@ -260,16 +268,22 @@ fun EventPageContent(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         contentPadding = PaddingValues(bottom = 80.dp)
                     ) {
-                        items(filteredEvents) { event ->
-                            EventCard(
-                                event = event,
-                                languageCode = language,
-                                userProfile = userProfile,
-                                isFavorited = event.isFavorited,
-                                onToggleFavourite = { onToggleFavourite(event.uuid) },
-                                onNavigateToDetail = { onNavigateToDetail(event.uuid) },
-                                onDelete = null
-                            )
+                        if (isLoading && filteredEvents.isEmpty()) {
+                            items(6) {
+                                EventCardSkeleton()
+                            }
+                        } else {
+                            items(filteredEvents) { event ->
+                                EventCard(
+                                    event = event,
+                                    languageCode = language,
+                                    userProfile = userProfile,
+                                    isFavorited = event.isFavorited,
+                                    onToggleFavourite = { onToggleFavourite(event.uuid) },
+                                    onNavigateToDetail = { onNavigateToDetail(event.uuid) },
+                                    onDelete = null
+                                )
+                            }
                         }
                     }
                 }

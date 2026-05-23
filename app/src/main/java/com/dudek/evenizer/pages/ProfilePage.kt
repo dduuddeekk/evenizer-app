@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -45,6 +46,7 @@ import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.utils.shimmerEffect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -74,6 +76,47 @@ fun ProfilePage(
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToLogin = onNavigateToLogin
     )
+}
+
+@Composable
+fun UserProfileSkeleton() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .size(80.dp)
+                .clip(CircleShape)
+                .shimmerEffect()
+        )
+        Spacer(modifier = Modifier.width(20.dp))
+        Column {
+            Box(
+                modifier = Modifier
+                    .width(150.dp)
+                    .height(24.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .shimmerEffect()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(16.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .shimmerEffect()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .width(180.dp)
+                    .height(16.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .shimmerEffect()
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -236,9 +279,7 @@ fun ProfilePageContent(
             Spacer(modifier = Modifier.height(32.dp))
             
             if (isLoading && !isRefreshing.value) {
-                Box(modifier = Modifier.fillMaxWidth().height(100.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Color(0xFFF44336))
-                }
+                UserProfileSkeleton()
             } else {
                 UserProfileSection(
                     user = userProfile,

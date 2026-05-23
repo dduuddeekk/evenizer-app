@@ -28,6 +28,7 @@ import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.utils.EventCardSkeleton
 
 @Composable
 fun MyEventsPage(
@@ -176,15 +177,21 @@ fun MyEventsPageContent(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             contentPadding = PaddingValues(bottom = 80.dp)
                         ) {
-                            items(filteredEvents) { event ->
-                                EventCard(
-                                    event = event,
-                                    languageCode = language,
-                                    userProfile = userProfile,
-                                    isFavorited = event.isFavorited,
-                                    onNavigateToDetail = { onNavigateToDetail(event.uuid) },
-                                    onDelete = { showDeleteDialog = event }
-                                )
+                            if (isLoading && filteredEvents.isEmpty()) {
+                                items(4) {
+                                    EventCardSkeleton()
+                                }
+                            } else {
+                                items(filteredEvents) { event ->
+                                    EventCard(
+                                        event = event,
+                                        languageCode = language,
+                                        userProfile = userProfile,
+                                        isFavorited = event.isFavorited,
+                                        onNavigateToDetail = { onNavigateToDetail(event.uuid) },
+                                        onDelete = { showDeleteDialog = event }
+                                    )
+                                }
                             }
                         }
                     }

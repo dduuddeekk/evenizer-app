@@ -11,6 +11,7 @@ import com.dudek.evenizer.data.network.model.EventLocationRequest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -42,6 +43,34 @@ class EventViewModel : ViewModel() {
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+
+    private var pollingJob: kotlinx.coroutines.Job? = null
+
+    fun startRealtimeEvents(context: Context) {
+        // Stop any existing job first
+        stopRealtimeEvents()
+        
+        pollingJob = viewModelScope.launch {
+            while (isActive) {
+                try {
+                    val service = NetworkModule.getEventService(context)
+                    val response = service.getAllEvents()
+                    if (response.success) {
+                        _events.value = response.data?.data ?: emptyList()
+                    }
+                } catch (e: Exception) {
+                    // Log error but keep polling
+                    e.printStackTrace()
+                }
+                delay(10000) // Poll every 10 seconds
+            }
+        }
+    }
+
+    fun stopRealtimeEvents() {
+        pollingJob?.cancel()
+        pollingJob = null
+    }
 
     fun fetchEvents(context: Context, search: String? = null, category: String? = null) {
         viewModelScope.launch {

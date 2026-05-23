@@ -36,6 +36,7 @@ import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.utils.DateUtils
+import com.dudek.evenizer.utils.OrganizerCardSkeleton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -56,6 +57,13 @@ fun OrganizerPage(
     val userProfile by userViewModel.userProfile.collectAsState()
     val organizers by organizerViewModel.organizers.collectAsState()
     val isLoading by organizerViewModel.isLoading.collectAsState()
+
+    DisposableEffect(Unit) {
+        organizerViewModel.startRealtimeOrganizers(context)
+        onDispose {
+            organizerViewModel.stopRealtimeOrganizers()
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (organizers.isEmpty()) {
@@ -223,15 +231,21 @@ fun OrganizerPageContent(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
-                    items(organizers) { organizer ->
-                        OrganizerCard(
-                            organizer = organizer,
-                            languageCode = language,
-                            currentUserUuid = userProfile?.uuid,
-                            onToggleFollow = { onToggleFollow(organizer.uuid) },
-                            onDelete = { onDelete(organizer.uuid) },
-                            onClick = { onNavigateToDetail(organizer.uuid) }
-                        )
+                    if (isLoading && organizers.isEmpty()) {
+                        items(5) {
+                            OrganizerCardSkeleton()
+                        }
+                    } else {
+                        items(organizers) { organizer ->
+                            OrganizerCard(
+                                organizer = organizer,
+                                languageCode = language,
+                                currentUserUuid = userProfile?.uuid,
+                                onToggleFollow = { onToggleFollow(organizer.uuid) },
+                                onDelete = { onDelete(organizer.uuid) },
+                                onClick = { onNavigateToDetail(organizer.uuid) }
+                            )
+                        }
                     }
                 }
             }

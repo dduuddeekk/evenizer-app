@@ -1,8 +1,10 @@
 package com.dudek.evenizer.data.network.service
 
 import com.dudek.evenizer.data.network.model.CreateOrganizerRequest
+import com.dudek.evenizer.data.network.model.CreateRoleRequest
 import com.dudek.evenizer.data.network.model.OrganizerListResponse
 import com.dudek.evenizer.data.network.model.OrganizerResponse
+import com.dudek.evenizer.data.network.model.RoleResponse
 import okhttp3.MultipartBody
 import retrofit2.http.*
 
@@ -21,6 +23,12 @@ interface OrganizerService {
 
     @POST("organizer")
     suspend fun createOrganizer(@Body request: CreateOrganizerRequest): OrganizerResponse
+
+    @POST("organizer/{uuid}/roles")
+    suspend fun createRole(
+        @Path("uuid") uuid: String,
+        @Body request: CreateRoleRequest
+    ): RoleResponse
 
     @GET("organizer/my-organizer")
     suspend fun getMyOrganizers(

@@ -24,6 +24,7 @@ import com.dudek.evenizer.data.MockData
 import com.dudek.evenizer.data.Ticket
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.utils.DateUtils
+import com.dudek.evenizer.utils.TicketCardSkeleton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -67,7 +68,16 @@ fun TicketPageContent(language: String) {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (tickets.isEmpty()) {
+            if (isRefreshing.value) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp)
+                ) {
+                    items(5) {
+                        TicketCardSkeleton()
+                    }
+                }
+            } else if (tickets.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(text = stringResource(R.string.ticket_empty), color = Color.Gray)
                 }

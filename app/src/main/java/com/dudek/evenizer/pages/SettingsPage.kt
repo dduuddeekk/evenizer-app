@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.models.ThemeViewModel
+import com.dudek.evenizer.utils.SettingsSkeleton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -117,121 +118,125 @@ fun SettingsPageContent(
 
             HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
-            Column(modifier = Modifier.padding(24.dp)) {
-                // Dark Mode Section
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.settings_dark_mode),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = if (isDarkMode) {
-                                stringResource(R.string.settings_switch_to_light)
-                            } else {
-                                stringResource(R.string.settings_switch_to_dark)
-                            },
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = isDarkMode,
-                        onCheckedChange = { onToggleDarkMode() },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White,
-                            checkedTrackColor = Color(0xFFF44336),
-                            uncheckedThumbColor = Color.White,
-                            uncheckedTrackColor = Color.LightGray
-                        )
-                    )
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    color = Color.LightGray.copy(alpha = 0.3f)
-                )
-
-                // Language Section
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { expanded = true },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Language,
-                        contentDescription = null,
-                        tint = Color(0xFFF44336),
-                        modifier = Modifier.padding(end = 16.dp)
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.settings_language),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        val currentLangName = when(language) {
-                            "id" -> stringResource(R.string.lang_id)
-                            "en" -> stringResource(R.string.lang_en)
-                            "zh" -> stringResource(R.string.lang_zh)
-                            "ru" -> stringResource(R.string.lang_ru)
-                            "es" -> stringResource(R.string.lang_es)
-                            else -> stringResource(R.string.lang_id)
+            if (isRefreshing.value) {
+                SettingsSkeleton()
+            } else {
+                Column(modifier = Modifier.padding(24.dp)) {
+                    // Dark Mode Section
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.settings_dark_mode),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = if (isDarkMode) {
+                                    stringResource(R.string.settings_switch_to_light)
+                                } else {
+                                    stringResource(R.string.settings_switch_to_dark)
+                                },
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                        Text(
-                            text = currentLangName,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        Switch(
+                            checked = isDarkMode,
+                            onCheckedChange = { onToggleDarkMode() },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                checkedTrackColor = Color(0xFFF44336),
+                                uncheckedThumbColor = Color.White,
+                                uncheckedTrackColor = Color.LightGray
+                            )
                         )
                     }
-                    
-                    Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_id)) },
-                                onClick = {
-                                    onSetLanguage("id")
-                                    expanded = false
-                                }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        color = Color.LightGray.copy(alpha = 0.3f)
+                    )
+
+                    // Language Section
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expanded = true },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Language,
+                            contentDescription = null,
+                            tint = Color(0xFFF44336),
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.settings_language),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_en)) },
-                                onClick = {
-                                    onSetLanguage("en")
-                                    expanded = false
-                                }
+                            val currentLangName = when(language) {
+                                "id" -> stringResource(R.string.lang_id)
+                                "en" -> stringResource(R.string.lang_en)
+                                "zh" -> stringResource(R.string.lang_zh)
+                                "ru" -> stringResource(R.string.lang_ru)
+                                "es" -> stringResource(R.string.lang_es)
+                                else -> stringResource(R.string.lang_id)
+                            }
+                            Text(
+                                text = currentLangName,
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_zh)) },
-                                onClick = {
-                                    onSetLanguage("zh")
-                                    expanded = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_ru)) },
-                                onClick = {
-                                    onSetLanguage("ru")
-                                    expanded = false
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.lang_es)) },
-                                onClick = {
-                                    onSetLanguage("es")
-                                    expanded = false
-                                }
-                            )
+                        }
+                        
+                        Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.lang_id)) },
+                                    onClick = {
+                                        onSetLanguage("id")
+                                        expanded = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.lang_en)) },
+                                    onClick = {
+                                        onSetLanguage("en")
+                                        expanded = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.lang_zh)) },
+                                    onClick = {
+                                        onSetLanguage("zh")
+                                        expanded = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.lang_ru)) },
+                                    onClick = {
+                                        onSetLanguage("ru")
+                                        expanded = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.lang_es)) },
+                                    onClick = {
+                                        onSetLanguage("es")
+                                        expanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }

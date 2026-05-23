@@ -23,34 +23,68 @@ import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.Event
 import com.dudek.evenizer.data.MockData
+import com.dudek.evenizer.data.network.model.EventData
 import com.dudek.evenizer.data.network.model.OrganizerData
+import com.dudek.evenizer.models.EventViewModel
+import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.utils.DateUtils
+import com.dudek.evenizer.utils.EventCardSkeleton
+import com.dudek.evenizer.utils.OrganizerCardSkeleton
+import com.dudek.evenizer.utils.StatCardSkeleton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomePage(themeViewModel: ThemeViewModel) {
+fun HomePage(
+    themeViewModel: ThemeViewModel,
+    eventViewModel: EventViewModel,
+    organizerViewModel: OrganizerViewModel
+) {
     val language by themeViewModel.language.collectAsState(initial = "id")
-    HomePageContent(language = language)
+    val events by eventViewModel.events.collectAsState()
+    val organizers by organizerViewModel.organizers.collectAsState()
+    val isLoadingEvents by eventViewModel.isLoading.collectAsState()
+    val isLoadingOrganizers by organizerViewModel.isLoading.collectAsState()
+    
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    DisposableEffect(Unit) {
+        eventViewModel.startRealtimeEvents(context)
+        organizerViewModel.startRealtimeOrganizers(context)
+        onDispose {
+            eventViewModel.stopRealtimeEvents()
+            organizerViewModel.stopRealtimeOrganizers()
+        }
+    }
+
+    HomePageContent(
+        language = language,
+        events = events,
+        organizers = organizers,
+        isLoading = isLoadingEvents || isLoadingOrganizers,
+        onRefresh = {
+            eventViewModel.fetchEvents(context)
+            organizerViewModel.fetchOrganizers(context)
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomePageContent(language: String) {
+fun HomePageContent(
+    language: String,
+    events: List<EventData>,
+    organizers: List<OrganizerData>,
+    isLoading: Boolean,
+    onRefresh: () -> Unit
+) {
     val scrollState = rememberScrollState()
-    val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
 
     PullToRefreshBox(
-        isRefreshing = isRefreshing.value,
-        onRefresh = {
-            scope.launch {
-                isRefreshing.value = true
-                delay(2000) // Simulate data reload
-                isRefreshing.value = false
-            }
-        },
+        isRefreshing = isLoading,
+        onRefresh = onRefresh,
         modifier = Modifier.fillMaxSize(),
     ) {
         Column(
@@ -91,18 +125,23 @@ fun HomePageContent(language: String) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                StatCard(
-                    title = stringResource(R.string.home_stat_total_events),
-                    value = MockData.events.size.toString(),
-                    color = Color(0xFF4CAF50),
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    title = stringResource(R.string.home_stat_organizers),
-                    value = MockData.organizers.size.toString(),
-                    color = Color(0xFF2196F3),
-                    modifier = Modifier.weight(1f)
-                )
+                if (isLoading && events.isEmpty()) {
+                    StatCardSkeleton(modifier = Modifier.weight(1f))
+                    StatCardSkeleton(modifier = Modifier.weight(1f))
+                } else {
+                    StatCard(
+                        title = stringResource(R.string.home_stat_total_events),
+                        value = events.size.toString(),
+                        color = Color(0xFF4CAF50),
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = stringResource(R.string.home_stat_organizers),
+                        value = organizers.size.toString(),
+                        color = Color(0xFF2196F3),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -115,8 +154,14 @@ fun HomePageContent(language: String) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(bottom = 8.dp)
             ) {
-                items(MockData.events.take(3)) { event ->
-                    HomeEventCard(event, language)
+                if (isLoading && events.isEmpty()) {
+                    items(3) {
+                        EventCardSkeleton(modifier = Modifier.width(200.dp))
+                    }
+                } else {
+                    items(events.take(3)) { event ->
+                        HomeEventCardFromData(event, language)
+                    }
                 }
             }
 
@@ -126,25 +171,53 @@ fun HomePageContent(language: String) {
             SectionHeader(title = stringResource(R.string.home_section_available_organizers), actionText = stringResource(R.string.home_see_all))
             Spacer(modifier = Modifier.height(12.dp))
             
-            MockData.organizers.take(2).forEach { organizer ->
-                OrganizerCard(
-                    organizer = OrganizerData(
-                        uuid = organizer.id.toString(),
-                        name = organizer.name,
-                        status = "active",
-                        isVerified = true,
-                        isPublic = true,
-                        createdAt = "",
-                        updatedAt = "",
-                        logo = null, // Mock data doesn't have logo URLs
-                        followCount = organizer.projectsCompleted
-                    ),
-                    languageCode = language,
-                    currentUserUuid = null, // Mock data
-                    onToggleFollow = { /* No-op on home page */ }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+            if (isLoading && organizers.isEmpty()) {
+                repeat(2) {
+                    OrganizerCardSkeleton()
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            } else {
+                organizers.take(2).forEach { organizer ->
+                    OrganizerCard(
+                        organizer = organizer,
+                        languageCode = language,
+                        currentUserUuid = null,
+                        onToggleFollow = { /* No-op on home page */ }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun HomeEventCardFromData(event: EventData, languageCode: String) {
+    Card(
+        modifier = Modifier.width(200.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = event.title,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            val datePart = event.start.take(10)
+            Text(
+                text = DateUtils.formatLocaleDate(datePart, languageCode),
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
+            Text(
+                text = event.eventLocations?.firstOrNull()?.location ?: stringResource(R.string.create_event_loc_online),
+                fontSize = 12.sp,
+                color = Color.Gray,
+                maxLines = 1
+            )
         }
     }
 }
@@ -206,5 +279,11 @@ fun HomeEventCard(event: Event, languageCode: String) {
 @Preview(showBackground = true)
 @Composable
 fun HomePagePreview() {
-    HomePageContent(language = "id")
+    HomePageContent(
+        language = "id",
+        events = emptyList(),
+        organizers = emptyList(),
+        isLoading = false,
+        onRefresh = {}
+    )
 }

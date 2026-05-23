@@ -18,6 +18,7 @@ import com.dudek.evenizer.data.repository.AuthRepository
 import com.dudek.evenizer.data.repository.UserRepository
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.EventViewModel
+import com.dudek.evenizer.models.NotificationViewModel
 import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
@@ -75,6 +76,7 @@ class MainActivity : ComponentActivity() {
 
             val eventViewModel: EventViewModel = viewModel()
             val organizerViewModel: OrganizerViewModel = viewModel()
+            val notificationViewModel: NotificationViewModel = viewModel()
             
             val isDarkMode by themeViewModel.isDarkMode.collectAsState(initial = false)
             val language by themeViewModel.language.collectAsState(initial = "id")
@@ -129,6 +131,7 @@ class MainActivity : ComponentActivity() {
                         userViewModel = userViewModel,
                         eventViewModel = eventViewModel,
                         organizerViewModel = organizerViewModel,
+                        notificationViewModel = notificationViewModel,
                         onNavigateToLogin = {
                             authViewModel.logout {
                                 userViewModel.clearProfile()

@@ -39,7 +39,8 @@ import kotlinx.coroutines.launch
 fun HomePage(
     themeViewModel: ThemeViewModel,
     eventViewModel: EventViewModel,
-    organizerViewModel: OrganizerViewModel
+    organizerViewModel: OrganizerViewModel,
+    onNavigateToNotifications: () -> Unit
 ) {
     val language by themeViewModel.language.collectAsState(initial = "id")
     val events by eventViewModel.events.collectAsState()
@@ -66,7 +67,8 @@ fun HomePage(
         onRefresh = {
             eventViewModel.fetchEvents(context)
             organizerViewModel.fetchOrganizers(context)
-        }
+        },
+        onNotificationClick = onNavigateToNotifications
     )
 }
 
@@ -77,7 +79,8 @@ fun HomePageContent(
     events: List<EventData>,
     organizers: List<OrganizerData>,
     isLoading: Boolean,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onNotificationClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
@@ -113,7 +116,7 @@ fun HomePageContent(
                         color = Color.Gray
                     )
                 }
-                IconButton(onClick = { /* TODO */ }) {
+                IconButton(onClick = onNotificationClick) {
                     Icon(Icons.Default.Notifications, contentDescription = null, tint = Color(0xFF9C27B0))
                 }
             }
@@ -284,6 +287,7 @@ fun HomePagePreview() {
         events = emptyList(),
         organizers = emptyList(),
         isLoading = false,
-        onRefresh = {}
+        onRefresh = {},
+        onNotificationClick = {}
     )
 }

@@ -4,15 +4,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.Event
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,11 +24,13 @@ import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.OrganizerViewModel
+import com.dudek.evenizer.models.NotificationViewModel
 import com.dudek.evenizer.pages.CreateEventPage
 import com.dudek.evenizer.pages.EventDetailPage
 import com.dudek.evenizer.pages.EventPage
 import com.dudek.evenizer.pages.MyEventsPage
 import com.dudek.evenizer.pages.HomePage
+import com.dudek.evenizer.pages.NotificationPage
 import com.dudek.evenizer.pages.OrganizerPage
 import com.dudek.evenizer.pages.OrganizerDetailPage
 import com.dudek.evenizer.pages.CreateOrganizerRolesPage
@@ -57,14 +52,36 @@ fun MainScreen(
     userViewModel: UserViewModel,
     eventViewModel: EventViewModel,
     organizerViewModel: OrganizerViewModel,
+    notificationViewModel: NotificationViewModel,
     onNavigateToLogin: () -> Unit
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    val latestNotification by notificationViewModel.latestNotification.collectAsState()
+
+    DisposableEffect(Unit) {
+        notificationViewModel.startPolling(context)
+        onDispose { notificationViewModel.stopPolling() }
+    }
+
+    // "System Popup" logic using Snackbar or specific UI overlay
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(latestNotification) {
+        latestNotification?.let { notification ->
+            snackbarHostState.showSnackbar(
+                message = "${notification.title}: ${notification.message}",
+                duration = SnackbarDuration.Long
+            )
+            notificationViewModel.clearLatestNotification()
+        }
+    }
 
     MainScreenContent(
         currentRoute = currentRoute,
+        snackbarHostState = snackbarHostState,
         onNavigate = { route ->
             navController.navigate(route) {
                 popUpTo(navController.graph.findStartDestination().id) {
@@ -84,8 +101,15 @@ fun MainScreen(
                     HomePage(
                         themeViewModel = themeViewModel,
                         eventViewModel = eventViewModel,
-                        organizerViewModel = organizerViewModel
+                        organizerViewModel = organizerViewModel,
+                        onNavigateToNotifications = { navController.navigate("notification") }
                     ) 
+                }
+                composable("notification") {
+                    NotificationPage(
+                        notificationViewModel = notificationViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
                 }
                 composable("event") { 
                     EventPage(
@@ -232,6 +256,7 @@ fun MainScreen(
 @Composable
 fun MainScreenContent(
     currentRoute: String?,
+    snackbarHostState: SnackbarHostState,
     onNavigate: (String) -> Unit,
     content: @Composable (androidx.compose.foundation.layout.PaddingValues) -> Unit
 ) {
@@ -244,6 +269,7 @@ fun MainScreenContent(
     )
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -295,6 +321,7 @@ private data class NavigationData(
 fun MainScreenPreview() {
     MainScreenContent(
         currentRoute = "home",
+        snackbarHostState = remember { SnackbarHostState() },
         onNavigate = {},
         content = { innerPadding ->
             Text("Content Area", modifier = Modifier.padding(innerPadding))

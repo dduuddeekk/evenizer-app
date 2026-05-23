@@ -12,6 +12,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.OrganizerData
+import com.dudek.evenizer.data.network.model.RoleData
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
@@ -43,10 +46,14 @@ fun OrganizerDetailPage(
     userViewModel: UserViewModel,
     organizerViewModel: OrganizerViewModel,
     onBack: () -> Unit,
-    onNavigateToAddRole: () -> Unit
+    onNavigateToAddRole: () -> Unit,
+    onNavigateToUpdateRole: (String, String, String, String) -> Unit,
+    onNavigateToAddMember: () -> Unit
 ) {
     val context = LocalContext.current
     val organizer by organizerViewModel.organizerDetail.collectAsState()
+    val organizerRoles by organizerViewModel.organizerRoles.collectAsState()
+    val organizerOwner by organizerViewModel.organizerOwner.collectAsState()
     val isLoading by organizerViewModel.isLoading.collectAsState()
     val userProfile by userViewModel.userProfile.collectAsState()
 
@@ -56,28 +63,65 @@ fun OrganizerDetailPage(
 
     OrganizerDetailPageContent(
         organizer = organizer,
+        organizerRoles = organizerRoles,
+        organizerOwner = organizerOwner,
         isLoading = isLoading,
         userProfile = userProfile,
         onBack = onBack,
-        onAddMember = { /* TODO: Implement add member */ },
+        onAddMember = onNavigateToAddMember,
         onAddRole = onNavigateToAddRole,
-        onEditOrganizer = { /* TODO: Implement edit */ }
+        onEditOrganizer = { /* TODO: Implement edit */ },
+        onUpdateRole = { role -> 
+            onNavigateToUpdateRole(uuid, role.uuid, role.name, role.description)
+        },
+        onDeleteRole = { role -> 
+            organizerViewModel.deleteRole(context, uuid, role.uuid) {}
+        }
     )
 }
 
 @Composable
 fun OrganizerDetailPageContent(
     organizer: OrganizerData?,
+    organizerRoles: List<RoleData>,
+    organizerOwner: UserData?,
     isLoading: Boolean,
     userProfile: UserData?,
     onBack: () -> Unit,
     onAddMember: () -> Unit,
     onAddRole: () -> Unit,
-    onEditOrganizer: () -> Unit
+    onEditOrganizer: () -> Unit,
+    onUpdateRole: (RoleData) -> Unit,
+    onDeleteRole: (RoleData) -> Unit
 ) {
     val isOwner = userProfile != null && organizer != null && userProfile.uuid == organizer.userUuid
     val scrollState = rememberScrollState()
     var showFabMenu by remember { mutableStateOf(false) }
+    var roleToDelete by remember { mutableStateOf<RoleData?>(null) }
+
+    if (roleToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { roleToDelete = null },
+            title = { Text("Hapus Sie") },
+            text = { Text("Apakah Anda yakin ingin menghapus sie '${roleToDelete?.name}'?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        roleToDelete?.let { onDeleteRole(it) }
+                        roleToDelete = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+                ) {
+                    Text("Hapus")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { roleToDelete = null }) {
+                    Text("Batal")
+                }
+            }
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -180,6 +224,15 @@ fun OrganizerDetailPageContent(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
+
+                            if (organizerOwner != null) {
+                                Text(
+                                    text = "Pemilik: ${organizerOwner.firstName} ${organizerOwner.lastName ?: ""}",
+                                    fontSize = 12.sp,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
                         }
                     }
 
@@ -218,6 +271,57 @@ fun OrganizerDetailPageContent(
                         }
 
                         Spacer(modifier = Modifier.height(32.dp))
+
+                        // Roles Section (Sie)
+                        if (organizerRoles.isNotEmpty()) {
+                            Text(
+                                text = "Sie yang tersedia",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2196F3)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            organizerRoles.forEach { role ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = role.name,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Text(
+                                                text = role.description,
+                                                fontSize = 14.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+
+                                        if (isOwner) {
+                                            IconButton(onClick = { onUpdateRole(role) }) {
+                                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color(0xFF2196F3), modifier = Modifier.size(20.dp))
+                                            }
+                                            IconButton(onClick = { roleToDelete = role }) {
+                                                Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red, modifier = Modifier.size(20.dp))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(32.dp))
+                        }
                     }
                 }
             }
@@ -303,11 +407,15 @@ fun OrganizerDetailPageContent(
 fun OrganizerDetailPagePreview() {
     OrganizerDetailPageContent(
         organizer = null,
+        organizerRoles = emptyList(),
+        organizerOwner = null,
         isLoading = true,
         userProfile = null,
         onBack = {},
         onAddMember = {},
         onAddRole = {},
-        onEditOrganizer = {}
+        onEditOrganizer = {},
+        onUpdateRole = {},
+        onDeleteRole = {}
     )
 }

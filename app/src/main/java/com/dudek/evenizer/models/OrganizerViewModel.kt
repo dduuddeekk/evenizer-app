@@ -7,8 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.network.model.CreateOrganizerRequest
+import com.dudek.evenizer.data.network.model.CreateMemberRequest
 import com.dudek.evenizer.data.network.model.CreateRoleRequest
 import com.dudek.evenizer.data.network.model.OrganizerData
+import com.dudek.evenizer.data.network.model.RoleData
+import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.utils.ImageUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,15 +39,24 @@ class OrganizerViewModel : ViewModel() {
     private val _organizerDetail = MutableStateFlow<OrganizerData?>(null)
     val organizerDetail: StateFlow<OrganizerData?> = _organizerDetail
 
+    private val _organizerRoles = MutableStateFlow<List<RoleData>>(emptyList())
+    val organizerRoles: StateFlow<List<RoleData>> = _organizerRoles
+
+    private val _organizerOwner = MutableStateFlow<UserData?>(null)
+    val organizerOwner: StateFlow<UserData?> = _organizerOwner
+
+    private val _allUsers = MutableStateFlow<List<UserData>>(emptyList())
+    val allUsers: StateFlow<List<UserData>> = _allUsers
+
     private var pollingJob: kotlinx.coroutines.Job? = null
 
-    fun startRealtimeOrganizers(context: Context) {
+    fun startRealtimeOrganizers(context: Context, eventDescription: String? = null) {
         stopRealtimeOrganizers()
         pollingJob = viewModelScope.launch {
             while (isActive) {
                 try {
                     val service = NetworkModule.getOrganizerService(context)
-                    val response = service.getAllOrganizers()
+                    val response = service.getAllOrganizers(eventDescription = eventDescription)
                     if (response.success) {
                         _organizers.value = response.data?.data ?: emptyList()
                     }
@@ -93,17 +105,124 @@ class OrganizerViewModel : ViewModel() {
         }
     }
 
+    fun updateRole(
+        context: Context,
+        organizerUuid: String,
+        roleUuid: String,
+        name: String,
+        description: String,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getOrganizerService(context)
+                val response = service.updateRole(organizerUuid, roleUuid, CreateRoleRequest(name, description))
+                if (response.success) {
+                    onSuccess()
+                    fetchOrganizerDetail(context, organizerUuid)
+                } else {
+                    _error.value = response.message
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to update role: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun deleteRole(
+        context: Context,
+        organizerUuid: String,
+        roleUuid: String,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getOrganizerService(context)
+                val response = service.deleteRole(organizerUuid, roleUuid)
+                if (response.success) {
+                    onSuccess()
+                    fetchOrganizerDetail(context, organizerUuid)
+                } else {
+                    _error.value = response.message
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to delete role: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     fun stopRealtimeOrganizers() {
         pollingJob?.cancel()
         pollingJob = null
     }
 
-    fun fetchOrganizers(context: Context, search: String? = null) {
+    fun fetchAllUsers(context: Context, search: String? = null) {
+        viewModelScope.launch {
+            try {
+                val userService = NetworkModule.getUserService(context)
+                val response = userService.getAllUsers(search = search, limit = 100)
+                if (response.success && response.data != null) {
+                    _allUsers.value = response.data.data
+                } else {
+                    _error.value = response.error ?: response.message
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _error.value = "Failed to fetch users: ${e.message}"
+            }
+        }
+    }
+
+    fun addMultipleMembers(
+        context: Context,
+        organizerUuid: String,
+        members: List<Pair<String, String>>, // Pair<UserUuid, RoleUuid>
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                val service = NetworkModule.getOrganizerService(context)
+                var allSuccess = true
+                var lastErrorMessage = ""
+
+                members.forEach { (userUuid, roleUuid) ->
+                    if (userUuid.isNotBlank() && roleUuid.isNotBlank()) {
+                        val response = service.addMember(organizerUuid, CreateMemberRequest(userUuid, roleUuid))
+                        if (!response.success) {
+                            allSuccess = false
+                            lastErrorMessage = response.message
+                        }
+                    }
+                }
+
+                if (allSuccess) {
+                    onSuccess()
+                    fetchOrganizerDetail(context, organizerUuid)
+                } else {
+                    _error.value = "Some members failed to invite: $lastErrorMessage"
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to add members: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun fetchOrganizers(context: Context, search: String? = null, eventDescription: String? = null) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val service = NetworkModule.getOrganizerService(context)
-                val response = service.getAllOrganizers(search = search)
+                val response = service.getAllOrganizers(search = search, eventDescription = eventDescription)
                 if (response.success) {
                     _organizers.value = response.data?.data ?: emptyList()
                 }
@@ -229,11 +348,24 @@ class OrganizerViewModel : ViewModel() {
     fun fetchOrganizerDetail(context: Context, uuid: String) {
         viewModelScope.launch {
             _isLoading.value = true
+            _organizerRoles.value = emptyList()
+            _organizerOwner.value = null
             try {
                 val service = NetworkModule.getOrganizerService(context)
                 val response = service.getOrganizerDetail(uuid)
-                if (response.success) {
+                if (response.success && response.data != null) {
                     _organizerDetail.value = response.data
+                    _organizerRoles.value = response.data.roles ?: emptyList()
+                    
+                    // Fetch owner profile
+                    response.data.userUuid?.let { userUuid ->
+                        fetchOwnerProfile(context, userUuid)
+                    }
+
+                    // IF roles are still empty, double check with the explicit endpoint
+                    if (_organizerRoles.value.isEmpty()) {
+                        fetchRolesExplicitly(context, uuid)
+                    }
                 } else {
                     _error.value = response.message
                 }
@@ -242,6 +374,30 @@ class OrganizerViewModel : ViewModel() {
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    private suspend fun fetchOwnerProfile(context: Context, userUuid: String) {
+        try {
+            val userService = NetworkModule.getUserService(context)
+            val response = userService.getUserProfile(userUuid)
+            if (response.success) {
+                _organizerOwner.value = response.data
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private suspend fun fetchRolesExplicitly(context: Context, uuid: String) {
+        try {
+            val service = NetworkModule.getOrganizerService(context)
+            val response = service.getRoles(uuid)
+            if (response.success) {
+                _organizerRoles.value = response.data
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

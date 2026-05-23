@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.EventData
+import com.dudek.evenizer.data.network.model.RoleData
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
@@ -45,6 +46,7 @@ fun EventDetailPage(
 ) {
     val context = LocalContext.current
     val event by eventViewModel.eventDetail.collectAsState()
+    val eventRoles by eventViewModel.eventRoles.collectAsState()
     val isFavourited by eventViewModel.isFavourited.collectAsState()
     val isLoading by eventViewModel.isLoading.collectAsState()
     val language by themeViewModel.language.collectAsState(initial = "id")
@@ -56,6 +58,7 @@ fun EventDetailPage(
 
     EventDetailPageContent(
         event = event,
+        eventRoles = eventRoles,
         isFavourited = isFavourited,
         isLoading = isLoading,
         language = language,
@@ -68,6 +71,7 @@ fun EventDetailPage(
 @Composable
 fun EventDetailPageContent(
     event: EventData?,
+    eventRoles: List<RoleData>,
     isFavourited: Boolean,
     isLoading: Boolean,
     language: String,
@@ -210,6 +214,42 @@ fun EventDetailPageContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
+                    if (eventRoles.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text(
+                            text = "Sie yang tersedia:",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF4CAF50)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        eventRoles.forEach { role ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                )
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Text(
+                                        text = role.name,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Text(
+                                        text = role.description,
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
@@ -222,6 +262,7 @@ fun EventDetailPageContent(
 fun EventDetailPagePreview() {
     EventDetailPageContent(
         event = null,
+        eventRoles = emptyList(),
         isFavourited = false,
         isLoading = true,
         language = "id",

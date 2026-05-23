@@ -9,9 +9,11 @@
 - [x] Update `ProfilePage.kt` with skeletons
 - [x] Implement Real-time Polling in ViewModels
 - [x] Update UI for Real-time Lifecycle management
-- [/] Implement "Add Organizer Role" (Sie) feature
-	- [ ] Update `OrganizerModels.kt` with role data classes
-	- [ ] Update `OrganizerService.kt` with `createRole` endpoint
-	- [ ] Update `OrganizerViewModel.kt` with `addRole` function
-	- [ ] Implement Add Role Dialog in `OrganizerDetailPage.kt`
+- [x] Implement "Add Multiple Organizer Roles" (Sie) feature
+- [/] Implement "Update and Delete Organizer Role" feature
+	- [ ] Update `OrganizerService.kt` with PATCH and DELETE endpoints
+	- [ ] Update `OrganizerViewModel.kt` with `updateRole` and `deleteRole` functions
+	- [ ] Update `OrganizerDetailPage.kt` with icons and delete dialog
+	- [ ] Create `UpdateOrganizerRolePage.kt`
+	- [ ] Update `MainScreen.kt` navigation
 - [ ] Final manual verification on device

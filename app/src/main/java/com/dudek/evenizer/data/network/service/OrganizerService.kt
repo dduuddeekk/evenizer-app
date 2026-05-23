@@ -1,10 +1,13 @@
 package com.dudek.evenizer.data.network.service
 
 import com.dudek.evenizer.data.network.model.CreateOrganizerRequest
+import com.dudek.evenizer.data.network.model.CreateMemberRequest
 import com.dudek.evenizer.data.network.model.CreateRoleRequest
 import com.dudek.evenizer.data.network.model.OrganizerListResponse
 import com.dudek.evenizer.data.network.model.OrganizerResponse
+import com.dudek.evenizer.data.network.model.RoleListResponse
 import com.dudek.evenizer.data.network.model.RoleResponse
+import com.dudek.evenizer.data.network.model.MemberResponse
 import okhttp3.MultipartBody
 import retrofit2.http.*
 
@@ -13,6 +16,7 @@ interface OrganizerService {
     suspend fun getAllOrganizers(
         @Query("search") search: String? = null,
         @Query("status") status: String? = null,
+        @Query("eventDescription") eventDescription: String? = null,
         @Query("isVerified") isVerified: Boolean? = null,
         @Query("isPublic") isPublic: Boolean? = null,
         @Query("page") page: Int? = null,
@@ -29,6 +33,28 @@ interface OrganizerService {
         @Path("uuid") uuid: String,
         @Body request: CreateRoleRequest
     ): RoleResponse
+
+    @GET("organizer/{uuid}/roles")
+    suspend fun getRoles(@Path("uuid") uuid: String): RoleListResponse
+
+    @PATCH("organizer/{uuid}/roles/{roleUuid}")
+    suspend fun updateRole(
+        @Path("uuid") uuid: String,
+        @Path("roleUuid") roleUuid: String,
+        @Body request: CreateRoleRequest
+    ): RoleResponse
+
+    @DELETE("organizer/{uuid}/roles/{roleUuid}")
+    suspend fun deleteRole(
+        @Path("uuid") uuid: String,
+        @Path("roleUuid") roleUuid: String
+    ): RoleResponse
+
+    @POST("organizer/{uuid}/members")
+    suspend fun addMember(
+        @Path("uuid") uuid: String,
+        @Body request: CreateMemberRequest
+    ): MemberResponse
 
     @GET("organizer/my-organizer")
     suspend fun getMyOrganizers(

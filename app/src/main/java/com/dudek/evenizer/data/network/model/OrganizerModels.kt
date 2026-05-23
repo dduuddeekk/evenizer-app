@@ -17,6 +17,9 @@ data class OrganizerData(
     val userUuid: String? = null,
     val followCount: Int = 0,
     val isFollow: Boolean = false,
+    val roles: List<RoleData>? = emptyList(),
+    val organizerMembers: List<kotlinx.serialization.json.JsonElement>? = emptyList(),
+    val organizerLocations: List<kotlinx.serialization.json.JsonElement>? = emptyList(),
     val _count: OrganizerCount? = null
 )
 
@@ -43,7 +46,7 @@ data class CreateRoleRequest(
 data class RoleData(
     val uuid: String,
     val name: String,
-    val organizerUuid: String,
+    val organizerUuid: String? = null,
     val description: String,
     val createdAt: String,
     val updatedAt: String,
@@ -56,4 +59,38 @@ data class RoleResponse(
     val code: String,
     val message: String,
     val data: RoleData? = null
+)
+
+@Serializable
+data class RoleListResponse(
+    val success: Boolean,
+    val code: String,
+    val message: String,
+    val data: List<RoleData> = emptyList()
+)
+
+@Serializable
+data class CreateMemberRequest(
+    val userUuid: String,
+    val roleUuid: String
+)
+
+@Serializable
+data class MemberResponse(
+    val success: Boolean,
+    val code: String,
+    val message: String,
+    val data: MemberData? = null
+)
+
+@Serializable
+data class MemberData(
+    val uuid: String,
+    val status: String,
+    val reason: String? = null,
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String? = null,
+    val user: UserData? = null,
+    val role: RoleData? = null
 )

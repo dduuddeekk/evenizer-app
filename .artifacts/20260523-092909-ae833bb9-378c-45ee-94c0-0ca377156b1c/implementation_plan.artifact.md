@@ -1,26 +1,26 @@
-# Implementation Plan - Add Multiple Organizer Roles (Sie)
+# Implementation Plan - Update and Delete Organizer Roles (Sie)
 
-Implement a new page `CreateOrganizerRolesPage` that allows an organizer owner to add multiple roles ("Sie") to their organizer. Each role will be created via a separate call to the `POST /api/organizer/{uuid}/roles` endpoint.
+Implement the ability to update and delete roles (sie) from the Organizer Detail page.
 
 ## Proposed Changes
 
 ### [Network Component]
 
-#### [OrganizerModels.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/data/network/model/OrganizerModels.kt)
-
-- Add `@Serializable` data classes for role request and response:
-    - `CreateRoleRequest(val name: String, val description: String)`
-    - `RoleData(val uuid: String, val name: String, val organizerUuid: String, val description: String, val createdAt: String, val updatedAt: String)`
-    - `RoleResponse(val success: Boolean, val code: String, val message: String, val data: RoleData? = null)`
-
 #### [OrganizerService.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/data/network/service/OrganizerService.kt)
 
-- Add the `createRole` function:
+- Add `updateRole` and `deleteRole` endpoints:
     ```kotlin
-    @POST("organizer/{uuid}/roles")
-    suspend fun createRole(
+    @PATCH("organizer/{uuid}/roles/{roleUuid}")
+    suspend fun updateRole(
         @Path("uuid") uuid: String,
+        @Path("roleUuid") roleUuid: String,
         @Body request: CreateRoleRequest
+    ): RoleResponse
+
+    @DELETE("organizer/{uuid}/roles/{roleUuid}")
+    suspend fun deleteRole(
+        @Path("uuid") uuid: String,
+        @Path("roleUuid") roleUuid: String
     ): RoleResponse
     ```
 
@@ -30,20 +30,42 @@ Implement a new page `CreateOrganizerRolesPage` that allows an organizer owner t
 
 #### [OrganizerViewModel.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/models/OrganizerViewModel.kt)
 
-- Add a state to track multiple role creation progress.
-- Add `addMultipleRoles` function:
+- Add `updateRole` and `deleteRole` functions:
     ```kotlin
-    fun addMultipleRoles(context: Context, organizerUuid: String, roles: List<Pair<String, String>>, onSuccess: () -> Unit) {
+    fun updateRole(context: Context, organizerUuid: String, roleUuid: String, name: String, description: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val service = NetworkModule.getOrganizerService(context)
-                roles.forEach { (name, description) ->
-                    service.createRole(organizerUuid, CreateRoleRequest(name, description))
+                val response = service.updateRole(organizerUuid, roleUuid, CreateRoleRequest(name, description))
+                if (response.success) {
+                    onSuccess()
+                    fetchOrganizerDetail(context, organizerUuid)
+                } else {
+                    _error.value = response.message
                 }
-                onSuccess()
             } catch (e: Exception) {
-                _error.value = "Failed to add roles: ${e.message}"
+                _error.value = "Failed to update role: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun deleteRole(context: Context, organizerUuid: String, roleUuid: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getOrganizerService(context)
+                val response = service.deleteRole(organizerUuid, roleUuid)
+                if (response.success) {
+                    onSuccess()
+                    fetchOrganizerDetail(context, organizerUuid)
+                } else {
+                    _error.value = response.message
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to delete role: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -55,23 +77,20 @@ Implement a new page `CreateOrganizerRolesPage` that allows an organizer owner t
 
 ### [UI Component]
 
-#### [NEW] [CreateOrganizerRolesPage.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/pages/CreateOrganizerRolesPage.kt)
+#### [OrganizerDetailPage.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/pages/OrganizerDetailPage.kt)
 
-- Page layout with:
-    - Header with back button.
-    - Dynamic list of `OutlinedTextField` pairs (Name, Description).
-    - "Add Another Role" button to append a new empty entry to the list.
-    - "Save All Roles" button to trigger `addMultipleRoles`.
-    - Handle loading state and errors.
+- Add Edit (pencil) and Delete (trash) icons to each role card.
+- Implement delete confirmation dialog.
+- Link edit icon to navigation.
+
+#### [NEW] [UpdateOrganizerRolePage.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/pages/UpdateOrganizerRolePage.kt)
+
+- Create a page for editing a specific role.
+- Fields for Name and Description (pre-filled).
 
 #### [MainScreen.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/screens/MainScreen.kt)
 
-- Add a new route `create_organizer_roles/{uuid}`.
-- Map it to `CreateOrganizerRolesPage`.
-
-#### [OrganizerDetailPage.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/pages/OrganizerDetailPage.kt)
-
-- Update `onAddRole` callback to navigate to `create_organizer_roles/{uuid}`.
+- Add route for `update_organizer_role/{uuid}/{roleUuid}/{name}/{description}`.
 
 ---
 
@@ -81,11 +100,6 @@ Implement a new page `CreateOrganizerRolesPage` that allows an organizer owner t
 - Build check: `./gradlew app:assembleDebug`
 
 ### Manual Verification
-- Navigate to Organizer Detail.
-- Click "Add Role" (Tambah Sie) in the FAB menu.
-- Verify navigation to the new page.
-- Add multiple role entries using "Add Another Role".
-- Fill in names and descriptions.
-- Click "Save All Roles".
-- Verify that it returns to the detail page on success.
-- (Optional) Check logs/network to see multiple POST requests being sent.
+- Navigate to Organizer Detail as owner.
+- Click Delete icon on a role, confirm, and verify it's removed.
+- Click Edit icon on a role, change values, save, and verify it's updated.

@@ -39,6 +39,8 @@ import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.OrganizerPage
 import com.dudek.evenizer.pages.OrganizerDetailPage
 import com.dudek.evenizer.pages.CreateOrganizerRolesPage
+import com.dudek.evenizer.pages.UpdateOrganizerRolePage
+import com.dudek.evenizer.pages.AddOrganizerMemberPage
 import com.dudek.evenizer.pages.ProfilePage
 import com.dudek.evenizer.pages.SettingsPage
 import com.dudek.evenizer.pages.CreateOrganizerPage
@@ -146,7 +148,36 @@ fun MainScreen(
                     userViewModel = userViewModel,
                     organizerViewModel = organizerViewModel,
                     onBack = { navController.popBackStack() },
-                    onNavigateToAddRole = { navController.navigate("create_organizer_roles/$uuid") }
+                    onNavigateToAddRole = { navController.navigate("create_organizer_roles/$uuid") },
+                    onNavigateToUpdateRole = { organizerUuid, roleUuid, name, desc ->
+                        navController.navigate("update_organizer_role/$organizerUuid/$roleUuid/$name/$desc")
+                    },
+                    onNavigateToAddMember = { navController.navigate("add_organizer_member/$uuid") }
+                )
+            }
+            composable("add_organizer_member/{uuid}") { backStackEntry ->
+                val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                AddOrganizerMemberPage(
+                    organizerUuid = uuid,
+                    organizerViewModel = organizerViewModel,
+                    onBack = { navController.popBackStack() },
+                    onSuccess = { navController.popBackStack() }
+                )
+            }
+            composable("update_organizer_role/{organizerUuid}/{roleUuid}/{name}/{description}") { backStackEntry ->
+                val organizerUuid = backStackEntry.arguments?.getString("organizerUuid") ?: ""
+                val roleUuid = backStackEntry.arguments?.getString("roleUuid") ?: ""
+                val name = backStackEntry.arguments?.getString("name") ?: ""
+                val description = backStackEntry.arguments?.getString("description") ?: ""
+                
+                UpdateOrganizerRolePage(
+                    organizerUuid = organizerUuid,
+                    roleUuid = roleUuid,
+                    initialName = name,
+                    initialDescription = description,
+                    organizerViewModel = organizerViewModel,
+                    onBack = { navController.popBackStack() },
+                    onSuccess = { navController.popBackStack() }
                 )
             }
             composable("create_organizer_roles/{uuid}") { backStackEntry ->
@@ -222,7 +253,7 @@ fun MainScreenContent(
                     val selected = currentRoute == item.route || 
                                    (item.route == "profile" && (currentRoute == "settings")) ||
                                    (item.route == "event" && (currentRoute?.startsWith("event_detail") == true || currentRoute == "create_event" || currentRoute == "my_events")) ||
-                                   (item.route == "organizer" && (currentRoute?.startsWith("organizer_detail") == true || currentRoute == "create_organizer" || currentRoute == "my_organizers"))
+                                   (item.route == "organizer" && (currentRoute?.startsWith("organizer_detail") == true || currentRoute == "create_organizer" || currentRoute == "my_organizers" || currentRoute?.startsWith("create_organizer_roles") == true || currentRoute?.startsWith("add_organizer_member") == true || currentRoute?.startsWith("update_organizer_role") == true))
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = null) },
                         label = { 

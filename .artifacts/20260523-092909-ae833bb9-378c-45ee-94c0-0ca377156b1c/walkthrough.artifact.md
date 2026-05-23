@@ -1,27 +1,26 @@
-# Walkthrough - Skeleton Loading, Real-time Polling & Multiple Organizer Roles
+# Walkthrough - Batch Member Invitations
 
-This update introduces significant improvements to the user experience through better loading states, real-time data updates, and a streamlined workflow for adding multiple organizer roles.
+This update introduces the ability to invite multiple members to an organizer at once, with integrated user searching and role assignment.
 
-## 1. Skeleton Loading
-Replaced standard `CircularProgressIndicator` with shimmer-based skeleton loading across all main pages. This reduces layout shifts and provides a better visual cue during data fetching.
-
-- **[SkeletonUtils.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/utils/SkeletonUtils.kt)**: Houses the `shimmerEffect` and various skeleton components (`EventCardSkeleton`, `OrganizerCardSkeleton`, etc.).
-- **Pages Updated**: `HomePage`, `EventPage`, `OrganizerPage`, `ProfilePage`, `TicketPage`, and `SettingsPage`.
-
-## 2. Real-time Data Polling
-Implemented a 10-second polling mechanism to keep the application data synchronized with the server automatically.
-
-- **ViewModels**: `EventViewModel` and `OrganizerViewModel` now include `startRealtime` and `stopRealtime` logic.
-- **Lifecycle Management**: Used `DisposableEffect` in the UI pages to ensure polling only runs when the page is active, preserving battery and data.
-
-## 3. Multiple Organizer Roles (Sie)
-Added the ability for organizer owners to add multiple roles in a single session via a new dedicated page.
+## 1. Batch Member Invitations
+Previously, members had to be added one by one. Now, a dedicated page allows for batch invitations.
 
 ### Key Components:
-- **[CreateOrganizerRolesPage.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/pages/CreateOrganizerRolesPage.kt)**: A dynamic form page where users can add/remove role input fields.
-- **API Integration**: Sends multiple POST requests to `/api/organizer/{uuid}/roles` sequentially upon clicking "Simpan Semua Sie".
-- **Navigation**: Linked the "Tambah Sie" menu in `OrganizerDetailPage` to the new creation page.
+- **[AddOrganizerMemberPage.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/pages/AddOrganizerMemberPage.kt)**:
+    - Features a dynamic list of invitation cards.
+    - Integrated **User Search**: Fetches all users via `GET /user` and filters them as you type.
+    - **Role Selection**: Allows choosing from the roles available in the current organizer.
+- **Batch Logic**: The `OrganizerViewModel` handles the sequential API calls to `POST /organizer/{uuid}/members`.
+
+## 2. API & Model Updates
+- **[UserService.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/data/network/service/UserService.kt)**: Added `getAllUsers` to support the search functionality.
+- **[OrganizerService.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/data/network/service/OrganizerService.kt)**: Added the `addMember` endpoint.
+- **Models**: Added `UserListResponse`, `CreateMemberRequest`, and `MemberResponse` to `UserModels.kt` and `OrganizerModels.kt`.
+
+## 3. UI/UX Consistency
+- The page is integrated into the existing navigation graph, ensuring the **bottom navigation bar** remains correctly selected.
+- Linked the **"Tambah Anggota"** button in `OrganizerDetailPage` to the new invitation page.
 
 ## Verification Results
 - **Build Status**: Successful (`./gradlew app:assembleDebug`).
-- **Functionality**: Verified that multiple role inputs generate multiple network requests and that polling keeps the list views updated.
+- **Functionality**: Verified that searching for users works and that multiple POST requests are sent sequentially upon saving.

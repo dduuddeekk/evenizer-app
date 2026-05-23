@@ -8,6 +8,7 @@ import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.network.model.CreateEventRequest
 import com.dudek.evenizer.data.network.model.EventData
 import com.dudek.evenizer.data.network.model.EventLocationRequest
+import com.dudek.evenizer.data.network.model.RoleData
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,6 +32,9 @@ class EventViewModel : ViewModel() {
 
     private val _eventDetail = MutableStateFlow<EventData?>(null)
     val eventDetail: StateFlow<EventData?> = _eventDetail
+
+    private val _eventRoles = MutableStateFlow<List<RoleData>>(emptyList())
+    val eventRoles: StateFlow<List<RoleData>> = _eventRoles
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -110,18 +114,37 @@ class EventViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             _eventDetail.value = null
+            _eventRoles.value = emptyList()
             try {
                 val service = NetworkModule.getEventService(context)
                 val response = service.getEventDetail(uuid)
-                if (response.success) {
+                if (response.success && response.data != null) {
                     _eventDetail.value = response.data
-                    _isFavourited.value = response.data?.isFavorited ?: false
+                    _isFavourited.value = response.data.isFavorited
+                    
+                    // Fetch Roles if organizer exists
+                    val organizerUuid = response.data.eventOrganizers?.firstOrNull()?.organizerUuid
+                    if (organizerUuid != null) {
+                        fetchOrganizerRoles(context, organizerUuid)
+                    }
                 }
             } catch (e: Exception) {
                 _error.value = "Failed to fetch event details: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    private suspend fun fetchOrganizerRoles(context: Context, organizerUuid: String) {
+        try {
+            val service = NetworkModule.getOrganizerService(context)
+            val response = service.getRoles(organizerUuid)
+            if (response.success) {
+                _eventRoles.value = response.data
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

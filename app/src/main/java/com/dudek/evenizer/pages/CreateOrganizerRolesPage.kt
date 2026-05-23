@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.models.OrganizerViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateOrganizerRolesPage(
     organizerUuid: String,
@@ -45,44 +44,45 @@ fun CreateOrganizerRolesPage(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Tambah Sie", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = Color(0xFF2196F3)
-                )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { roles = roles + Pair("", "") },
-                containerColor = Color(0xFF2196F3),
-                contentColor = Color.White,
-                shape = CircleShape
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah Input Sie")
-            }
-        }
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
+            // Header (Identical to OrganizerDetailPage)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color(0xFF2196F3)
+                    )
+                }
+                Text(
+                    text = "Tambah Sie",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF2196F3),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
+                )
+            }
+
+            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(vertical = 16.dp)
+                contentPadding = PaddingValues(vertical = 24.dp)
             ) {
                 itemsIndexed(roles) { index, role ->
                     RoleInputCard(
@@ -130,6 +130,19 @@ fun CreateOrganizerRolesPage(
                     Text(text = "Simpan Semua Sie", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
+        }
+
+        // FAB to add more roles, styled like OrganizerDetailPage
+        FloatingActionButton(
+            onClick = { roles = roles + Pair("", "") },
+            containerColor = Color(0xFF2196F3),
+            contentColor = Color.White,
+            shape = CircleShape,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 96.dp, end = 16.dp) // Adjusted to not cover the save button
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Tambah Input Sie")
         }
     }
 }

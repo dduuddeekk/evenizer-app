@@ -28,6 +28,8 @@ import com.dudek.evenizer.models.NotificationViewModel
 import com.dudek.evenizer.pages.CreateEventPage
 import com.dudek.evenizer.pages.EventDetailPage
 import com.dudek.evenizer.pages.EventPage
+import com.dudek.evenizer.pages.EventRundownPage
+import com.dudek.evenizer.pages.AddEventRundownPage
 import com.dudek.evenizer.pages.MyEventsPage
 import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.NotificationPage
@@ -129,7 +131,27 @@ fun MainScreen(
                         themeViewModel = themeViewModel,
                         userViewModel = userViewModel,
                         eventViewModel = eventViewModel,
-                        onBack = { navController.popBackStack() }
+                        onBack = { navController.popBackStack() },
+                        onNavigateToEdit = { /* TODO */ },
+                        onNavigateToRundown = { eventUuid -> navController.navigate("event_rundown/$eventUuid") }
+                    )
+                }
+                composable("event_rundown/{uuid}") { backStackEntry ->
+                    val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                    EventRundownPage(
+                        eventUuid = uuid,
+                        eventViewModel = eventViewModel,
+                        onBack = { navController.popBackStack() },
+                        onNavigateToAddRundown = { eventUuid -> navController.navigate("add_event_rundown/$eventUuid") }
+                    )
+                }
+                composable("add_event_rundown/{uuid}") { backStackEntry ->
+                    val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                    AddEventRundownPage(
+                        eventUuid = uuid,
+                        eventViewModel = eventViewModel,
+                        onBack = { navController.popBackStack() },
+                        onSuccess = { navController.popBackStack() }
                     )
                 }
                 composable("create_event") {
@@ -278,7 +300,7 @@ fun MainScreenContent(
                 navItems.forEach { item ->
                     val selected = currentRoute == item.route || 
                                    (item.route == "profile" && (currentRoute == "settings")) ||
-                                   (item.route == "event" && (currentRoute?.startsWith("event_detail") == true || currentRoute == "create_event" || currentRoute == "my_events")) ||
+                                   (item.route == "event" && (currentRoute?.startsWith("event_detail") == true || currentRoute == "create_event" || currentRoute == "my_events" || currentRoute?.startsWith("event_rundown") == true || currentRoute?.startsWith("add_event_rundown") == true)) ||
                                    (item.route == "organizer" && (currentRoute?.startsWith("organizer_detail") == true || currentRoute == "create_organizer" || currentRoute == "my_organizers" || currentRoute?.startsWith("create_organizer_roles") == true || currentRoute?.startsWith("add_organizer_member") == true || currentRoute?.startsWith("update_organizer_role") == true))
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = null) },

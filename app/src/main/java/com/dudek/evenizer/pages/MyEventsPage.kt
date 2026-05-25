@@ -28,6 +28,7 @@ import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.utils.EventCard
 import com.dudek.evenizer.utils.EventCardSkeleton
 
 @Composable

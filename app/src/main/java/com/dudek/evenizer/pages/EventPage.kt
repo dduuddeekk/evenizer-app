@@ -41,6 +41,7 @@ import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.utils.DateUtils
+import com.dudek.evenizer.utils.EventCard
 import com.dudek.evenizer.utils.EventCardSkeleton
 import java.text.SimpleDateFormat
 import java.util.*
@@ -388,138 +389,6 @@ fun FabMenuItem(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
-        }
-    }
-}
-
-@Composable
-fun EventCard(
-    event: EventData,
-    languageCode: String,
-    userProfile: UserData?,
-    isFavorited: Boolean = false,
-    onToggleFavourite: () -> Unit = {},
-    onNavigateToDetail: () -> Unit,
-    onDelete: (() -> Unit)? = null
-) {
-    val isOrganizer = userProfile != null && userProfile.uuid == event.userUuid
-    val isLoggedIn = userProfile != null
-    
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onNavigateToDetail() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
-    ) {
-        Column {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                if (event.banner != null) {
-                    AsyncImage(
-                        model = event.banner,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-                        contentScale = ContentScale.FillWidth
-                    )
-                }
-                
-                // Action Buttons
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    if (isOrganizer && onDelete != null) {
-                        IconButton(
-                            onClick = onDelete,
-                            modifier = Modifier
-                                .background(Color.Black.copy(alpha = 0.3f), CircleShape)
-                                .size(32.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete",
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-
-                    if (isLoggedIn && !isOrganizer) {
-                        IconButton(
-                            onClick = onToggleFavourite,
-                            modifier = Modifier
-                                .background(Color.Black.copy(alpha = 0.3f), CircleShape)
-                                .size(32.dp)
-                        ) {
-                            Icon(
-                                imageVector = if (isFavorited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = "Favourite",
-                                tint = if (isFavorited) Color.Red else Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-                }
-            }
-            
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text(
-                    text = event.title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Date and Time
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.CalendarToday,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp),
-                        tint = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    val datePart = event.start.take(10)
-                    val timePart = if (event.start.length >= 16) {
-                        event.start.substring(11, 16)
-                    } else ""
-                    
-                    Text(
-                        text = "${DateUtils.formatLocaleDate(datePart, languageCode)} ${if (timePart.isNotEmpty()) "• $timePart" else ""}",
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                // Location
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.LocationOn,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp),
-                        tint = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = event.eventLocations?.firstOrNull()?.location ?: stringResource(R.string.create_event_loc_online),
-                        fontSize = 12.sp,
-                        color = Color.Gray,
-                        maxLines = 1
-                    )
-                }
-            }
         }
     }
 }

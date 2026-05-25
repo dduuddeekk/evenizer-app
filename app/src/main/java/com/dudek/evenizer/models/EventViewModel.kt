@@ -6,9 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.network.model.CreateEventRequest
+import com.dudek.evenizer.data.network.model.CreateRundownRequest
 import com.dudek.evenizer.data.network.model.EventData
 import com.dudek.evenizer.data.network.model.EventLocationRequest
 import com.dudek.evenizer.data.network.model.RoleData
+import com.dudek.evenizer.data.network.model.RundownData
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +37,9 @@ class EventViewModel : ViewModel() {
 
     private val _eventRoles = MutableStateFlow<List<RoleData>>(emptyList())
     val eventRoles: StateFlow<List<RoleData>> = _eventRoles
+
+    private val _eventRundowns = MutableStateFlow<List<RundownData>>(emptyList())
+    val eventRundowns: StateFlow<List<RundownData>> = _eventRundowns
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -145,6 +150,65 @@ class EventViewModel : ViewModel() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    fun fetchEventRundowns(context: Context, uuid: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getEventService(context)
+                val response = service.getEventRundowns(uuid)
+                if (response.success) {
+                    _eventRundowns.value = response.data?.data ?: emptyList()
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to fetch rundowns: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun createRundown(
+        context: Context,
+        eventUuid: String,
+        title: String,
+        date: String,
+        start: String,
+        end: String,
+        status: String,
+        visibility: String,
+        description: String,
+        locationUuid: String?,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getEventService(context)
+                val request = CreateRundownRequest(
+                    title = title,
+                    date = date,
+                    start = start,
+                    end = end,
+                    status = status,
+                    visibility = visibility,
+                    description = description,
+                    locationUuid = locationUuid
+                )
+                val response = service.createRundown(eventUuid, request)
+                if (response.success) {
+                    onSuccess()
+                    fetchEventRundowns(context, eventUuid)
+                } else {
+                    _error.value = response.message
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to create rundown: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 

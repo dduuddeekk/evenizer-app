@@ -1,6 +1,9 @@
 package com.dudek.evenizer.pages
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -12,6 +15,8 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,7 +47,9 @@ fun EventDetailPage(
     themeViewModel: ThemeViewModel,
     userViewModel: UserViewModel,
     eventViewModel: EventViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToEdit: (String) -> Unit,
+    onNavigateToRundown: (String) -> Unit
 ) {
     val context = LocalContext.current
     val event by eventViewModel.eventDetail.collectAsState()
@@ -64,7 +71,9 @@ fun EventDetailPage(
         language = language,
         userProfile = userProfile,
         onBack = onBack,
-        onToggleFavourite = { eventViewModel.toggleFavourite(context, uuid) }
+        onToggleFavourite = { eventViewModel.toggleFavourite(context, uuid) },
+        onNavigateToEdit = { onNavigateToEdit(uuid) },
+        onNavigateToRundown = { onNavigateToRundown(uuid) }
     )
 }
 
@@ -77,180 +86,268 @@ fun EventDetailPageContent(
     language: String,
     userProfile: UserData?,
     onBack: () -> Unit,
-    onToggleFavourite: () -> Unit
+    onToggleFavourite: () -> Unit,
+    onNavigateToEdit: () -> Unit,
+    onNavigateToRundown: () -> Unit
 ) {
     val isOrganizer = userProfile != null && event != null && userProfile.uuid == event.userUuid
     val isLoggedIn = userProfile != null
     val scrollState = rememberScrollState()
+    var showFabMenu by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Header (Algorithm from SettingsPage)
-        Row(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color(0xFF4CAF50)
-                )
-            }
-            Text(
-                text = stringResource(R.string.event_detail_title),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF4CAF50),
-                modifier = Modifier.weight(1f).padding(start = 8.dp)
-            )
-            
-            if (isLoggedIn && !isOrganizer && event != null) {
-                IconButton(onClick = onToggleFavourite) {
+            // Header
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
                     Icon(
-                        imageVector = if (isFavourited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = "Favourite",
-                        tint = if (isFavourited) Color.Red else MaterialTheme.colorScheme.onSurface
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color(0xFF4CAF50)
                     )
                 }
-            }
-        }
-
-        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-        if (isLoading) {
-            DetailSkeleton()
-        } else if (event != null) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-            ) {
-                // Banner
-                AsyncImage(
-                    model = event.banner,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp),
-                    contentScale = ContentScale.Crop
+                Text(
+                    text = stringResource(R.string.event_detail_title),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF4CAF50),
+                    modifier = Modifier.weight(1f).padding(start = 8.dp)
                 )
+                
+                if (isLoggedIn && !isOrganizer && event != null) {
+                    IconButton(onClick = onToggleFavourite) {
+                        Icon(
+                            imageVector = if (isFavourited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favourite",
+                            tint = if (isFavourited) Color.Red else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
 
-                Column(modifier = Modifier.padding(24.dp)) {
-                    // Title
-                    Text(
-                        text = event.title,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+            if (isLoading) {
+                DetailSkeleton()
+            } else if (event != null) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                ) {
+                    // Banner
+                    AsyncImage(
+                        model = event.banner,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(250.dp),
+                        contentScale = ContentScale.Crop
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        // Title
+                        Text(
+                            text = event.title,
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
 
-                    // Date & Time
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.CalendarToday, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "${stringResource(R.string.event_detail_start)}: ${DateUtils.formatLocaleDateTime(event.start, language)}",
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = "${stringResource(R.string.event_detail_end)}:   ${DateUtils.formatLocaleDateTime(event.end, language)}",
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Location
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            val loc = event.eventLocations?.firstOrNull()
-                            Text(
-                                text = loc?.location ?: stringResource(R.string.create_event_loc_online),
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            if (loc != null) {
+                        // Date & Time
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.CalendarToday, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
                                 Text(
-                                    text = when(loc.type) {
-                                        "ONLINE" -> stringResource(R.string.create_event_loc_online)
-                                        "OFFLINE" -> stringResource(R.string.create_event_loc_offline)
-                                        else -> stringResource(R.string.create_event_loc_hybrid)
-                                    },
-                                    fontSize = 12.sp,
-                                    color = Color.Gray
+                                    text = "${stringResource(R.string.event_detail_start)}: ${DateUtils.formatLocaleDateTime(event.start, language)}",
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "${stringResource(R.string.event_detail_end)}:   ${DateUtils.formatLocaleDateTime(event.end, language)}",
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Description
-                    Text(
-                        text = stringResource(R.string.event_detail_desc_title),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4CAF50)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = event.description,
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    if (eventRoles.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = "Sie yang tersedia:",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF4CAF50)
-                        )
                         Spacer(modifier = Modifier.height(12.dp))
-                        eventRoles.forEach { role ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 8.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+
+                        // Location
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                val loc = event.eventLocations?.firstOrNull()
+                                Text(
+                                    text = loc?.location ?: stringResource(R.string.create_event_loc_online),
+                                    fontSize = 16.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                            ) {
-                                Column(modifier = Modifier.padding(12.dp)) {
+                                if (loc != null) {
                                     Text(
-                                        text = role.name,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        text = role.description,
-                                        fontSize = 14.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        text = when(loc.type) {
+                                            "ONLINE" -> stringResource(R.string.create_event_loc_online)
+                                            "OFFLINE" -> stringResource(R.string.create_event_loc_offline)
+                                            else -> stringResource(R.string.create_event_loc_hybrid)
+                                        },
+                                        fontSize = 12.sp,
+                                        color = Color.Gray
                                     )
                                 }
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Description
+                        Text(
+                            text = stringResource(R.string.event_detail_desc_title),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF4CAF50)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = event.description,
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        if (eventRoles.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Text(
+                                text = "Sie yang tersedia:",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF4CAF50)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            eventRoles.forEach { role ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                    )
+                                ) {
+                                    Column(modifier = Modifier.padding(12.dp)) {
+                                        Text(
+                                            text = role.name,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = role.description,
+                                            fontSize = 14.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
+                }
+            }
+        }
+
+        // Background Dim
+        if (showFabMenu) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { showFabMenu = false }
+            )
+        }
+
+        if (isOrganizer) {
+            Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.BottomEnd) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    AnimatedVisibility(
+                        visible = showFabMenu,
+                        enter = fadeIn() + expandVertically() + slideInVertically { it / 2 },
+                        exit = fadeOut() + shrinkVertically() + slideOutVertically { it / 2 }
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Surface(
+                                onClick = {
+                                    showFabMenu = false
+                                    onNavigateToEdit()
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.surface,
+                                tonalElevation = 4.dp
+                            ) {
+                                Text(
+                                    text = "Sunting Acara",
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+                            Surface(
+                                onClick = {
+                                    showFabMenu = false
+                                    onNavigateToRundown()
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.surface,
+                                tonalElevation = 4.dp
+                            ) {
+                                Text(
+                                    text = "Rundown Acara",
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
                     }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    FloatingActionButton(
+                        onClick = { showFabMenu = !showFabMenu },
+                        containerColor = Color(0xFF4CAF50),
+                        contentColor = Color.White,
+                        shape = CircleShape,
+                        modifier = Modifier.size(56.dp)
+                    ) {
+                        Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
+                            Icon(
+                                imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
+                                contentDescription = "More Options",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -268,6 +365,8 @@ fun EventDetailPagePreview() {
         language = "id",
         userProfile = null,
         onBack = {},
-        onToggleFavourite = {}
+        onToggleFavourite = {},
+        onNavigateToEdit = {},
+        onNavigateToRundown = {}
     )
 }

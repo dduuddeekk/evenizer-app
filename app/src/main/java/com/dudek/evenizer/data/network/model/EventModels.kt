@@ -93,3 +93,57 @@ data class EventLocationData(
     val updatedAt: String,
     val deletedAt: String? = null
 )
+
+@Serializable
+data class RundownData(
+    val uuid: String,
+    val title: String,
+    val date: String,
+    val start: String,
+    val end: String,
+    val status: String,
+    val visibility: String,
+    val eventUuid: String,
+    val locationUuid: String? = null,
+    val description: String? = null,
+    val actualStart: String? = null,
+    val actualEnd: String? = null,
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String? = null,
+    val location: EventLocationData? = null
+)
+
+@Serializable
+data class CreateRundownRequest(
+    val title: String,
+    val date: String,
+    val start: String,
+    val end: String,
+    val status: String,
+    val visibility: String,
+    val description: String? = null,
+    val locationUuid: String? = null
+)
+
+@Serializable
+data class RundownResponse(
+    val success: Boolean,
+    val code: String,
+    val message: String,
+    val data: RundownData? = null
+)
+
+@Serializable
+data class RundownListResponse(
+    val success: Boolean,
+    val code: String,
+    val message: String,
+    val data: RundownListContainer? = null
+)
+
+@Serializable
+data class RundownListContainer(
+    val data: List<RundownData>,
+    val meta: Meta
+)

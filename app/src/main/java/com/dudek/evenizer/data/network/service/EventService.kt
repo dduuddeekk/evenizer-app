@@ -1,9 +1,12 @@
 package com.dudek.evenizer.data.network.service
 
 import com.dudek.evenizer.data.network.model.CreateEventRequest
+import com.dudek.evenizer.data.network.model.CreateRundownRequest
 import com.dudek.evenizer.data.network.model.EventListResponse
 import com.dudek.evenizer.data.network.model.EventResponse
 import com.dudek.evenizer.data.network.model.FavouriteResponse
+import com.dudek.evenizer.data.network.model.RundownListResponse
+import com.dudek.evenizer.data.network.model.RundownResponse
 import okhttp3.MultipartBody
 import retrofit2.http.*
 
@@ -55,4 +58,23 @@ interface EventService {
 
     @DELETE("event/{uuid}/favourite")
     suspend fun unfavouriteEvent(@Path("uuid") uuid: String): FavouriteResponse
+
+    @GET("event/{uuid}/rundowns")
+    suspend fun getEventRundowns(
+        @Path("uuid") uuid: String,
+        @Query("search") search: String? = null,
+        @Query("status") status: String? = null,
+        @Query("visibility") visibility: String? = null,
+        @Query("page") page: Int? = null,
+        @Query("limit") limit: Int? = null,
+        @Query("sortBy") sortBy: String? = "start",
+        @Query("sortOrder") sortOrder: String? = "asc",
+        @Query("groupBy") groupBy: String? = null
+    ): RundownListResponse
+
+    @POST("event/{uuid}/rundowns")
+    suspend fun createRundown(
+        @Path("uuid") uuid: String,
+        @Body request: CreateRundownRequest
+    ): RundownResponse
 }

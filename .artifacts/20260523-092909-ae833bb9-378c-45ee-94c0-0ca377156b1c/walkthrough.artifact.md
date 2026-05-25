@@ -1,26 +1,32 @@
-# Walkthrough - Batch Member Invitations
+# Walkthrough - Event Rundown & Owner Actions
 
-This update introduces the ability to invite multiple members to an organizer at once, with integrated user searching and role assignment.
+This update introduces the **Event Rundown** management system and adds exclusive actions for event owners within the detail page.
 
-## 1. Batch Member Invitations
-Previously, members had to be added one by one. Now, a dedicated page allows for batch invitations.
+## 1. Owner-Exclusive FAB (3-Dot)
+In the **Event Detail Page**, a new Floating Action Button (FAB) now appears **only if the logged-in user is the owner** of the event.
+- **Sunting Acara**: Navigates to the event editing flow.
+- **Rundown Acara**: Navigates to the rundown management page.
 
-### Key Components:
-- **[AddOrganizerMemberPage.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/pages/AddOrganizerMemberPage.kt)**:
-    - Features a dynamic list of invitation cards.
-    - Integrated **User Search**: Fetches all users via `GET /user` and filters them as you type.
-    - **Role Selection**: Allows choosing from the roles available in the current organizer.
-- **Batch Logic**: The `OrganizerViewModel` handles the sequential API calls to `POST /organizer/{uuid}/members`.
+## 2. Event Rundown Page
+A dedicated page to view the flow of the event, categorized by visibility.
+- **Tabs**: Supports **PUBLIC** and **PRIVATE** rundowns using a tabbed interface.
+- **Dynamic List**: Fetches real-time rundown data from `GET /api/event/:uuid/rundowns`.
+- **Visibility Control**: Ensures internal team items (PRIVATE) are separated from attendee items (PUBLIC).
 
-## 2. API & Model Updates
-- **[UserService.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/data/network/service/UserService.kt)**: Added `getAllUsers` to support the search functionality.
-- **[OrganizerService.kt](file:///C:/Users/Dudek/AndroidStudioProjects/Evenizer/app/src/main/java/com/dudek/evenizer/data/network/service/OrganizerService.kt)**: Added the `addMember` endpoint.
-- **Models**: Added `UserListResponse`, `CreateMemberRequest`, and `MemberResponse` to `UserModels.kt` and `OrganizerModels.kt`.
+## 3. Add Rundown Page
+Allows event owners to add new items to the event timeline.
+- **Integrated Selection**:
+    - **Date & Time Pickers**: Native Android dialogs for precise timing.
+    - **Location Selection**: Dropdown menu populated directly from the event's associated locations (`eventLocations`).
+- **Real-time Feedback**: Automatically refreshes the rundown list upon successful creation.
 
-## 3. UI/UX Consistency
-- The page is integrated into the existing navigation graph, ensuring the **bottom navigation bar** remains correctly selected.
-- Linked the **"Tambah Anggota"** button in `OrganizerDetailPage` to the new invitation page.
+## Technical Details
+- **ViewModel**: `EventViewModel` now manages `eventRundowns` state and creation logic.
+- **Service**: Updated `EventService.kt` with GET and POST endpoints for rundowns.
+- **Models**: Added `RundownData`, `CreateRundownRequest`, and response wrappers in `EventModels.kt`.
+- **Navigation**: Bottom navbar correctly persists its selection during rundown management.
 
-## Verification Results
-- **Build Status**: Successful (`./gradlew app:assembleDebug`).
-- **Functionality**: Verified that searching for users works and that multiple POST requests are sent sequentially upon saving.
+## Verification
+- **Build**: Successfully compiled with `./gradlew app:assembleDebug`.
+- **Access Control**: FAB verified to be hidden for non-owners.
+- **Data Flow**: Verified that selected locations correctly pass their UUID to the creation request.

@@ -209,9 +209,8 @@ fun HomeEventCardFromData(event: EventData, languageCode: String) {
                 maxLines = 1
             )
             Spacer(modifier = Modifier.height(4.dp))
-            val datePart = event.start.take(10)
             Text(
-                text = DateUtils.formatLocaleDate(datePart, languageCode),
+                text = DateUtils.formatLocaleDateTime(event.start, languageCode),
                 fontSize = 12.sp,
                 color = Color.Gray
             )

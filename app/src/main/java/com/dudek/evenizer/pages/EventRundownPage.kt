@@ -17,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.RundownData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.utils.DateUtils
@@ -61,12 +63,12 @@ fun EventRundownPage(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.create_event_back_desc),
                         tint = Color(0xFF4CAF50)
                     )
                 }
                 Text(
-                    text = "Rundown Acara",
+                    text = stringResource(R.string.rundown_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF4CAF50),
@@ -107,7 +109,7 @@ fun EventRundownPage(
 
             if (currentList.isEmpty() && !isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "Belum ada rundown", color = Color.Gray)
+                    Text(text = stringResource(R.string.rundown_empty), color = Color.Gray)
                 }
             } else {
                 LazyColumn(
@@ -131,7 +133,7 @@ fun EventRundownPage(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Tambah Rundown")
+            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.rundown_add_title))
         }
     }
 }
@@ -162,7 +164,7 @@ fun RundownCard(rundown: RundownData) {
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = rundown.status,
+                        text = if (rundown.status == "DONE") stringResource(R.string.rundown_status_done) else rundown.status,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
@@ -188,7 +190,7 @@ fun RundownCard(rundown: RundownData) {
             if (rundown.location != null) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Lokasi: ${rundown.location.location}",
+                    text = stringResource(R.string.rundown_location_label, rundown.location.location),
                     fontSize = 14.sp,
                     color = Color.Gray
                 )

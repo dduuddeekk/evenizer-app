@@ -2,7 +2,6 @@ package com.dudek.evenizer.pages
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -19,12 +18,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.RoleData
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.OrganizerViewModel
@@ -71,12 +71,12 @@ fun AddOrganizerMemberPage(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.create_event_back_desc),
                         tint = Color(0xFF2196F3)
                     )
                 }
                 Text(
-                    text = "Tambah Anggota",
+                    text = stringResource(R.string.member_add_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2196F3),
@@ -122,13 +122,14 @@ fun AddOrganizerMemberPage(
                 }
             }
 
+            val successMsg = stringResource(R.string.member_invite_success)
             Button(
                 onClick = {
                     val finalMembers = memberEntries.filter { it.first != null && it.second != null }
                         .map { it.first!!.uuid to it.second!!.uuid }
                     
                     organizerViewModel.addMultipleMembers(context, organizerUuid, finalMembers) {
-                        Toast.makeText(context, "Anggota berhasil diundang", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
                         onSuccess()
                     }
                 },
@@ -143,7 +144,7 @@ fun AddOrganizerMemberPage(
                 if (isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text(text = "Undang Semua Anggota", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.member_invite_all_btn), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -158,7 +159,7 @@ fun AddOrganizerMemberPage(
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 96.dp, end = 16.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Tambah Entry Anggota")
+            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.member_add_title))
         }
     }
 }
@@ -199,10 +200,10 @@ fun MemberInputCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Pilih Anggota", fontWeight = FontWeight.Bold, color = Color(0xFF2196F3))
+                Text(text = stringResource(R.string.member_input_select_title), fontWeight = FontWeight.Bold, color = Color(0xFF2196F3))
                 if (onDelete != null) {
                     IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red)
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.btn_delete), tint = Color.Red)
                     }
                 }
             }
@@ -220,7 +221,7 @@ fun MemberInputCard(
                         userSearchQuery = it
                         userDropdownExpanded = true
                     },
-                    label = { Text("Cari User (Username/Nama)") },
+                    label = { Text(stringResource(R.string.member_search_user_label)) },
                     modifier = Modifier.menuAnchor().fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = userDropdownExpanded) },
@@ -260,7 +261,7 @@ fun MemberInputCard(
                     value = selectedRole?.name ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Pilih Sie") },
+                    label = { Text(stringResource(R.string.member_select_role_label)) },
                     modifier = Modifier.menuAnchor().fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = roleDropdownExpanded) }

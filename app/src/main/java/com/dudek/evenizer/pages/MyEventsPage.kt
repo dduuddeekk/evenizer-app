@@ -100,7 +100,7 @@ fun MyEventsPageContent(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.create_event_back_desc),
                             tint = Color(0xFF4CAF50)
                         )
                     }

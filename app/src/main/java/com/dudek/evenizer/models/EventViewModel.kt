@@ -9,6 +9,8 @@ import com.dudek.evenizer.data.network.model.CreateEventRequest
 import com.dudek.evenizer.data.network.model.CreateRundownRequest
 import com.dudek.evenizer.data.network.model.EventData
 import com.dudek.evenizer.data.network.model.EventLocationRequest
+import com.dudek.evenizer.data.network.model.EventOrganizerData
+import com.dudek.evenizer.data.network.model.InviteOrganizerRequest
 import com.dudek.evenizer.data.network.model.RoleData
 import com.dudek.evenizer.data.network.model.RundownData
 import kotlinx.coroutines.delay
@@ -40,6 +42,9 @@ class EventViewModel : ViewModel() {
 
     private val _eventRundowns = MutableStateFlow<List<RundownData>>(emptyList())
     val eventRundowns: StateFlow<List<RundownData>> = _eventRundowns
+
+    private val _eventOrganizers = MutableStateFlow<List<EventOrganizerData>>(emptyList())
+    val eventOrganizers: StateFlow<List<EventOrganizerData>> = _eventOrganizers
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -164,6 +169,51 @@ class EventViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _error.value = "Failed to fetch rundowns: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun fetchEventOrganizers(context: Context, eventUuid: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getOrganizerService(context)
+                val response = service.getEventOrganizers(eventUuid)
+                // Filter and group by status: PENDING, ACCEPTED, FINISHED
+                _eventOrganizers.value = response.data.filter { 
+                    it.status in listOf("PENDING", "ACCEPTED", "FINISHED")
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to fetch event organizers: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun inviteOrganizerToEvent(
+        context: Context,
+        eventUuid: String,
+        organizerUuid: String,
+        roleUuids: List<String>,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val service = NetworkModule.getEventService(context)
+                val request = InviteOrganizerRequest(organizerUuid, roleUuids)
+                val response = service.inviteOrganizer(eventUuid, request)
+                if (response.statusCode == 201 || response.success == true) {
+                    onSuccess()
+                    fetchEventOrganizers(context, eventUuid)
+                } else {
+                    _error.value = response.message
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to invite organizer: ${e.message}"
             } finally {
                 _isLoading.value = false
             }

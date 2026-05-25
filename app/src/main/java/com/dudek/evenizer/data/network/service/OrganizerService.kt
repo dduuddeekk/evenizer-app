@@ -50,6 +50,9 @@ interface OrganizerService {
         @Path("roleUuid") roleUuid: String
     ): RoleResponse
 
+    @GET("organizer/event/{eventUuid}")
+    suspend fun getEventOrganizers(@Path("eventUuid") eventUuid: String): com.dudek.evenizer.data.network.model.EventOrganizerListResponse
+
     @POST("organizer/{uuid}/members")
     suspend fun addMember(
         @Path("uuid") uuid: String,

@@ -149,7 +149,7 @@ fun CreateEventPageContent(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.create_event_back_desc),
                     tint = Color(0xFF4CAF50)
                 )
             }
@@ -502,7 +502,7 @@ fun CreateEventProgressDialog(
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(stringResource(R.string.create_event_progress_error), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(error ?: "Unknown error", fontSize = 14.sp, color = Color.Gray)
+                        Text(error ?: stringResource(R.string.error_unknown), fontSize = 14.sp, color = Color.Gray)
                         Spacer(modifier = Modifier.height(24.dp))
                         Button(
                             onClick = onDismiss,

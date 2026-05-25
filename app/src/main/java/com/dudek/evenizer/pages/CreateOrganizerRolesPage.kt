@@ -60,12 +60,12 @@ fun CreateOrganizerRolesPage(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.create_event_back_desc),
                         tint = Color(0xFF2196F3)
                     )
                 }
                 Text(
-                    text = "Tambah Sie",
+                    text = stringResource(R.string.role_add_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2196F3),
@@ -109,10 +109,11 @@ fun CreateOrganizerRolesPage(
                 }
             }
 
+            val successMsg = stringResource(R.string.role_save_success)
             Button(
                 onClick = {
                     organizerViewModel.addMultipleRoles(context, organizerUuid, roles) {
-                        Toast.makeText(context, "Semua Sie berhasil disimpan", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
                         onSuccess()
                     }
                 },
@@ -127,7 +128,7 @@ fun CreateOrganizerRolesPage(
                 if (isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text(text = "Simpan Semua Sie", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.role_save_all), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -142,7 +143,7 @@ fun CreateOrganizerRolesPage(
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 96.dp, end = 16.dp) // Adjusted to not cover the save button
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Tambah Input Sie")
+            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.menu_add_role))
         }
     }
 }
@@ -168,10 +169,10 @@ fun RoleInputCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Detail Sie", fontWeight = FontWeight.Bold, color = Color(0xFF2196F3))
+                Text(text = stringResource(R.string.role_input_detail_title), fontWeight = FontWeight.Bold, color = Color(0xFF2196F3))
                 if (onDelete != null) {
                     IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red)
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.btn_delete), tint = Color.Red)
                     }
                 }
             }
@@ -181,7 +182,7 @@ fun RoleInputCard(
             OutlinedTextField(
                 value = name,
                 onValueChange = onNameChange,
-                label = { Text("Nama Sie (misal: Penyanyi)") },
+                label = { Text(stringResource(R.string.role_input_name_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -191,7 +192,7 @@ fun RoleInputCard(
             OutlinedTextField(
                 value = description,
                 onValueChange = onDescriptionChange,
-                label = { Text("Deskripsi") },
+                label = { Text(stringResource(R.string.role_input_desc_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )

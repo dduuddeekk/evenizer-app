@@ -12,9 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dudek.evenizer.R
 import com.dudek.evenizer.models.OrganizerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,10 +46,10 @@ fun UpdateOrganizerRolePage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Ubah Sie", fontWeight = FontWeight.Bold) },
+                title = { Text(text = stringResource(R.string.role_update_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.create_event_back_desc))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -72,14 +74,14 @@ fun UpdateOrganizerRolePage(
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Informasi Sie", fontWeight = FontWeight.Bold, color = Color(0xFF2196F3))
+                    Text(text = stringResource(R.string.role_update_info_title), fontWeight = FontWeight.Bold, color = Color(0xFF2196F3))
                     
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Nama Sie") },
+                        label = { Text(stringResource(R.string.role_input_name_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -89,7 +91,7 @@ fun UpdateOrganizerRolePage(
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
-                        label = { Text("Deskripsi") },
+                        label = { Text(stringResource(R.string.role_input_desc_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -98,10 +100,11 @@ fun UpdateOrganizerRolePage(
 
             Spacer(modifier = Modifier.weight(1f))
 
+            val successMsg = stringResource(R.string.role_update_success)
             Button(
                 onClick = {
                     organizerViewModel.updateRole(context, organizerUuid, roleUuid, name, description) {
-                        Toast.makeText(context, "Sie berhasil diubah", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
                         onSuccess()
                     }
                 },
@@ -115,7 +118,7 @@ fun UpdateOrganizerRolePage(
                 if (isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text(text = "Simpan Perubahan", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.role_update_save_btn), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

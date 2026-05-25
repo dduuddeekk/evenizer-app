@@ -30,6 +30,8 @@ import com.dudek.evenizer.pages.EventDetailPage
 import com.dudek.evenizer.pages.EventPage
 import com.dudek.evenizer.pages.EventRundownPage
 import com.dudek.evenizer.pages.AddEventRundownPage
+import com.dudek.evenizer.pages.EventOrganizerListPage
+import com.dudek.evenizer.pages.AddEventOrganizerPage
 import com.dudek.evenizer.pages.MyEventsPage
 import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.NotificationPage
@@ -133,7 +135,27 @@ fun MainScreen(
                         eventViewModel = eventViewModel,
                         onBack = { navController.popBackStack() },
                         onNavigateToEdit = { /* TODO */ },
-                        onNavigateToRundown = { eventUuid -> navController.navigate("event_rundown/$eventUuid") }
+                        onNavigateToRundown = { eventUuid -> navController.navigate("event_rundown/$eventUuid") },
+                        onNavigateToOrganizers = { eventUuid -> navController.navigate("event_organizer_list/$eventUuid") }
+                    )
+                }
+                composable("event_organizer_list/{uuid}") { backStackEntry ->
+                    val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                    EventOrganizerListPage(
+                        eventUuid = uuid,
+                        eventViewModel = eventViewModel,
+                        onBack = { navController.popBackStack() },
+                        onNavigateToAdd = { eventUuid -> navController.navigate("add_event_organizer/$eventUuid") }
+                    )
+                }
+                composable("add_event_organizer/{uuid}") { backStackEntry ->
+                    val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                    AddEventOrganizerPage(
+                        eventUuid = uuid,
+                        eventViewModel = eventViewModel,
+                        organizerViewModel = organizerViewModel,
+                        onBack = { navController.popBackStack() },
+                        onSuccess = { navController.popBackStack() }
                     )
                 }
                 composable("event_rundown/{uuid}") { backStackEntry ->

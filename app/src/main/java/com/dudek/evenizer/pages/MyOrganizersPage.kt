@@ -90,7 +90,7 @@ fun MyOrganizersPageContent(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.create_event_back_desc),
                             tint = Color(0xFF2196F3)
                         )
                     }
@@ -145,7 +145,7 @@ fun MyOrganizersPageContent(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Create Organizer")
+            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.organizer_menu_create))
         }
     }
 }

@@ -49,7 +49,8 @@ fun EventDetailPage(
     eventViewModel: EventViewModel,
     onBack: () -> Unit,
     onNavigateToEdit: (String) -> Unit,
-    onNavigateToRundown: (String) -> Unit
+    onNavigateToRundown: (String) -> Unit,
+    onNavigateToOrganizers: (String) -> Unit
 ) {
     val context = LocalContext.current
     val event by eventViewModel.eventDetail.collectAsState()
@@ -73,7 +74,8 @@ fun EventDetailPage(
         onBack = onBack,
         onToggleFavourite = { eventViewModel.toggleFavourite(context, uuid) },
         onNavigateToEdit = { onNavigateToEdit(uuid) },
-        onNavigateToRundown = { onNavigateToRundown(uuid) }
+        onNavigateToRundown = { onNavigateToRundown(uuid) },
+        onNavigateToOrganizers = { onNavigateToOrganizers(uuid) }
     )
 }
 
@@ -88,7 +90,8 @@ fun EventDetailPageContent(
     onBack: () -> Unit,
     onToggleFavourite: () -> Unit,
     onNavigateToEdit: () -> Unit,
-    onNavigateToRundown: () -> Unit
+    onNavigateToRundown: () -> Unit,
+    onNavigateToOrganizers: () -> Unit
 ) {
     val isOrganizer = userProfile != null && event != null && userProfile.uuid == event.userUuid
     val isLoggedIn = userProfile != null
@@ -111,7 +114,7 @@ fun EventDetailPageContent(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.create_event_back_desc),
                         tint = Color(0xFF4CAF50)
                     )
                 }
@@ -127,7 +130,7 @@ fun EventDetailPageContent(
                     IconButton(onClick = onToggleFavourite) {
                         Icon(
                             imageVector = if (isFavourited) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favourite",
+                            contentDescription = null,
                             tint = if (isFavourited) Color.Red else MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -230,7 +233,7 @@ fun EventDetailPageContent(
                         if (eventRoles.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(24.dp))
                             Text(
-                                text = "Sie yang tersedia:",
+                                text = stringResource(R.string.event_detail_sie_title),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF4CAF50)
@@ -300,6 +303,23 @@ fun EventDetailPageContent(
                             Surface(
                                 onClick = {
                                     showFabMenu = false
+                                    onNavigateToOrganizers()
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.surface,
+                                tonalElevation = 4.dp
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.nav_organizer),
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+                            Surface(
+                                onClick = {
+                                    showFabMenu = false
                                     onNavigateToEdit()
                                 },
                                 shape = RoundedCornerShape(12.dp),
@@ -307,7 +327,7 @@ fun EventDetailPageContent(
                                 tonalElevation = 4.dp
                             ) {
                                 Text(
-                                    text = "Sunting Acara",
+                                    text = stringResource(R.string.menu_edit_event),
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                     style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.Medium
@@ -324,7 +344,7 @@ fun EventDetailPageContent(
                                 tonalElevation = 4.dp
                             ) {
                                 Text(
-                                    text = "Rundown Acara",
+                                    text = stringResource(R.string.rundown_title),
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                     style = MaterialTheme.typography.bodyLarge,
                                     fontWeight = FontWeight.Medium
@@ -343,7 +363,7 @@ fun EventDetailPageContent(
                         Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
                             Icon(
                                 imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
-                                contentDescription = "More Options",
+                                contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -367,6 +387,7 @@ fun EventDetailPagePreview() {
         onBack = {},
         onToggleFavourite = {},
         onNavigateToEdit = {},
-        onNavigateToRundown = {}
+        onNavigateToRundown = {},
+        onNavigateToOrganizers = {}
     )
 }

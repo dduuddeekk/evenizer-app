@@ -59,6 +59,12 @@ interface EventService {
     @DELETE("event/{uuid}/favourite")
     suspend fun unfavouriteEvent(@Path("uuid") uuid: String): FavouriteResponse
 
+    @POST("event/{uuid}/organizers")
+    suspend fun inviteOrganizer(
+        @Path("uuid") uuid: String,
+        @Body request: com.dudek.evenizer.data.network.model.InviteOrganizerRequest
+    ): com.dudek.evenizer.data.network.model.EventOrganizerResponse
+
     @GET("event/{uuid}/rundowns")
     suspend fun getEventRundowns(
         @Path("uuid") uuid: String,

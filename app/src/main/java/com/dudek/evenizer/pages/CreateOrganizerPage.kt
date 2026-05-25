@@ -155,7 +155,7 @@ fun CreateOrganizerPageContent(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.create_event_back_desc),
                     tint = Color(0xFF2196F3)
                 )
             }
@@ -189,7 +189,7 @@ fun CreateOrganizerPageContent(
                 if (selectedLogoUri != null) {
                     AsyncImage(
                         model = selectedLogoUri,
-                        contentDescription = "Selected Logo",
+                        contentDescription = stringResource(R.string.create_organizer_add_logo),
                         modifier = Modifier
                             .fillMaxSize()
                             .graphicsLayer(

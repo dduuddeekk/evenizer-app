@@ -102,8 +102,8 @@ fun OrganizerDetailPageContent(
     if (roleToDelete != null) {
         AlertDialog(
             onDismissRequest = { roleToDelete = null },
-            title = { Text("Hapus Sie") },
-            text = { Text("Apakah Anda yakin ingin menghapus sie '${roleToDelete?.name}'?") },
+            title = { Text(stringResource(R.string.role_delete_confirm_title)) },
+            text = { Text(stringResource(R.string.role_delete_confirm_desc, roleToDelete?.name ?: "")) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -112,12 +112,12 @@ fun OrganizerDetailPageContent(
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
                 ) {
-                    Text("Hapus")
+                    Text(stringResource(R.string.btn_delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { roleToDelete = null }) {
-                    Text("Batal")
+                    Text(stringResource(R.string.btn_cancel))
                 }
             }
         )
@@ -139,7 +139,7 @@ fun OrganizerDetailPageContent(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.create_event_back_desc),
                         tint = Color(0xFF2196F3)
                     )
                 }
@@ -182,7 +182,7 @@ fun OrganizerDetailPageContent(
                             if (!organizer.logo.isNullOrEmpty()) {
                                 AsyncImage(
                                     model = organizer.logo,
-                                    contentDescription = "Organizer Logo",
+                                    contentDescription = stringResource(R.string.create_organizer_add_logo),
                                     modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Crop
                                 )
@@ -219,7 +219,7 @@ fun OrganizerDetailPageContent(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "4.5 • ${organizer._count?.eventOrganizers ?: 0} " + stringResource(R.string.home_stat_total_events),
+                                    text = stringResource(R.string.organizer_projects_rating, organizer._count?.eventOrganizers ?: 0, 4.5f),
                                     fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -227,7 +227,7 @@ fun OrganizerDetailPageContent(
 
                             if (organizerOwner != null) {
                                 Text(
-                                    text = "Pemilik: ${organizerOwner.firstName} ${organizerOwner.lastName ?: ""}",
+                                    text = stringResource(R.string.owner_label, "${organizerOwner.firstName} ${organizerOwner.lastName ?: ""}"),
                                     fontSize = 12.sp,
                                     color = Color.Gray,
                                     modifier = Modifier.padding(top = 4.dp)
@@ -246,7 +246,7 @@ fun OrganizerDetailPageContent(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = organizer.description ?: "No description available.",
+                            text = organizer.description ?: stringResource(R.string.organizer_no_description),
                             fontSize = 16.sp,
                             lineHeight = 24.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -262,7 +262,7 @@ fun OrganizerDetailPageContent(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = "✓ Verified Organizer",
+                                    text = stringResource(R.string.organizer_verified_label),
                                     modifier = Modifier.padding(12.dp),
                                     color = Color(0xFF4CAF50),
                                     fontWeight = FontWeight.Bold
@@ -275,7 +275,7 @@ fun OrganizerDetailPageContent(
                         // Roles Section (Sie)
                         if (organizerRoles.isNotEmpty()) {
                             Text(
-                                text = "Sie yang tersedia",
+                                text = stringResource(R.string.event_detail_sie_title),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF2196F3)
@@ -311,10 +311,10 @@ fun OrganizerDetailPageContent(
 
                                         if (isOwner) {
                                             IconButton(onClick = { onUpdateRole(role) }) {
-                                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color(0xFF2196F3), modifier = Modifier.size(20.dp))
+                                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.role_update_title), tint = Color(0xFF2196F3), modifier = Modifier.size(20.dp))
                                             }
                                             IconButton(onClick = { roleToDelete = role }) {
-                                                Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red, modifier = Modifier.size(20.dp))
+                                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.btn_delete), tint = Color.Red, modifier = Modifier.size(20.dp))
                                             }
                                         }
                                     }
@@ -392,7 +392,7 @@ fun OrganizerDetailPageContent(
                     Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
                         Icon(
                             imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
-                            contentDescription = "More Options",
+                            contentDescription = null,
                             modifier = Modifier.size(24.dp)
                         )
                     }

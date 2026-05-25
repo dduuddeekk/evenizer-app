@@ -33,6 +33,53 @@ data class Meta(
 )
 
 @Serializable
+data class InviteOrganizerRequest(
+    val organizerUuid: String,
+    val roleUuids: List<String>
+)
+
+@Serializable
+data class EventOrganizerData(
+    val uuid: String,
+    val status: String,
+    val rejectReason: String? = null,
+    val eventUuid: String? = null,
+    val organizerUuid: String? = null,
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String? = null,
+    val organizer: OrganizerData? = null,
+    val eventOrganizerDetails: List<EventOrganizerDetail>? = emptyList()
+)
+
+@Serializable
+data class EventOrganizerDetail(
+    val uuid: String,
+    val eventOrganizerUuid: String? = null,
+    val roleUuid: String? = null,
+    val createdAt: String,
+    val updatedAt: String,
+    val deletedAt: String? = null,
+    val role: RoleData? = null
+)
+
+@Serializable
+data class EventOrganizerResponse(
+    val statusCode: Int? = null,
+    val success: Boolean? = null,
+    val message: String,
+    val data: EventOrganizerData? = null
+)
+
+@Serializable
+data class EventOrganizerListResponse(
+    val statusCode: Int? = null,
+    val success: Boolean? = null,
+    val message: String,
+    val data: List<EventOrganizerData> = emptyList()
+)
+
+@Serializable
 data class FavouriteResponse(
     val success: Boolean,
     val code: String,

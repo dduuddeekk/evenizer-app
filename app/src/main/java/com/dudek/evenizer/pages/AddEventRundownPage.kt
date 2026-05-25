@@ -19,10 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dudek.evenizer.data.network.model.EventData
+import com.dudek.evenizer.R
 import com.dudek.evenizer.models.EventViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -56,11 +57,10 @@ fun AddEventRundownPage(
         error?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
     }
 
-    Scaffold { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -74,12 +74,12 @@ fun AddEventRundownPage(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.create_event_back_desc),
                         tint = Color(0xFF4CAF50)
                     )
                 }
                 Text(
-                    text = "Tambah Rundown",
+                    text = stringResource(R.string.rundown_add_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF4CAF50),
@@ -93,7 +93,7 @@ fun AddEventRundownPage(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Judul Kegiatan") },
+                    label = { Text(stringResource(R.string.rundown_field_title)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 )
@@ -102,7 +102,7 @@ fun AddEventRundownPage(
                 OutlinedTextField(
                     value = date,
                     onValueChange = {},
-                    label = { Text("Tanggal") },
+                    label = { Text(stringResource(R.string.rundown_field_date)) },
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -124,15 +124,14 @@ fun AddEventRundownPage(
                     OutlinedTextField(
                         value = startTime,
                         onValueChange = {},
-                        label = { Text("Mulai") },
+                        label = { Text(stringResource(R.string.rundown_field_start)) },
                         readOnly = true,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
                         trailingIcon = {
                             IconButton(onClick = {
-                                val calendar = Calendar.getInstance()
                                 TimePickerDialog(context, { _, h, min ->
-                                    val time = String.format("%02d:%02d:00.000Z", h, min)
+                                    val time = String.format(Locale.getDefault(), "%02d:%02d:00.000Z", h, min)
                                     val datePart = date.take(11).ifEmpty { "2026-05-17T" }
                                     startTime = datePart + time
                                 }, 0, 0, true).show()
@@ -145,15 +144,14 @@ fun AddEventRundownPage(
                     OutlinedTextField(
                         value = endTime,
                         onValueChange = {},
-                        label = { Text("Selesai") },
+                        label = { Text(stringResource(R.string.rundown_field_end)) },
                         readOnly = true,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
                         trailingIcon = {
                             IconButton(onClick = {
-                                val calendar = Calendar.getInstance()
                                 TimePickerDialog(context, { _, h, min ->
-                                    val time = String.format("%02d:%02d:00.000Z", h, min)
+                                    val time = String.format(Locale.getDefault(), "%02d:%02d:00.000Z", h, min)
                                     val datePart = date.take(11).ifEmpty { "2026-05-17T" }
                                     endTime = datePart + time
                                 }, 0, 0, true).show()
@@ -166,7 +164,7 @@ fun AddEventRundownPage(
 
                 // Visibility Selection
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Visibility: ", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.rundown_field_visibility), fontWeight = FontWeight.Bold)
                     RadioButton(selected = visibility == "PUBLIC", onClick = { visibility = "PUBLIC" })
                     Text("PUBLIC")
                     Spacer(modifier = Modifier.width(8.dp))
@@ -179,12 +177,12 @@ fun AddEventRundownPage(
                     expanded = locationDropdownExpanded,
                     onExpandedChange = { locationDropdownExpanded = !locationDropdownExpanded }
                 ) {
-                    val selectedLocName = locations.find { it.uuid == selectedLocationUuid }?.location ?: "Pilih Lokasi"
+                    val selectedLocName = locations.find { it.uuid == selectedLocationUuid }?.location ?: stringResource(R.string.rundown_field_location)
                     OutlinedTextField(
                         value = selectedLocName,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Lokasi Acara") },
+                        label = { Text(stringResource(R.string.rundown_field_location)) },
                         modifier = Modifier.menuAnchor().fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = locationDropdownExpanded) },
@@ -209,12 +207,13 @@ fun AddEventRundownPage(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Deskripsi (Opsional)") },
+                    label = { Text(stringResource(R.string.rundown_field_desc)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     minLines = 3
                 )
 
+                val successMsg = stringResource(R.string.rundown_save_success)
                 Button(
                     onClick = {
                         eventViewModel.createRundown(
@@ -229,7 +228,7 @@ fun AddEventRundownPage(
                             description = description,
                             locationUuid = selectedLocationUuid
                         ) {
-                            Toast.makeText(context, "Rundown berhasil dibuat", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
                             onSuccess()
                         }
                     },
@@ -241,7 +240,7 @@ fun AddEventRundownPage(
                     if (isLoading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                     } else {
-                        Text("Simpan Rundown", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.rundown_save_btn), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

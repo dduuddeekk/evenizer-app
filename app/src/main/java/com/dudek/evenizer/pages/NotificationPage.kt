@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.NotificationData
 import com.dudek.evenizer.models.NotificationViewModel
 import com.dudek.evenizer.utils.DateUtils
@@ -50,12 +52,12 @@ fun NotificationPage(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.create_event_back_desc),
                     tint = Color(0xFF9C27B0) // Purple for Home category
                 )
             }
             Text(
-                text = "Notifikasi",
+                text = stringResource(R.string.notification_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF9C27B0),
@@ -69,7 +71,7 @@ fun NotificationPage(
 
         if (notifications.isEmpty() && !isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "Belum ada notifikasi", color = Color.Gray)
+                Text(text = stringResource(R.string.notification_empty), color = Color.Gray)
             }
         } else {
             LazyColumn(
@@ -133,7 +135,7 @@ fun NotificationCard(notification: NotificationData) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = DateUtils.formatLocaleDateTime(notification.createdAt, "id"),
+                    text = DateUtils.formatLocaleDateTime(notification.createdAt, "id"), // This should ideally use the current language code
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(top = 4.dp)

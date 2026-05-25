@@ -250,7 +250,7 @@ fun EventPageContent(
                             onClick = { selectedDate.value = "" },
                             modifier = Modifier.size(24.dp)
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.btn_clear), tint = Color.Gray)
                         }
                     }
                 }

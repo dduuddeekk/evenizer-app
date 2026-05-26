@@ -193,6 +193,7 @@
     <string name="organizer_search_placeholder">Cari Penyelenggara</string>
     <string name="btn_save_changes">Simpan Perubahan</string>
     <string name="event_detail_sie_title">Sie yang tersedia:</string>
+    <string name="ticket_not_implemented">Fitur ini belum diimplementasikan.</string>
     <string name="organizer_no_description">Deskripsi tidak tersedia.</string>
     <string name="organizer_verified_label">✓ Penyelenggara Terverifikasi</string>
     <string name="error_unknown">Kesalahan tidak diketahui</string>

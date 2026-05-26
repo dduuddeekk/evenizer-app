@@ -193,6 +193,7 @@
     <string name="organizer_search_placeholder">搜索组织者</string>
     <string name="btn_save_changes">保存更改</string>
     <string name="event_detail_sie_title">可用角色：</string>
+    <string name="ticket_not_implemented">此功能尚未实现。</string>
     <string name="organizer_no_description">暂无描述。</string>
     <string name="organizer_verified_label">✓ 已认证组织者</string>
     <string name="error_unknown">未知错误</string>

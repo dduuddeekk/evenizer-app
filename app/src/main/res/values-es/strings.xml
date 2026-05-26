@@ -193,6 +193,7 @@
     <string name="organizer_search_placeholder">Buscar organizador</string>
     <string name="btn_save_changes">Guardar cambios</string>
     <string name="event_detail_sie_title">Roles disponibles:</string>
+    <string name="ticket_not_implemented">Esta función aún no se ha implementado.</string>
     <string name="organizer_no_description">No hay descripción disponible.</string>
     <string name="organizer_verified_label">✓ Organizador verificado</string>
     <string name="error_unknown">Error desconocido</string>

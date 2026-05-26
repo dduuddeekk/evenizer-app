@@ -193,6 +193,7 @@
     <string name="organizer_search_placeholder">Поиск организатора</string>
     <string name="btn_save_changes">Сохранить изменения</string>
     <string name="event_detail_sie_title">Доступные роли:</string>
+    <string name="ticket_not_implemented">Эта функция еще не реализована.</string>
     <string name="organizer_no_description">Описание отсутствует.</string>
     <string name="organizer_verified_label">✓ Верифицированный организатор</string>
     <string name="error_unknown">Неизвестная ошибка</string>

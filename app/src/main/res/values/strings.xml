@@ -194,6 +194,7 @@
     <string name="organizer_search_placeholder">Search Organizer</string>
     <string name="btn_save_changes">Save Changes</string>
     <string name="event_detail_sie_title">Available Roles:</string>
+    <string name="ticket_not_implemented">This feature is not yet implemented.</string>
     <string name="organizer_no_description">No description available.</string>
     <string name="organizer_verified_label">✓ Verified Organizer</string>
     <string name="error_unknown">Unknown error</string>

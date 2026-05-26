@@ -1,5 +1,7 @@
 package com.dudek.evenizer.screens
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ConfirmationNumber
@@ -100,7 +102,19 @@ fun MainScreen(
             NavHost(
                 navController,
                 startDestination = "home",
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                enterTransition = {
+                    fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 3 }
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { -it / 3 }
+                },
+                popEnterTransition = {
+                    fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { -it / 3 }
+                },
+                popExitTransition = {
+                    fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 3 }
+                }
             ) {
                 composable("home") { 
                     HomePage(

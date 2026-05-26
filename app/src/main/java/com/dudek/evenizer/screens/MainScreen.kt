@@ -35,6 +35,7 @@ import com.dudek.evenizer.pages.AddEventOrganizerPage
 import com.dudek.evenizer.pages.MyEventsPage
 import com.dudek.evenizer.pages.HomePage
 import com.dudek.evenizer.pages.NotificationPage
+import com.dudek.evenizer.pages.NotificationDetailPage
 import com.dudek.evenizer.pages.OrganizerPage
 import com.dudek.evenizer.pages.OrganizerDetailPage
 import com.dudek.evenizer.pages.CreateOrganizerRolesPage
@@ -111,6 +112,15 @@ fun MainScreen(
                 }
                 composable("notification") {
                     NotificationPage(
+                        notificationViewModel = notificationViewModel,
+                        onBack = { navController.popBackStack() },
+                        onNavigateToDetail = { uuid -> navController.navigate("notification_detail/$uuid") }
+                    )
+                }
+                composable("notification_detail/{uuid}") { backStackEntry ->
+                    val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                    NotificationDetailPage(
+                        uuid = uuid,
                         notificationViewModel = notificationViewModel,
                         onBack = { navController.popBackStack() }
                     )

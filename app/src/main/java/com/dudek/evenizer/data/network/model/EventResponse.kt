@@ -33,6 +33,12 @@ data class Meta(
 )
 
 @Serializable
+data class RespondOrganizerRequest(
+    val status: String,
+    val rejectReason: String? = null
+)
+
+@Serializable
 data class InviteOrganizerRequest(
     val organizerUuid: String,
     val roleUuids: List<String>

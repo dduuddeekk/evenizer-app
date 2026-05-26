@@ -65,6 +65,13 @@ interface EventService {
         @Body request: com.dudek.evenizer.data.network.model.InviteOrganizerRequest
     ): com.dudek.evenizer.data.network.model.EventOrganizerResponse
 
+    @PATCH("event/{uuid}/organizers/{organizerUuid}/respond")
+    suspend fun respondToOrganizerRequest(
+        @Path("uuid") uuid: String,
+        @Path("organizerUuid") organizerUuid: String,
+        @Body request: com.dudek.evenizer.data.network.model.RespondOrganizerRequest
+    ): com.dudek.evenizer.data.network.model.EventOrganizerResponse
+
     @GET("event/{uuid}/rundowns")
     suspend fun getEventRundowns(
         @Path("uuid") uuid: String,

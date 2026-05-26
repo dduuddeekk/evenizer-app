@@ -1,6 +1,7 @@
 package com.dudek.evenizer.pages
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,7 +28,8 @@ import com.dudek.evenizer.utils.DateUtils
 @Composable
 fun NotificationPage(
     notificationViewModel: NotificationViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToDetail: (String) -> Unit
 ) {
     val context = LocalContext.current
     val notifications by notificationViewModel.notifications.collectAsState()
@@ -65,6 +67,10 @@ fun NotificationPage(
                     .weight(1f)
                     .padding(start = 8.dp)
             )
+            
+            TextButton(onClick = { notificationViewModel.markAllAsRead(context) }) {
+                Text("Baca Semua", color = Color(0xFF9C27B0), fontWeight = FontWeight.Bold)
+            }
         }
 
         HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
@@ -80,7 +86,10 @@ fun NotificationPage(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(notifications) { notification ->
-                    NotificationCard(notification)
+                    NotificationCard(
+                        notification = notification,
+                        onClick = { onNavigateToDetail(notification.uuid) }
+                    )
                 }
             }
         }
@@ -88,9 +97,14 @@ fun NotificationPage(
 }
 
 @Composable
-fun NotificationCard(notification: NotificationData) {
+fun NotificationCard(
+    notification: NotificationData,
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (notification.isRead) 

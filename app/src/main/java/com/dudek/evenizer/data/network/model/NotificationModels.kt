@@ -12,7 +12,8 @@ data class NotificationData(
     val createdAt: String,
     val updatedAt: String,
     val deletedAt: String? = null,
-    val userUuid: String? = null
+    val userUuid: String? = null,
+    val metadata: kotlinx.serialization.json.JsonElement? = null
 )
 
 @Serializable

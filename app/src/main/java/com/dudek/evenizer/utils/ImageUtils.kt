@@ -72,7 +72,7 @@ object ImageUtils {
             
             Uri.fromFile(tempFile)
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Silent
             null
         }
     }

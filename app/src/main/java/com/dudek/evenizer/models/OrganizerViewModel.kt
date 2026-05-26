@@ -61,7 +61,7 @@ class OrganizerViewModel : ViewModel() {
                         _organizers.value = response.data?.data ?: emptyList()
                     }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    // Silent
                 }
                 delay(10000)
             }
@@ -173,7 +173,6 @@ class OrganizerViewModel : ViewModel() {
                     _error.value = response.error ?: response.message
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
                 _error.value = "Failed to fetch users: ${e.message}"
             }
         }
@@ -385,7 +384,7 @@ class OrganizerViewModel : ViewModel() {
                 _organizerOwner.value = response.data
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Silent
         }
     }
 
@@ -397,7 +396,7 @@ class OrganizerViewModel : ViewModel() {
                 _organizerRoles.value = response.data
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Silent
         }
     }
 

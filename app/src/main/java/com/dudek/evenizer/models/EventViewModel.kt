@@ -73,8 +73,7 @@ class EventViewModel : ViewModel() {
                         _events.value = response.data?.data ?: emptyList()
                     }
                 } catch (e: Exception) {
-                    // Log error but keep polling
-                    e.printStackTrace()
+                    // Silent
                 }
                 delay(10000) // Poll every 10 seconds
             }
@@ -154,7 +153,7 @@ class EventViewModel : ViewModel() {
                 _eventRoles.value = response.data
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            // Silent
         }
     }
 
@@ -427,8 +426,7 @@ class EventViewModel : ViewModel() {
             val service = NetworkModule.getEventService(context)
             service.deleteEvent(uuid)
         } catch (e: Exception) {
-            // Log error but don't show to user as we are already showing a creation error
-            e.printStackTrace()
+            // Silent
         }
     }
 }

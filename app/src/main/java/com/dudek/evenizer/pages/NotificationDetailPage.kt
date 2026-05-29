@@ -2,6 +2,7 @@ package com.dudek.evenizer.pages
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
+import com.dudek.evenizer.data.network.model.NotificationData
 import com.dudek.evenizer.models.NotificationViewModel
 import com.dudek.evenizer.ui.components.GradientButton
 import com.dudek.evenizer.ui.components.ModernBackground
@@ -55,124 +57,125 @@ fun NotificationDetailPage(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.create_event_back_desc),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.notification_title),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.weight(1f).padding(start = 8.dp)
-                )
-            }
-
-            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-            if (isLoading) {
-                DetailSkeleton()
-            } else if (notification != null) {
-                Column(
+                // Header
+                Row(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(24.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Icon and Type
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Default.Notifications,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Column {
-                            Text(
-                                text = notification!!.type,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = DateUtils.formatLocaleDateTime(notification!!.createdAt, "id"),
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                        }
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.create_event_back_desc),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Title
                     Text(
-                        text = notification!!.title,
+                        text = stringResource(R.string.notification_title),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f).padding(start = 8.dp)
                     )
+                }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
-                    // Message
-                    Text(
-                        text = notification!!.message,
-                        fontSize = 16.sp,
-                        lineHeight = 24.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    if (notification!!.type == "EVENT_ORGANIZER_REQUEST") {
-                        Spacer(modifier = Modifier.height(32.dp))
-                        
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            GradientButton(
-                                onClick = {
-                                    val meta = notification!!.metadata?.jsonObject
-                                    val eUuid = meta?.get("eventUuid")?.jsonPrimitive?.content ?: ""
-                                    val oUuid = meta?.get("organizerUuid")?.jsonPrimitive?.content ?: ""
-                                    
-                                    if (eUuid.isNotBlank() && oUuid.isNotBlank()) {
-                                        notificationViewModel.respondToOrganizerRequest(context, eUuid, oUuid, "ACCEPTED") {
-                                            Toast.makeText(context, "Undangan diterima", Toast.LENGTH_SHORT).show()
-                                            onBack()
-                                        }
-                                    }
-                                },
-                                modifier = Modifier.weight(1f),
-                                gradient = LocalGradients.current.secondary
+                if (isLoading) {
+                    DetailSkeleton()
+                } else if (notification != null) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(24.dp)
+                    ) {
+                        // Icon and Type
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f), CircleShape),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Text("Terima", fontWeight = FontWeight.Bold)
+                                Icon(
+                                    Icons.Default.Notifications,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
                             }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    text = notification!!.type,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = DateUtils.formatLocaleDateTime(notification!!.createdAt, "id"),
+                                    fontSize = 12.sp,
+                                    color = Color.Gray
+                                )
+                            }
+                        }
 
-                            OutlinedButton(
-                                onClick = { showRejectDialog = true },
-                                modifier = Modifier.weight(1f).height(56.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
-                                shape = RoundedCornerShape(12.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color.Red)
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Title
+                        Text(
+                            text = notification!!.title,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Message
+                        Text(
+                            text = notification!!.message,
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        if (notification!!.type == "EVENT_ORGANIZER_REQUEST") {
+                            Spacer(modifier = Modifier.height(32.dp))
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                Text("Tolak", fontWeight = FontWeight.Bold)
+                                GradientButton(
+                                    onClick = {
+                                        val meta = notification!!.metadata?.jsonObject
+                                        val eUuid = meta?.get("eventUuid")?.jsonPrimitive?.content ?: ""
+                                        val oUuid = meta?.get("organizerUuid")?.jsonPrimitive?.content ?: ""
+                                        
+                                        if (eUuid.isNotBlank() && oUuid.isNotBlank()) {
+                                            notificationViewModel.respondToOrganizerRequest(context, eUuid, oUuid, "ACCEPTED") {
+                                                Toast.makeText(context, "Undangan diterima", Toast.LENGTH_SHORT).show()
+                                                onBack()
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    gradient = LocalGradients.current.secondary
+                                ) {
+                                    Text("Terima", fontWeight = FontWeight.Bold)
+                                }
+
+                                OutlinedButton(
+                                    onClick = { showRejectDialog = true },
+                                    modifier = Modifier.weight(1f).height(56.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Red)
+                                ) {
+                                    Text("Tolak", fontWeight = FontWeight.Bold)
+                                }
                             }
                         }
                     }
@@ -203,7 +206,7 @@ fun NotificationDetailPage(
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                val meta = notification!!.metadata?.jsonObject
+                                val meta = notification?.metadata?.jsonObject
                                 val eUuid = meta?.get("eventUuid")?.jsonPrimitive?.content ?: ""
                                 val oUuid = meta?.get("organizerUuid")?.jsonPrimitive?.content ?: ""
                                 
@@ -229,5 +232,4 @@ fun NotificationDetailPage(
             }
         }
     }
-}
 }

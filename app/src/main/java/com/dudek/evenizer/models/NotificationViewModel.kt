@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.network.model.NotificationData
+import com.dudek.evenizer.utils.notifications.NotificationHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,6 +58,14 @@ class NotificationViewModel : ViewModel() {
                     if (newest != null && !newest.isRead && newest.uuid != lastNotifiedUuid) {
                         _latestNotification.value = newest
                         lastNotifiedUuid = newest.uuid
+                        
+                        // Show system notification
+                        NotificationHelper.showAppUpdate(
+                            context = context,
+                            id = newest.uuid.hashCode(),
+                            title = newest.title,
+                            message = newest.message
+                        )
                     }
                 }
             } catch (_: Exception) {

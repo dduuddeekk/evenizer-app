@@ -9,6 +9,7 @@ import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.data.network.model.YearSchedule
 import com.dudek.evenizer.data.repository.UserRepository
 import com.dudek.evenizer.utils.ImageUtils
+import com.dudek.evenizer.utils.notifications.ReminderManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -75,12 +76,13 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         _profileLoading.value = false
     }
 
-    fun fetchUserSchedule() {
+    fun fetchUserSchedule(context: Context) {
         viewModelScope.launch {
             _profileLoading.value = true
             val result = userRepository.getUserRundowns()
             result.onSuccess { schedule ->
                 _userSchedule.value = schedule
+                ReminderManager.scheduleRemindersForSchedule(context, schedule)
             }.onFailure {
                 _userSchedule.value = emptyList()
             }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -35,10 +36,11 @@ import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.ui.components.GradientButton
+import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 import com.dudek.evenizer.utils.DateUtils
 import com.dudek.evenizer.utils.OrganizerCardSkeleton
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -104,147 +106,147 @@ fun OrganizerPageContent(
     val selectedDate = remember { mutableStateOf("") }
     val showDatePicker = remember { mutableStateOf(false) }
     
-    val scope = rememberCoroutineScope()
     var showFabMenu by remember { mutableStateOf(false) }
     val showLoginDialog = remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        PullToRefreshBox(
-            isRefreshing = isLoading,
-            onRefresh = onRefresh,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            val datePickerState = rememberDatePickerState()
-
-            if (showDatePicker.value) {
-                val onDismiss = { showDatePicker.value = false }
-                DatePickerDialog(
-                    onDismissRequest = onDismiss,
-                    confirmButton = {
-                        TextButton(onClick = {
-                            datePickerState.selectedDateMillis?.let { millis ->
-                                val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                selectedDate.value = formatter.format(Date(millis))
-                            }
-                            onDismiss()
-                        }) {
-                            Text(text = stringResource(R.string.btn_ok), color = Color(0xFF2196F3))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = onDismiss) {
-                            Text(text = stringResource(R.string.btn_cancel))
-                        }
-                    }
-                ) {
-                    DatePicker(state = datePickerState)
-                }
-            }
-
-            if (showLoginDialog.value) {
-                AlertDialog(
-                    onDismissRequest = { showLoginDialog.value = false },
-                    title = { Text(stringResource(R.string.auth_login_required_title)) },
-                    text = { Text(stringResource(R.string.auth_login_required_desc)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            showLoginDialog.value = false
-                            onNavigateToLogin()
-                        }) {
-                            Text(stringResource(R.string.btn_go_to_login), color = Color(0xFF2196F3))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showLoginDialog.value = false }) {
-                            Text(stringResource(R.string.btn_cancel))
-                        }
-                    }
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(horizontal = 24.dp)
+        ModernBackground {
+            PullToRefreshBox(
+                isRefreshing = isLoading,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize()
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = stringResource(R.string.nav_organizer),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2196F3)
-                )
+                val datePickerState = rememberDatePickerState()
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = stringResource(R.string.check_availability),
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Calendar Filter Button
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .clickable { showDatePicker.value = true }
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.CalendarToday,
-                        contentDescription = null,
-                        tint = Color(0xFF2196F3),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = if (selectedDate.value.isEmpty()) {
-                            stringResource(R.string.filter_any_day)
-                        } else {
-                            DateUtils.formatLocaleDate(selectedDate.value, language)
+                if (showDatePicker.value) {
+                    val onDismiss = { showDatePicker.value = false }
+                    DatePickerDialog(
+                        onDismissRequest = onDismiss,
+                        confirmButton = {
+                            TextButton(onClick = {
+                                datePickerState.selectedDateMillis?.let { millis ->
+                                    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                    selectedDate.value = formatter.format(Date(millis))
+                                }
+                                onDismiss()
+                            }) {
+                                Text(text = stringResource(R.string.btn_ok), color = MaterialTheme.colorScheme.tertiary)
+                            }
                         },
-                        color = if (selectedDate.value.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if (selectedDate.value.isNotEmpty()) {
-                        IconButton(
-                            onClick = { selectedDate.value = "" },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.btn_clear), tint = Color.Gray)
+                        dismissButton = {
+                            TextButton(onClick = onDismiss) {
+                                Text(text = stringResource(R.string.btn_cancel))
+                            }
                         }
+                    ) {
+                        DatePicker(state = datePickerState)
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(bottom = 80.dp)
-                ) {
-                    if (isLoading && organizers.isEmpty()) {
-                        items(5) {
-                            OrganizerCardSkeleton()
+                if (showLoginDialog.value) {
+                    AlertDialog(
+                        onDismissRequest = { showLoginDialog.value = false },
+                        title = { Text(stringResource(R.string.auth_login_required_title)) },
+                        text = { Text(stringResource(R.string.auth_login_required_desc)) },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showLoginDialog.value = false
+                                onNavigateToLogin()
+                            }) {
+                                Text(stringResource(R.string.btn_go_to_login), color = MaterialTheme.colorScheme.tertiary)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showLoginDialog.value = false }) {
+                                Text(stringResource(R.string.btn_cancel))
+                            }
                         }
-                    } else {
-                        items(organizers) { organizer ->
-                            OrganizerCard(
-                                organizer = organizer,
-                                languageCode = language,
-                                currentUserUuid = userProfile?.uuid,
-                                onToggleFollow = { onToggleFollow(organizer.uuid) },
-                                onDelete = { onDelete(organizer.uuid) },
-                                onClick = { onNavigateToDetail(organizer.uuid) }
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = stringResource(R.string.nav_organizer),
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = stringResource(R.string.check_availability),
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Calendar Filter Button
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(12.dp)
                             )
+                            .clickable { showDatePicker.value = true }
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.CalendarToday,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = if (selectedDate.value.isEmpty()) {
+                                stringResource(R.string.filter_any_day)
+                            } else {
+                                DateUtils.formatLocaleDate(selectedDate.value, language)
+                            },
+                            color = if (selectedDate.value.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (selectedDate.value.isNotEmpty()) {
+                            IconButton(
+                                onClick = { selectedDate.value = "" },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.btn_clear), tint = Color.Gray)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(bottom = 80.dp)
+                    ) {
+                        if (isLoading && organizers.isEmpty()) {
+                            items(5) {
+                                OrganizerCardSkeleton()
+                            }
+                        } else {
+                            items(organizers) { organizer ->
+                                OrganizerCard(
+                                    organizer = organizer,
+                                    languageCode = language,
+                                    currentUserUuid = userProfile?.uuid,
+                                    onToggleFollow = { onToggleFollow(organizer.uuid) },
+                                    onDelete = { onDelete(organizer.uuid) },
+                                    onClick = { onNavigateToDetail(organizer.uuid) }
+                                )
+                            }
                         }
                     }
                 }
@@ -311,17 +313,24 @@ fun OrganizerPageContent(
 
             FloatingActionButton(
                 onClick = { showFabMenu = !showFabMenu },
-                containerColor = Color(0xFF2196F3),
+                containerColor = Color.Transparent,
                 contentColor = Color.White,
                 shape = CircleShape,
                 modifier = Modifier.size(56.dp)
             ) {
-                Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
-                    Icon(
-                        imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
-                        contentDescription = "More Options",
-                        modifier = Modifier.size(24.dp)
-                    )
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(LocalGradients.current.tertiary, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
+                        Icon(
+                            imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
+                            contentDescription = "More Options",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }
@@ -383,7 +392,7 @@ fun OrganizerCard(
                 modifier = Modifier
                     .size(60.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF2196F3).copy(alpha = 0.2f)),
+                    .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 if (!organizer.logo.isNullOrEmpty()) {
@@ -395,7 +404,7 @@ fun OrganizerCard(
                 } else {
                     Text(
                         text = organizer.name.take(1),
-                        color = Color(0xFF2196F3),
+                        color = MaterialTheme.colorScheme.tertiary,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -432,7 +441,7 @@ fun OrganizerCard(
                 Text(
                     text = stringResource(R.string.home_stat_total_events) + ": ${organizer._count?.eventOrganizers ?: 0}",
                     fontSize = 12.sp,
-                    color = Color(0xFF2196F3)
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             }
 
@@ -445,16 +454,16 @@ fun OrganizerCard(
                     )
                 }
             } else {
-                Button(
+                GradientButton(
                     onClick = onToggleFollow,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (organizer.isFollow) Color.LightGray else Color(0xFF2196F3),
-                        contentColor = if (organizer.isFollow) Color.Black else Color.White
-                    ),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier.height(40.dp),
+                    gradient = if (organizer.isFollow) Brush.verticalGradient(listOf(Color.LightGray, Color.Gray)) else LocalGradients.current.tertiary,
+                    contentPadding = PaddingValues(horizontal = 16.dp)
                 ) {
-                    Text(if (organizer.isFollow) stringResource(R.string.btn_following) else stringResource(R.string.btn_follow))
+                    Text(
+                        if (organizer.isFollow) stringResource(R.string.btn_following) else stringResource(R.string.btn_follow),
+                        fontSize = 14.sp
+                    )
                 }
             }
         }

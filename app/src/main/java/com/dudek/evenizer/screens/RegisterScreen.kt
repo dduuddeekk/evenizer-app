@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -30,6 +31,13 @@ import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.RegisterState
 import com.dudek.evenizer.models.LoginState
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.ui.components.GradientButton
+import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.EvenizerTheme
+import com.dudek.evenizer.ui.theme.LocalGradients
+import android.content.res.Configuration
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import kotlinx.coroutines.launch
 
 @Composable
@@ -91,223 +99,237 @@ fun RegisterScreenContent(
 
     val passwordsMatch = password == confirmPassword && confirmPassword.isNotEmpty()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = stringResource(R.string.register_title),
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF9C27B0)
-        )
-        Text(
-            text = stringResource(R.string.register_subtitle),
-            fontSize = 16.sp,
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        if (registerState is RegisterState.Error) {
-            Text(
-                text = registerState.message,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        Row(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = firstName,
-                onValueChange = { firstName = it },
-                label = { Text(stringResource(R.string.register_first_name)) },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-                enabled = registerState !is RegisterState.Loading
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            OutlinedTextField(
-                value = lastName,
-                onValueChange = { lastName = it },
-                label = { Text(stringResource(R.string.register_last_name)) },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-                enabled = registerState !is RegisterState.Loading
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text(stringResource(R.string.login_email)) },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = Color(0xFF2196F3)) }, // Blue
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            shape = RoundedCornerShape(12.dp),
-            enabled = registerState !is RegisterState.Loading,
-            isError = email.isNotEmpty() && !isEmailValid,
-            supportingText = {
-                if (email.isNotEmpty() && !isEmailValid) {
-                    Text(text = stringResource(R.string.error_invalid_email))
-                }
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF2196F3),
-                focusedLabelColor = Color(0xFF2196F3)
-            )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text(stringResource(R.string.login_password)) },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF4CAF50)) }, // Green
-            trailingIcon = {
-                val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, contentDescription = null)
-                }
-            },
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            shape = RoundedCornerShape(12.dp),
-            enabled = registerState !is RegisterState.Loading,
-            isError = password.isNotEmpty() && !isPasswordValid,
-            supportingText = {
-                if (password.isNotEmpty() && !isPasswordValid) {
-                    Text(text = stringResource(R.string.error_password_requirements))
-                }
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF4CAF50),
-                focusedLabelColor = Color(0xFF4CAF50)
-            )
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text(stringResource(R.string.register_confirm_password)) },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFFFF9800)) }, // Orange
-            trailingIcon = {
-                val image = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                    Icon(imageVector = image, contentDescription = null)
-                }
-            },
-            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            shape = RoundedCornerShape(12.dp),
-            enabled = registerState !is RegisterState.Loading,
-            isError = confirmPassword.isNotEmpty() && !passwordsMatch,
-            supportingText = {
-                if (confirmPassword.isNotEmpty() && !passwordsMatch) {
-                    Text(text = stringResource(R.string.error_password_mismatch))
-                }
-            },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFFFF9800),
-                focusedLabelColor = Color(0xFFFF9800)
-            )
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { onRegister(firstName, lastName, email, password) },
+    ModernBackground {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
-            enabled = registerState !is RegisterState.Loading && 
-                      firstName.isNotBlank() && 
-                      lastName.isNotBlank() && 
-                      isEmailValid && 
-                      isPasswordValid &&
-                      passwordsMatch,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9C27B0)) // Purple
+                .fillMaxSize()
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            if (registerState is RegisterState.Loading || loginState is LoginState.Loading) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-            } else {
-                Text(text = stringResource(R.string.register_btn), fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
-            Text(text = " OR ", modifier = Modifier.padding(horizontal = 8.dp), color = Color.Gray, fontSize = 12.sp)
-            HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedButton(
-            onClick = { /* TODO: Google Register Logic */ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
-            border = ButtonDefaults.outlinedButtonBorder(enabled = true),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.google),
-                    contentDescription = "Google Logo",
-                    modifier = Modifier.size(24.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(text = stringResource(R.string.login_google), fontWeight = FontWeight.Medium)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(text = stringResource(R.string.register_have_account), color = Color.Gray, fontSize = 14.sp)
-            TextButton(
-                onClick = onNavigateToLogin,
-                contentPadding = PaddingValues(0.dp)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                shadowElevation = 8.dp
             ) {
-                Text(
-                    text = stringResource(R.string.register_login),
-                    color = Color(0xFF9C27B0),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.register_title),
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = stringResource(R.string.register_subtitle),
+                        fontSize = 16.sp,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    if (registerState is RegisterState.Error) {
+                        Text(
+                            text = registerState.message,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = firstName,
+                            onValueChange = { firstName = it },
+                            label = { Text(stringResource(R.string.register_first_name)) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            enabled = registerState !is RegisterState.Loading
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        OutlinedTextField(
+                            value = lastName,
+                            onValueChange = { lastName = it },
+                            label = { Text(stringResource(R.string.register_last_name)) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            enabled = registerState !is RegisterState.Loading
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text(stringResource(R.string.login_email)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = Color(0xFF2196F3)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = registerState !is RegisterState.Loading,
+                        isError = email.isNotEmpty() && !isEmailValid,
+                        supportingText = {
+                            if (email.isNotEmpty() && !isEmailValid) {
+                                Text(text = stringResource(R.string.error_invalid_email))
+                            }
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF2196F3),
+                            focusedLabelColor = Color(0xFF2196F3)
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text(stringResource(R.string.login_password)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF4CAF50)) },
+                        trailingIcon = {
+                            val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = image, contentDescription = null)
+                            }
+                        },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = registerState !is RegisterState.Loading,
+                        isError = password.isNotEmpty() && !isPasswordValid,
+                        supportingText = {
+                            if (password.isNotEmpty() && !isPasswordValid) {
+                                Text(text = stringResource(R.string.error_password_requirements))
+                            }
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF4CAF50),
+                            focusedLabelColor = Color(0xFF4CAF50)
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = confirmPassword,
+                        onValueChange = { confirmPassword = it },
+                        label = { Text(stringResource(R.string.register_confirm_password)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFFFF9800)) },
+                        trailingIcon = {
+                            val image = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                            IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                                Icon(imageVector = image, contentDescription = null)
+                            }
+                        },
+                        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = registerState !is RegisterState.Loading,
+                        isError = confirmPassword.isNotEmpty() && !passwordsMatch,
+                        supportingText = {
+                            if (confirmPassword.isNotEmpty() && !passwordsMatch) {
+                                Text(text = stringResource(R.string.error_password_mismatch))
+                            }
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFF9800),
+                            focusedLabelColor = Color(0xFFFF9800)
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    GradientButton(
+                        onClick = { onRegister(firstName, lastName, email, password) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = registerState !is RegisterState.Loading && 
+                                  loginState !is LoginState.Loading &&
+                                  firstName.isNotBlank() && 
+                                  lastName.isNotBlank() && 
+                                  isEmailValid && 
+                                  isPasswordValid &&
+                                  passwordsMatch
+                    ) {
+                        if (registerState is RegisterState.Loading || loginState is LoginState.Loading) {
+                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        } else {
+                            Text(text = stringResource(R.string.register_btn), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
+                        Text(text = " OR ", modifier = Modifier.padding(horizontal = 8.dp), color = Color.Gray, fontSize = 12.sp)
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    OutlinedButton(
+                        onClick = { /* TODO: Google Register Logic */ },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = ButtonDefaults.outlinedButtonBorder(enabled = true),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = R.drawable.google),
+                                contentDescription = "Google Logo",
+                                modifier = Modifier.size(24.dp),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(text = stringResource(R.string.login_google), fontWeight = FontWeight.Medium)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = stringResource(R.string.register_have_account), color = Color.Gray, fontSize = 14.sp)
+                        TextButton(
+                            onClick = onNavigateToLogin,
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.register_login),
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Register Dark Mode")
+@Preview(showBackground = true, name = "Register Light Mode")
 @Composable
 fun RegisterScreenPreview() {
-    RegisterScreenContent(
-        registerState = RegisterState.Idle,
-        loginState = LoginState.Idle,
-        onRegister = { _, _, _, _ -> },
-        onNavigateToLogin = {}
-    )
+    EvenizerTheme {
+        RegisterScreenContent(
+            registerState = RegisterState.Idle,
+            loginState = LoginState.Idle,
+            onRegister = { _, _, _, _ -> },
+            onNavigateToLogin = {}
+        )
+    }
 }

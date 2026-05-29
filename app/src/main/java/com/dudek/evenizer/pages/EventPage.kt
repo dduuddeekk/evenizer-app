@@ -13,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
@@ -40,6 +39,8 @@ import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 import com.dudek.evenizer.utils.DateUtils
 import com.dudek.evenizer.utils.EventCard
 import com.dudek.evenizer.utils.EventCardSkeleton
@@ -112,178 +113,179 @@ fun EventPageContent(
     var showFabMenu by remember { mutableStateOf(false) }
     
     Box(modifier = Modifier.fillMaxSize()) {
-        PullToRefreshBox(
-            isRefreshing = isLoading,
-            onRefresh = onRefresh,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            val datePickerState = rememberDatePickerState()
-
-            val filteredEvents = remember(searchQuery.value, selectedDate.value, events) {
-                events.filter {
-                    (searchQuery.value.isEmpty() || it.title.contains(searchQuery.value, ignoreCase = true)) &&
-                    (selectedDate.value.isEmpty() || it.start.startsWith(selectedDate.value))
-                }
-            }
-
-            if (showDatePicker.value) {
-                val onDismiss = { showDatePicker.value = false }
-                DatePickerDialog(
-                    onDismissRequest = onDismiss,
-                    confirmButton = {
-                        TextButton(onClick = {
-                            datePickerState.selectedDateMillis?.let { millis ->
-                                val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                selectedDate.value = formatter.format(Date(millis))
-                            }
-                            onDismiss()
-                        }) {
-                            Text(text = stringResource(R.string.btn_ok), color = Color(0xFF4CAF50))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = onDismiss) {
-                            Text(text = stringResource(R.string.btn_cancel))
-                        }
-                    }
-                ) {
-                    DatePicker(state = datePickerState)
-                }
-            }
-
-            if (showLoginDialog.value) {
-                AlertDialog(
-                    onDismissRequest = { showLoginDialog.value = false },
-                    title = { Text(stringResource(R.string.auth_login_required_title)) },
-                    text = { Text(stringResource(R.string.auth_login_required_desc)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            showLoginDialog.value = false
-                            onNavigateToLogin()
-                        }) {
-                            Text(stringResource(R.string.btn_go_to_login), color = Color(0xFF4CAF50))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showLoginDialog.value = false }) {
-                            Text(stringResource(R.string.btn_cancel))
-                        }
-                    }
-                )
-            }
-
-            if (showVerifyDialog.value) {
-                AlertDialog(
-                    onDismissRequest = { showVerifyDialog.value = false },
-                    title = { Text(stringResource(R.string.auth_verify_required_title)) },
-                    text = { Text(stringResource(R.string.auth_verify_required_desc)) },
-                    confirmButton = {
-                        TextButton(onClick = { showVerifyDialog.value = false }) {
-                            Text(stringResource(R.string.btn_ok), color = Color(0xFF4CAF50))
-                        }
-                    }
-                )
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(horizontal = 24.dp)
+        ModernBackground {
+            PullToRefreshBox(
+                isRefreshing = isLoading,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize()
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = stringResource(R.string.nav_event),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4CAF50)
-                )
+                val datePickerState = rememberDatePickerState()
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Search Bar
-                OutlinedTextField(
-                    value = searchQuery.value,
-                    onValueChange = { searchQuery.value = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(text = stringResource(R.string.search_events_placeholder)) },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF4CAF50),
-                        unfocusedBorderColor = Color.LightGray
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Calendar Filter Button
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .clickable { showDatePicker.value = true }
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.CalendarToday,
-                        contentDescription = null,
-                        tint = Color(0xFF4CAF50),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = if (selectedDate.value.isEmpty()) {
-                            stringResource(R.string.filter_by_date)
-                        } else {
-                            DateUtils.formatLocaleDate(selectedDate.value, language)
-                        },
-                        color = if (selectedDate.value.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if (selectedDate.value.isNotEmpty()) {
-                        IconButton(
-                            onClick = { selectedDate.value = "" },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.btn_clear), tint = Color.Gray)
-                        }
+                val filteredEvents = remember(searchQuery.value, selectedDate.value, events) {
+                    events.filter {
+                        (searchQuery.value.isEmpty() || it.title.contains(searchQuery.value, ignoreCase = true)) &&
+                        (selectedDate.value.isEmpty() || it.start.startsWith(selectedDate.value))
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (filteredEvents.isEmpty() && !isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = stringResource(R.string.event_empty), color = Color.Gray)
-                    }
-                } else {
-                    LazyVerticalStaggeredGrid(
-                        columns = StaggeredGridCells.Fixed(2),
-                        modifier = Modifier.weight(1f),
-                        verticalItemSpacing = 16.dp,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(bottom = 80.dp)
-                    ) {
-                        if (isLoading && filteredEvents.isEmpty()) {
-                            items(6) {
-                                EventCardSkeleton()
+                if (showDatePicker.value) {
+                    val onDismiss = { showDatePicker.value = false }
+                    DatePickerDialog(
+                        onDismissRequest = onDismiss,
+                        confirmButton = {
+                            TextButton(onClick = {
+                                datePickerState.selectedDateMillis?.let { millis ->
+                                    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                    selectedDate.value = formatter.format(Date(millis))
+                                }
+                                onDismiss()
+                            }) {
+                                Text(text = stringResource(R.string.btn_ok), color = MaterialTheme.colorScheme.primary)
                             }
-                        } else {
-                            items(filteredEvents) { event ->
-                                EventCard(
-                                    event = event,
-                                    languageCode = language,
-                                    userProfile = userProfile,
-                                    isFavorited = event.isFavorited,
-                                    onToggleFavourite = { onToggleFavourite(event.uuid) },
-                                    onNavigateToDetail = { onNavigateToDetail(event.uuid) },
-                                    onDelete = null
-                                )
+                        },
+                        dismissButton = {
+                            TextButton(onClick = onDismiss) {
+                                Text(text = stringResource(R.string.btn_cancel))
+                            }
+                        }
+                    ) {
+                        DatePicker(state = datePickerState)
+                    }
+                }
+
+                if (showLoginDialog.value) {
+                    AlertDialog(
+                        onDismissRequest = { showLoginDialog.value = false },
+                        title = { Text(stringResource(R.string.auth_login_required_title)) },
+                        text = { Text(stringResource(R.string.auth_login_required_desc)) },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showLoginDialog.value = false
+                                onNavigateToLogin()
+                            }) {
+                                Text(stringResource(R.string.btn_go_to_login), color = MaterialTheme.colorScheme.primary)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showLoginDialog.value = false }) {
+                                Text(stringResource(R.string.btn_cancel))
+                            }
+                        }
+                    )
+                }
+
+                if (showVerifyDialog.value) {
+                    AlertDialog(
+                        onDismissRequest = { showVerifyDialog.value = false },
+                        title = { Text(stringResource(R.string.auth_verify_required_title)) },
+                        text = { Text(stringResource(R.string.auth_verify_required_desc)) },
+                        confirmButton = {
+                            TextButton(onClick = { showVerifyDialog.value = false }) {
+                                Text(stringResource(R.string.btn_ok), color = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = stringResource(R.string.nav_event),
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Search Bar
+                    OutlinedTextField(
+                        value = searchQuery.value,
+                        onValueChange = { searchQuery.value = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text(text = stringResource(R.string.search_events_placeholder)) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = Color.LightGray
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Calendar Filter Button
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .clickable { showDatePicker.value = true }
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.CalendarToday,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = if (selectedDate.value.isEmpty()) {
+                                stringResource(R.string.filter_by_date)
+                            } else {
+                                DateUtils.formatLocaleDate(selectedDate.value, language)
+                            },
+                            color = if (selectedDate.value.isEmpty()) Color.Gray else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (selectedDate.value.isNotEmpty()) {
+                            IconButton(
+                                onClick = { selectedDate.value = "" },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.btn_clear), tint = Color.Gray)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (filteredEvents.isEmpty() && !isLoading) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(text = stringResource(R.string.event_empty), color = Color.Gray)
+                        }
+                    } else {
+                        LazyVerticalStaggeredGrid(
+                            columns = StaggeredGridCells.Fixed(2),
+                            modifier = Modifier.weight(1f),
+                            verticalItemSpacing = 16.dp,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(bottom = 80.dp)
+                        ) {
+                            if (isLoading && filteredEvents.isEmpty()) {
+                                items(6) {
+                                    EventCardSkeleton()
+                                }
+                            } else {
+                                items(filteredEvents) { event ->
+                                    EventCard(
+                                        event = event,
+                                        languageCode = language,
+                                        userProfile = userProfile,
+                                        isFavorited = event.isFavorited,
+                                        onToggleFavourite = { onToggleFavourite(event.uuid) },
+                                        onNavigateToDetail = { onNavigateToDetail(event.uuid) },
+                                        onDelete = null
+                                    )
+                                }
                             }
                         }
                     }
@@ -353,17 +355,24 @@ fun EventPageContent(
 
             FloatingActionButton(
                 onClick = { showFabMenu = !showFabMenu },
-                containerColor = Color(0xFF4CAF50),
+                containerColor = Color.Transparent,
                 contentColor = Color.White,
                 shape = CircleShape,
                 modifier = Modifier.size(56.dp)
             ) {
-                Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
-                    Icon(
-                        imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
-                        contentDescription = "More Options",
-                        modifier = Modifier.size(24.dp)
-                    )
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .background(LocalGradients.current.secondary, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
+                        Icon(
+                            imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
+                            contentDescription = "More Options",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }
@@ -382,10 +391,9 @@ fun FabMenuItem(
         tonalElevation = 4.dp,
         modifier = Modifier.wrapContentSize()
     ) {
-        PaddingValues(horizontal = 16.dp, vertical = 8.dp).let {
+        Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Text(
                 text = label,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )

@@ -28,6 +28,8 @@ import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.ThemeViewModel
+import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 import com.dudek.evenizer.utils.DateUtils
 import com.dudek.evenizer.utils.EventCardSkeleton
 import com.dudek.evenizer.utils.OrganizerCardSkeleton
@@ -90,13 +92,13 @@ fun HomePageContent(
         onRefresh = onRefresh,
         modifier = Modifier.fillMaxSize(),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(scrollState)
-                .padding(horizontal = 24.dp)
-        ) {
+        ModernBackground {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 24.dp)
+            ) {
             Spacer(modifier = Modifier.height(24.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -193,20 +195,23 @@ fun HomePageContent(
         }
     }
 }
+}
 
 @Composable
 fun HomeEventCardFromData(event: EventData, languageCode: String) {
     Card(
         modifier = Modifier.width(200.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = event.title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                maxLines = 1
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -226,17 +231,24 @@ fun HomeEventCardFromData(event: EventData, languageCode: String) {
 
 @Composable
 fun StatCard(title: String, value: String, color: Color, modifier: Modifier = Modifier) {
+    val gradient = when (color) {
+        Color(0xFF4CAF50) -> LocalGradients.current.secondary
+        else -> LocalGradients.current.primary
+    }
+    
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f))
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = value, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = color)
-            Text(text = title, fontSize = 12.sp, color = color.copy(alpha = 0.7f))
+        Box(modifier = Modifier.background(gradient).fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(text = value, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = title, fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f))
+            }
         }
     }
 }
@@ -249,7 +261,7 @@ fun SectionHeader(title: String, actionText: String) {
         verticalAlignment = Alignment.Bottom
     ) {
         Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text(text = actionText, fontSize = 14.sp, color = Color(0xFF9C27B0), fontWeight = FontWeight.Medium)
+        Text(text = actionText, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
     }
 }
 

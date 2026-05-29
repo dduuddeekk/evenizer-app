@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 data class EvenizerGradients(
     val primary: Brush = Brush.verticalGradient(listOf(GradientStart, GradientEnd)),
     val secondary: Brush = Brush.verticalGradient(listOf(SecondaryGradientStart, SecondaryGradientEnd)),
+    val tertiary: Brush = Brush.verticalGradient(listOf(Color(0xFF2196F3), Color(0xFF1976D2))),
     val background: Brush = Brush.verticalGradient(listOf(BackgroundGradientStart, BackgroundGradientEnd)),
     val surface: Brush = Brush.verticalGradient(listOf(Color.White, Color(0xFFF5F5F5)))
 )

@@ -96,6 +96,9 @@ class MainActivity : ComponentActivity() {
             )
 
             val eventViewModel: EventViewModel = viewModel()
+            LaunchedEffect(Unit) {
+                eventViewModel.initialize(applicationContext)
+            }
             val organizerViewModel: OrganizerViewModel = viewModel()
             val notificationViewModel: NotificationViewModel = viewModel()
             

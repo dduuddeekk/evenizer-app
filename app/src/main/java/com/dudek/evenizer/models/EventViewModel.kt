@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.network.model.CreateEventRequest
 import com.dudek.evenizer.data.network.model.CreateRundownRequest
@@ -13,7 +15,9 @@ import com.dudek.evenizer.data.network.model.EventOrganizerData
 import com.dudek.evenizer.data.network.model.InviteOrganizerRequest
 import com.dudek.evenizer.data.network.model.RoleData
 import com.dudek.evenizer.data.network.model.RundownData
+import com.dudek.evenizer.data.repository.EventRepository
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
@@ -28,14 +32,24 @@ enum class CreateEventStep {
 }
 
 class EventViewModel : ViewModel() {
+    private var repository: EventRepository? = null
+
     private val _events = MutableStateFlow<List<EventData>>(emptyList())
     val events: StateFlow<List<EventData>> = _events
 
     private val _myEvents = MutableStateFlow<List<EventData>>(emptyList())
     val myEvents: StateFlow<List<EventData>> = _myEvents
 
+    private var _pagedEvents: Flow<PagingData<EventData>>? = null
+    val pagedEvents: Flow<PagingData<EventData>> get() = _pagedEvents ?: throw IllegalStateException("Repository not initialized")
+
+    private var _pagedMyEvents: Flow<PagingData<EventData>>? = null
+    val pagedMyEvents: Flow<PagingData<EventData>> get() = _pagedMyEvents ?: throw IllegalStateException("Repository not initialized")
+
     private val _eventDetail = MutableStateFlow<EventData?>(null)
     val eventDetail: StateFlow<EventData?> = _eventDetail
+
+    // ... (rest of the flows)
 
     private val _eventRoles = MutableStateFlow<List<RoleData>>(emptyList())
     val eventRoles: StateFlow<List<RoleData>> = _eventRoles
@@ -59,6 +73,14 @@ class EventViewModel : ViewModel() {
     val error: StateFlow<String?> = _error
 
     private var pollingJob: kotlinx.coroutines.Job? = null
+
+    fun initialize(context: Context) {
+        if (repository == null) {
+            repository = EventRepository(context)
+            _pagedEvents = repository!!.getEvents().cachedIn(viewModelScope)
+            _pagedMyEvents = repository!!.getMyEvents().cachedIn(viewModelScope)
+        }
+    }
 
     fun startRealtimeEvents(context: Context) {
         // Stop any existing job first

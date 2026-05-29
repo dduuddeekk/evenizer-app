@@ -7,7 +7,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.EventData
 import com.dudek.evenizer.data.network.model.UserData
@@ -54,31 +58,15 @@ fun EventPage(
     val context = LocalContext.current
     val userProfile by userViewModel.userProfile.collectAsState()
     val language by themeViewModel.language.collectAsState(initial = "id")
-    val events by eventViewModel.events.collectAsState()
-    val isLoading by eventViewModel.isLoading.collectAsState()
+    val pagedEvents = eventViewModel.pagedEvents.collectAsLazyPagingItems()
     
-    DisposableEffect(Unit) {
-        eventViewModel.startRealtimeEvents(context)
-        onDispose {
-            eventViewModel.stopRealtimeEvents()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        if (events.isEmpty()) {
-            eventViewModel.fetchEvents(context)
-        }
-    }
-
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF4CAF50))
     ) {
         EventPageContent(
-            events = events,
-            isLoading = isLoading,
+            pagedEvents = pagedEvents,
             userProfile = userProfile,
             language = language,
-            onRefresh = { eventViewModel.fetchEvents(context) },
             onToggleFavourite = { uuid -> eventViewModel.toggleFavourite(context, uuid) },
             onNavigateToCreate = onNavigateToCreate,
             onNavigateToMyEvents = onNavigateToMyEvents,
@@ -91,11 +79,9 @@ fun EventPage(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventPageContent(
-    events: List<EventData>,
-    isLoading: Boolean,
+    pagedEvents: LazyPagingItems<EventData>,
     userProfile: UserData?,
     language: String,
-    onRefresh: () -> Unit,
     onToggleFavourite: (String) -> Unit,
     onNavigateToCreate: () -> Unit,
     onNavigateToMyEvents: () -> Unit,
@@ -109,22 +95,17 @@ fun EventPageContent(
     val showLoginDialog = remember { mutableStateOf(false) }
     val showVerifyDialog = remember { mutableStateOf(false) }
     var showFabMenu by remember { mutableStateOf(false) }
+
+    val isLoading = pagedEvents.loadState.refresh is LoadState.Loading
     
     Box(modifier = Modifier.fillMaxSize()) {
         ModernBackground {
             PullToRefreshBox(
                 isRefreshing = isLoading,
-                onRefresh = onRefresh,
+                onRefresh = { pagedEvents.refresh() },
                 modifier = Modifier.fillMaxSize()
             ) {
                 val datePickerState = rememberDatePickerState()
-
-                val filteredEvents = remember(searchQuery.value, selectedDate.value, events) {
-                    events.filter {
-                        (searchQuery.value.isEmpty() || it.title.contains(searchQuery.value, ignoreCase = true)) &&
-                        (selectedDate.value.isEmpty() || it.start.startsWith(selectedDate.value))
-                    }
-                }
 
                 if (showDatePicker.value) {
                     val onDismiss = { showDatePicker.value = false }
@@ -256,7 +237,7 @@ fun EventPageContent(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    if (filteredEvents.isEmpty() && !isLoading) {
+                    if (pagedEvents.itemCount == 0 && !isLoading) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text(text = stringResource(R.string.event_empty), color = Color.Gray)
                         }
@@ -268,21 +249,28 @@ fun EventPageContent(
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                             contentPadding = PaddingValues(bottom = 80.dp)
                         ) {
-                            if (isLoading && filteredEvents.isEmpty()) {
+                            if (isLoading && pagedEvents.itemCount == 0) {
                                 items(6) {
                                     EventCardSkeleton()
                                 }
                             } else {
-                                items(filteredEvents) { event ->
-                                    EventCard(
-                                        event = event,
-                                        languageCode = language,
-                                        userProfile = userProfile,
-                                        isFavorited = event.isFavorited,
-                                        onToggleFavourite = { onToggleFavourite(event.uuid) },
-                                        onNavigateToDetail = { onNavigateToDetail(event.uuid) },
-                                        onDelete = null
-                                    )
+                                items(
+                                    count = pagedEvents.itemCount,
+                                    key = pagedEvents.itemKey { it.uuid },
+                                    contentType = pagedEvents.itemContentType { "event" }
+                                ) { index ->
+                                    val event = pagedEvents[index]
+                                    if (event != null) {
+                                        EventCard(
+                                            event = event,
+                                            languageCode = language,
+                                            userProfile = userProfile,
+                                            isFavorited = event.isFavorited,
+                                            onToggleFavourite = { onToggleFavourite(event.uuid) },
+                                            onNavigateToDetail = { onNavigateToDetail(event.uuid) },
+                                            onDelete = null
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -402,16 +390,6 @@ fun FabMenuItem(
 @Preview(showBackground = true)
 @Composable
 fun EventPagePreview() {
-    EventPageContent(
-        events = emptyList(),
-        isLoading = false,
-        userProfile = null,
-        language = "id",
-        onRefresh = {},
-        onToggleFavourite = {},
-        onNavigateToCreate = {},
-        onNavigateToMyEvents = {},
-        onNavigateToDetail = {},
-        onNavigateToLogin = {}
-    )
+    // Preview would need a mock of LazyPagingItems which is complex, 
+    // so we can leave it empty or mock basic state if needed.
 }

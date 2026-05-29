@@ -1,10 +1,8 @@
 package com.dudek.evenizer.pages
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -23,19 +21,19 @@ import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.models.OrganizerViewModel
-import com.dudek.evenizer.models.ThemeViewModel
+import com.dudek.evenizer.ui.components.GradientFAB
+import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 import com.dudek.evenizer.utils.OrganizerCardSkeleton
 
 @Composable
 fun MyOrganizersPage(
-    themeViewModel: ThemeViewModel,
     organizerViewModel: OrganizerViewModel,
     onNavigateToCreate: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val language by themeViewModel.language.collectAsState(initial = "id")
     val myOrganizers by organizerViewModel.myOrganizers.collectAsState()
     val isLoading by organizerViewModel.isLoading.collectAsState()
 
@@ -46,7 +44,6 @@ fun MyOrganizersPage(
     MyOrganizersPageContent(
         organizers = myOrganizers,
         isLoading = isLoading,
-        language = language,
         onBack = onBack,
         onRefresh = { organizerViewModel.fetchMyOrganizers(context) },
         onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
@@ -61,7 +58,6 @@ fun MyOrganizersPage(
 fun MyOrganizersPageContent(
     organizers: List<OrganizerData>,
     isLoading: Boolean,
-    language: String,
     onBack: () -> Unit,
     onRefresh: () -> Unit,
     onToggleFollow: (String) -> Unit,
@@ -70,65 +66,64 @@ fun MyOrganizersPageContent(
     onNavigateToCreate: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        PullToRefreshBox(
-            isRefreshing = isLoading,
-            onRefresh = onRefresh,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+        ModernBackground {
+            PullToRefreshBox(
+                isRefreshing = isLoading,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize()
             ) {
-                // Header (Algorithm from SettingsPage)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.create_event_back_desc),
-                            tint = Color(0xFF2196F3)
+                    // Header (Algorithm from SettingsPage)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.create_event_back_desc),
+                                tint = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.my_organizers_title),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.padding(start = 8.dp)
                         )
                     }
-                    Text(
-                        text = stringResource(R.string.my_organizers_title),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2196F3),
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
 
-                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
-                if (organizers.isEmpty() && !isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = stringResource(R.string.my_organizers_empty), color = Color.Gray)
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(16.dp)
-                    ) {
-                        if (isLoading && organizers.isEmpty()) {
-                            items(5) {
-                                OrganizerCardSkeleton()
-                            }
-                        } else {
-                            items(organizers) { organizer ->
-                                OrganizerCard(
-                                    organizer = organizer,
-                                    languageCode = language,
-                                    currentUserUuid = organizer.userUuid, // In MyOrganizers, we are the owner
-                                    onToggleFollow = { onToggleFollow(organizer.uuid) },
-                                    onDelete = { onDelete(organizer.uuid) },
-                                    onClick = { onNavigateToDetail(organizer.uuid) }
-                                )
+                    if (organizers.isEmpty() && !isLoading) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(text = stringResource(R.string.my_organizers_empty), color = Color.Gray)
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(16.dp)
+                        ) {
+                            if (isLoading && organizers.isEmpty()) {
+                                items(5) {
+                                    OrganizerCardSkeleton()
+                                }
+                            } else {
+                                items(organizers) { organizer ->
+                                    OrganizerCard(
+                                        organizer = organizer,
+                                        currentUserUuid = organizer.userUuid, // In MyOrganizers, we are the owner
+                                        onToggleFollow = { onToggleFollow(organizer.uuid) },
+                                        onDelete = { onDelete(organizer.uuid) },
+                                        onClick = { onNavigateToDetail(organizer.uuid) }
+                                    )
+                                }
                             }
                         }
                     }
@@ -136,11 +131,9 @@ fun MyOrganizersPageContent(
             }
         }
 
-        FloatingActionButton(
+        GradientFAB(
             onClick = onNavigateToCreate,
-            containerColor = Color(0xFF2196F3),
-            contentColor = Color.White,
-            shape = CircleShape,
+            gradient = LocalGradients.current.tertiary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -156,7 +149,6 @@ fun MyOrganizersPagePreview() {
     MyOrganizersPageContent(
         organizers = emptyList(),
         isLoading = false,
-        language = "id",
         onBack = {},
         onRefresh = {},
         onToggleFollow = {},

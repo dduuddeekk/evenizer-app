@@ -71,7 +71,7 @@ object ImageUtils {
             croppedBitmap.recycle()
             
             Uri.fromFile(tempFile)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Silent
             null
         }

@@ -1,11 +1,9 @@
 package com.dudek.evenizer.pages
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.models.OrganizerViewModel
+import com.dudek.evenizer.ui.components.GradientButton
+import com.dudek.evenizer.ui.components.GradientFAB
+import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 
 @Composable
 fun CreateOrganizerRolesPage(
@@ -45,100 +47,96 @@ fun CreateOrganizerRolesPage(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            // Header (Identical to OrganizerDetailPage)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+        ModernBackground {
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.create_event_back_desc),
-                        tint = Color(0xFF2196F3)
+                // Header (Identical to OrganizerDetailPage)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.create_event_back_desc),
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.role_add_title),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
                     )
                 }
-                Text(
-                    text = stringResource(R.string.role_add_title),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2196F3),
+
+                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                LazyColumn(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 8.dp)
-                )
-            }
-
-            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(vertical = 24.dp)
-            ) {
-                itemsIndexed(roles) { index, role ->
-                    RoleInputCard(
-                        name = role.first,
-                        description = role.second,
-                        onNameChange = { newName ->
-                            val newList = roles.toMutableList()
-                            newList[index] = Pair(newName, role.second)
-                            roles = newList
-                        },
-                        onDescriptionChange = { newDesc ->
-                            val newList = roles.toMutableList()
-                            newList[index] = Pair(role.first, newDesc)
-                            roles = newList
-                        },
-                        onDelete = if (roles.size > 1) {
-                            {
+                        .padding(horizontal = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(vertical = 24.dp)
+                ) {
+                    itemsIndexed(roles) { index, role ->
+                        RoleInputCard(
+                            name = role.first,
+                            description = role.second,
+                            onNameChange = { newName ->
                                 val newList = roles.toMutableList()
-                                newList.removeAt(index)
+                                newList[index] = Pair(newName, role.second)
                                 roles = newList
-                            }
-                        } else null
-                    )
-                }
-            }
-
-            val successMsg = stringResource(R.string.role_save_success)
-            Button(
-                onClick = {
-                    organizerViewModel.addMultipleRoles(context, organizerUuid, roles) {
-                        Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
-                        onSuccess()
+                            },
+                            onDescriptionChange = { newDesc ->
+                                val newList = roles.toMutableList()
+                                newList[index] = Pair(role.first, newDesc)
+                                roles = newList
+                            },
+                            onDelete = if (roles.size > 1) {
+                                {
+                                    val newList = roles.toMutableList()
+                                    newList.removeAt(index)
+                                    roles = newList
+                                }
+                            } else null
+                        )
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp)
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                enabled = !isLoading && roles.any { it.first.isNotBlank() },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2196F3))
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                } else {
-                    Text(text = stringResource(R.string.role_save_all), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+
+                val successMsg = stringResource(R.string.role_save_success)
+                GradientButton(
+                    onClick = {
+                        organizerViewModel.addMultipleRoles(context, organizerUuid, roles) {
+                            Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
+                            onSuccess()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    gradient = LocalGradients.current.tertiary,
+                    enabled = !isLoading && roles.any { it.first.isNotBlank() }
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(text = stringResource(R.string.role_save_all), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
 
         // FAB to add more roles, styled like OrganizerDetailPage
-        FloatingActionButton(
+        GradientFAB(
             onClick = { roles = roles + Pair("", "") },
-            containerColor = Color(0xFF2196F3),
-            contentColor = Color.White,
-            shape = CircleShape,
+            gradient = LocalGradients.current.tertiary,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 96.dp, end = 16.dp) // Adjusted to not cover the save button
@@ -169,7 +167,7 @@ fun RoleInputCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = stringResource(R.string.role_input_detail_title), fontWeight = FontWeight.Bold, color = Color(0xFF2196F3))
+                Text(text = stringResource(R.string.role_input_detail_title), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.tertiary)
                 if (onDelete != null) {
                     IconButton(onClick = onDelete) {
                         Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.btn_delete), tint = Color.Red)
@@ -184,7 +182,11 @@ fun RoleInputCard(
                 onValueChange = onNameChange,
                 label = { Text(stringResource(R.string.role_input_name_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                )
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -194,7 +196,11 @@ fun RoleInputCard(
                 onValueChange = onDescriptionChange,
                 label = { Text(stringResource(R.string.role_input_desc_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                )
             )
         }
     }

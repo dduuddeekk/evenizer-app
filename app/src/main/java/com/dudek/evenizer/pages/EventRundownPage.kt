@@ -1,10 +1,8 @@
 package com.dudek.evenizer.pages
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -24,6 +22,8 @@ import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.RundownData
 import com.dudek.evenizer.models.EventViewModel
+import com.dudek.evenizer.ui.components.GradientFAB
+import com.dudek.evenizer.ui.components.ModernBackground
 import com.dudek.evenizer.utils.DateUtils
 
 @Composable
@@ -48,87 +48,84 @@ fun EventRundownPage(
     val tabs = listOf("PUBLIC", "PRIVATE")
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+        ModernBackground {
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.create_event_back_desc),
-                        tint = Color(0xFF4CAF50)
-                    )
-                }
-                Text(
-                    text = stringResource(R.string.rundown_title),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4CAF50),
+                // Header
+                Row(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp)
-                )
-            }
-
-            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-            TabRow(
-                selectedTabIndex = selectedTab,
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = Color(0xFF4CAF50),
-                indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                        color = Color(0xFF4CAF50)
-                    )
-                }
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = {
-                            Text(
-                                text = title,
-                                color = if (selectedTab == index) Color(0xFF4CAF50) else Color.Gray
-                            )
-                        }
-                    )
-                }
-            }
-
-            val currentList = if (selectedTab == 0) publicRundowns else privateRundowns
-
-            if (currentList.isEmpty() && !isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = stringResource(R.string.rundown_empty), color = Color.Gray)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(currentList) { rundown ->
-                        RundownCard(rundown)
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.create_event_back_desc),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.rundown_title),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                    )
+                }
+
+                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                SecondaryTabRow(
+                    selectedTabIndex = selectedTab,
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    indicator = { 
+                        TabRowDefaults.SecondaryIndicator(
+                            Modifier.tabIndicatorOffset(selectedTabIndex = selectedTab),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTab == index,
+                            onClick = { selectedTab = index },
+                            text = {
+                                Text(
+                                    text = title,
+                                    color = if (selectedTab == index) MaterialTheme.colorScheme.primary else Color.Gray
+                                )
+                            }
+                        )
+                    }
+                }
+
+                val currentList = if (selectedTab == 0) publicRundowns else privateRundowns
+
+                if (currentList.isEmpty() && !isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = stringResource(R.string.rundown_empty), color = Color.Gray)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(currentList) { rundown ->
+                            RundownCard(rundown)
+                        }
                     }
                 }
             }
         }
 
-        FloatingActionButton(
+        GradientFAB(
             onClick = { onNavigateToAddRundown(eventUuid) },
-            containerColor = Color(0xFF4CAF50),
-            contentColor = Color.White,
-            shape = CircleShape,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -160,7 +157,7 @@ fun RundownCard(rundown: RundownData) {
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Surface(
-                    color = if (rundown.status == "DONE") Color(0xFF4CAF50).copy(alpha = 0.1f) else Color.Gray.copy(alpha = 0.1f),
+                    color = if (rundown.status == "DONE") MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Gray.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
@@ -168,7 +165,7 @@ fun RundownCard(rundown: RundownData) {
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (rundown.status == "DONE") Color(0xFF4CAF50) else Color.Gray
+                        color = if (rundown.status == "DONE") MaterialTheme.colorScheme.primary else Color.Gray
                     )
                 }
             }

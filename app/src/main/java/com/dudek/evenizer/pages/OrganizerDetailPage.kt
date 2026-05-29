@@ -35,14 +35,14 @@ import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.data.network.model.RoleData
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.OrganizerViewModel
-import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 import com.dudek.evenizer.utils.DetailSkeleton
 
 @Composable
 fun OrganizerDetailPage(
     uuid: String,
-    themeViewModel: ThemeViewModel,
     userViewModel: UserViewModel,
     organizerViewModel: OrganizerViewModel,
     onBack: () -> Unit,
@@ -97,18 +97,18 @@ fun OrganizerDetailPageContent(
     val isOwner = userProfile != null && organizer != null && userProfile.uuid == organizer.userUuid
     val scrollState = rememberScrollState()
     var showFabMenu by remember { mutableStateOf(false) }
-    var roleToDelete by remember { mutableStateOf<RoleData?>(null) }
+    val roleToDelete = remember { mutableStateOf<RoleData?>(null) }
 
-    if (roleToDelete != null) {
+    if (roleToDelete.value != null) {
         AlertDialog(
-            onDismissRequest = { roleToDelete = null },
+            onDismissRequest = { roleToDelete.value = null },
             title = { Text(stringResource(R.string.role_delete_confirm_title)) },
-            text = { Text(stringResource(R.string.role_delete_confirm_desc, roleToDelete?.name ?: "")) },
+            text = { Text(stringResource(R.string.role_delete_confirm_desc, roleToDelete.value?.name ?: "")) },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        roleToDelete?.let { onDeleteRole(it) }
-                        roleToDelete = null
+                        roleToDelete.value?.let { onDeleteRole(it) }
+                        roleToDelete.value = null
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
                 ) {
@@ -116,7 +116,7 @@ fun OrganizerDetailPageContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { roleToDelete = null }) {
+                TextButton(onClick = { roleToDelete.value = null }) {
                     Text(stringResource(R.string.btn_cancel))
                 }
             }
@@ -124,203 +124,203 @@ fun OrganizerDetailPageContent(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+        ModernBackground {
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.create_event_back_desc),
-                        tint = Color(0xFF2196F3)
+                // Header
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.create_event_back_desc),
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.nav_organizer),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
                     )
                 }
-                Text(
-                    text = stringResource(R.string.nav_organizer),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2196F3),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp)
-                )
-            }
 
-            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
-            if (isLoading) {
-                DetailSkeleton()
-            } else if (organizer != null) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                ) {
-                    // Profile-style Header
-                    Row(
+                if (isLoading) {
+                    DetailSkeleton()
+                } else if (organizer != null) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .fillMaxSize()
+                            .verticalScroll(scrollState)
                     ) {
-                        // Logo (Circular like ProfilePage)
-                        Box(
+                        // Profile-style Header
+                        Row(
                             modifier = Modifier
-                                .size(80.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF2196F3).copy(alpha = 0.1f)),
-                            contentAlignment = Alignment.Center
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (!organizer.logo.isNullOrEmpty()) {
-                                AsyncImage(
-                                    model = organizer.logo,
-                                    contentDescription = stringResource(R.string.create_organizer_add_logo),
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else {
-                                Text(
-                                    text = organizer.name.take(1),
-                                    color = Color(0xFF2196F3),
-                                    fontSize = 32.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(20.dp))
-
-                        Column {
-                            // Name
-                            Text(
-                                text = organizer.name,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            // Stats / Rating
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.Default.Star,
-                                    contentDescription = null,
-                                    tint = Color(0xFFFFC107),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = stringResource(R.string.organizer_projects_rating, organizer._count?.eventOrganizers ?: 0, 4.5f),
-                                    fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-
-                            if (organizerOwner != null) {
-                                Text(
-                                    text = stringResource(R.string.owner_label, "${organizerOwner.firstName} ${organizerOwner.lastName ?: ""}"),
-                                    fontSize = 12.sp,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
-                        }
-                    }
-
-                    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                        // Description Section
-                        Text(
-                            text = stringResource(R.string.create_organizer_field_desc),
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF2196F3)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = organizer.description ?: stringResource(R.string.organizer_no_description),
-                            fontSize = 16.sp,
-                            lineHeight = 24.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        // Verification Status
-                        if (organizer.isVerified) {
-                            Surface(
-                                color = Color(0xFF4CAF50).copy(alpha = 0.1f),
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.fillMaxWidth()
+                            // Logo (Circular like ProfilePage)
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)),
+                                contentAlignment = Alignment.Center
                             ) {
+                                if (!organizer.logo.isNullOrEmpty()) {
+                                    AsyncImage(
+                                        model = organizer.logo,
+                                        contentDescription = stringResource(R.string.create_organizer_add_logo),
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Text(
+                                        text = organizer.name.take(1),
+                                        color = MaterialTheme.colorScheme.tertiary,
+                                        fontSize = 32.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(20.dp))
+
+                            Column {
+                                // Name
                                 Text(
-                                    text = stringResource(R.string.organizer_verified_label),
-                                    modifier = Modifier.padding(12.dp),
-                                    color = Color(0xFF4CAF50),
-                                    fontWeight = FontWeight.Bold
+                                    text = organizer.name,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                // Stats / Rating
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Default.Star,
+                                        contentDescription = null,
+                                        tint = Color(0xFFFFC107),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = stringResource(R.string.organizer_projects_rating, organizer.count?.eventOrganizers ?: 0, 4.5f),
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                if (organizerOwner != null) {
+                                    Text(
+                                        text = stringResource(R.string.owner_label, "${organizerOwner.firstName} ${organizerOwner.lastName ?: ""}"),
+                                        fontSize = 12.sp,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        // Roles Section (Sie)
-                        if (organizerRoles.isNotEmpty()) {
+                        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                            // Description Section
                             Text(
-                                text = stringResource(R.string.event_detail_sie_title),
+                                text = stringResource(R.string.create_organizer_field_desc),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF2196F3)
+                                color = MaterialTheme.colorScheme.tertiary
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            organizerRoles.forEach { role ->
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                                    )
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth().padding(12.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = role.name,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 16.sp,
-                                                color = MaterialTheme.colorScheme.onSurface
-                                            )
-                                            Text(
-                                                text = role.description,
-                                                fontSize = 14.sp,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = organizer.description ?: stringResource(R.string.organizer_no_description),
+                                fontSize = 16.sp,
+                                lineHeight = 24.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
 
-                                        if (isOwner) {
-                                            IconButton(onClick = { onUpdateRole(role) }) {
-                                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.role_update_title), tint = Color(0xFF2196F3), modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            // Verification Status
+                            if (organizer.isVerified) {
+                                Surface(
+                                    color = Color(0xFF4CAF50).copy(alpha = 0.1f),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.organizer_verified_label),
+                                        modifier = Modifier.padding(12.dp),
+                                        color = Color(0xFF4CAF50),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(32.dp))
+
+                            // Roles Section (Sie)
+                            if (organizerRoles.isNotEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.event_detail_sie_title),
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                organizerRoles.forEach { role ->
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 8.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                        )
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(
+                                                    text = role.name,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 16.sp,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                Text(
+                                                    text = role.description,
+                                                    fontSize = 14.sp,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
                                             }
-                                            IconButton(onClick = { roleToDelete = role }) {
-                                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.btn_delete), tint = Color.Red, modifier = Modifier.size(20.dp))
+
+                                            if (isOwner) {
+                                                IconButton(onClick = { onUpdateRole(role) }) {
+                                                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.role_update_title), tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(20.dp))
+                                                }
+                                                IconButton(onClick = { roleToDelete.value = role }) {
+                                                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.btn_delete), tint = Color.Red, modifier = Modifier.size(20.dp))
+                                                }
                                             }
                                         }
                                     }
                                 }
+                                Spacer(modifier = Modifier.height(32.dp))
                             }
-                            Spacer(modifier = Modifier.height(32.dp))
                         }
                     }
                 }
@@ -384,17 +384,24 @@ fun OrganizerDetailPageContent(
 
                 FloatingActionButton(
                     onClick = { showFabMenu = !showFabMenu },
-                    containerColor = Color(0xFF2196F3),
+                    containerColor = Color.Transparent,
                     contentColor = Color.White,
                     shape = CircleShape,
                     modifier = Modifier.size(56.dp)
                 ) {
-                    Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
-                        Icon(
-                            imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(LocalGradients.current.tertiary, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->
+                            Icon(
+                                imageVector = if (isOpen) Icons.Default.Close else Icons.Default.MoreVert,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
             }

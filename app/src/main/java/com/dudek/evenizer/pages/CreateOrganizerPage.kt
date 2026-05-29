@@ -34,6 +34,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
 import com.dudek.evenizer.models.OrganizerViewModel
+import com.dudek.evenizer.ui.components.GradientButton
+import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 
 @Composable
 fun CreateOrganizerPage(
@@ -71,22 +74,22 @@ fun CreateOrganizerPageContent(
     val density = LocalDensity.current
 
     var selectedLogoUri by remember { mutableStateOf<Uri?>(null) }
-    var showCropDialog by remember { mutableStateOf<Uri?>(null) }
+    val showCropDialog = remember { mutableStateOf<Uri?>(null) }
     var logoScale by remember { mutableFloatStateOf(1f) }
     var logoOffset by remember { mutableStateOf(Offset.Zero) }
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let { showCropDialog = it }
+        uri?.let { showCropDialog.value = it }
     }
 
-    if (showCropDialog != null) {
+    if (showCropDialog.value != null) {
         var tempScale by remember { mutableFloatStateOf(1f) }
         var tempOffset by remember { mutableStateOf(Offset.Zero) }
 
         AlertDialog(
-            onDismissRequest = { showCropDialog = null },
+            onDismissRequest = { showCropDialog.value = null },
             title = { Text(text = stringResource(R.string.profile_update_title)) }, // Reuse string or add new
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -107,7 +110,7 @@ fun CreateOrganizerPageContent(
                         contentAlignment = Alignment.Center
                     ) {
                         AsyncImage(
-                            model = showCropDialog,
+                            model = showCropDialog.value,
                             contentDescription = null,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -124,181 +127,186 @@ fun CreateOrganizerPageContent(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    selectedLogoUri = showCropDialog
+                    selectedLogoUri = showCropDialog.value
                     logoScale = tempScale
                     logoOffset = tempOffset
-                    showCropDialog = null
+                    showCropDialog.value = null
                 }) {
                     Text(text = stringResource(R.string.btn_upload))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showCropDialog = null }) {
+                TextButton(onClick = { showCropDialog.value = null }) {
                     Text(text = stringResource(R.string.btn_cancel))
                 }
             }
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Header
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.create_event_back_desc),
-                    tint = Color(0xFF2196F3)
-                )
-            }
-            Text(
-                text = stringResource(R.string.create_organizer_title),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF2196F3),
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
-
-        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
+    ModernBackground {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp)
-                .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize()
         ) {
-            // Logo Selection Area
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF2196F3).copy(alpha = 0.1f))
-                    .clickable { imagePicker.launch("image/*") },
-                contentAlignment = Alignment.Center
-            ) {
-                if (selectedLogoUri != null) {
-                    AsyncImage(
-                        model = selectedLogoUri,
-                        contentDescription = stringResource(R.string.create_organizer_add_logo),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .graphicsLayer(
-                                scaleX = logoScale,
-                                scaleY = logoScale,
-                                translationX = logoOffset.x,
-                                translationY = logoOffset.y
-                            ),
-                        contentScale = ContentScale.Fit
-                    )
-                } else {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.AddAPhoto,
-                            contentDescription = null,
-                            tint = Color(0xFF2196F3),
-                            modifier = Modifier.size(32.dp)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = stringResource(R.string.create_organizer_add_logo),
-                            fontSize = 12.sp,
-                            color = Color(0xFF2196F3)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            OutlinedTextField(
-                value = name.value,
-                onValueChange = { name.value = it },
-                label = { Text(stringResource(R.string.create_organizer_field_name)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                singleLine = true,
-                enabled = !isLoading
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = description.value,
-                onValueChange = { description.value = it },
-                label = { Text(stringResource(R.string.create_organizer_field_desc)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                minLines = 3,
-                enabled = !isLoading
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // isPublic Toggle
+            // Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.create_organizer_public_title),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = if (isPublic.value) stringResource(R.string.create_organizer_public_desc) else stringResource(R.string.create_organizer_private_desc),
-                        fontSize = 12.sp,
-                        color = Color.Gray
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.create_event_back_desc),
+                        tint = MaterialTheme.colorScheme.tertiary
                     )
                 }
-                Switch(
-                    checked = isPublic.value,
-                    onCheckedChange = { isPublic.value = it },
-                    enabled = !isLoading,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = Color(0xFF2196F3)
-                    )
+                Text(
+                    text = stringResource(R.string.create_organizer_title),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.padding(start = 8.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
-            Button(
-                onClick = { 
-                    val containerSizePx = with(density) { 200.dp.toPx() }
-                    onRegister(name.value, description.value, isPublic.value, selectedLogoUri, logoScale, logoOffset, containerSizePx) 
-                },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2196F3)),
-                enabled = name.value.isNotBlank() && description.value.isNotBlank() && !isLoading
+                    .fillMaxSize()
+                    .padding(24.dp)
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                } else {
-                    Text(
-                        text = stringResource(R.string.create_organizer_btn_create),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                // Logo Selection Area
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f))
+                        .clickable { imagePicker.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (selectedLogoUri != null) {
+                        AsyncImage(
+                            model = selectedLogoUri,
+                            contentDescription = stringResource(R.string.create_organizer_add_logo),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer(
+                                    scaleX = logoScale,
+                                    scaleY = logoScale,
+                                    translationX = logoOffset.x,
+                                    translationY = logoOffset.y
+                                ),
+                            contentScale = ContentScale.Fit
+                        )
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                imageVector = Icons.Default.AddAPhoto,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = stringResource(R.string.create_organizer_add_logo),
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                OutlinedTextField(
+                    value = name.value,
+                    onValueChange = { name.value = it },
+                    label = { Text(stringResource(R.string.create_organizer_field_name)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    enabled = !isLoading,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
                     )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = description.value,
+                    onValueChange = { description.value = it },
+                    label = { Text(stringResource(R.string.create_organizer_field_desc)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    minLines = 3,
+                    enabled = !isLoading,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // isPublic Toggle
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.create_organizer_public_title),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = if (isPublic.value) stringResource(R.string.create_organizer_public_desc) else stringResource(R.string.create_organizer_private_desc),
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+                    Switch(
+                        checked = isPublic.value,
+                        onCheckedChange = { isPublic.value = it },
+                        enabled = !isLoading,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = MaterialTheme.colorScheme.tertiary
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                GradientButton(
+                    onClick = { 
+                        val containerSizePx = with(density) { 200.dp.toPx() }
+                        onRegister(name.value, description.value, isPublic.value, selectedLogoUri, logoScale, logoOffset, containerSizePx) 
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    gradient = LocalGradients.current.tertiary,
+                    enabled = name.value.isNotBlank() && description.value.isNotBlank() && !isLoading
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(
+                            text = stringResource(R.string.create_organizer_btn_create),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

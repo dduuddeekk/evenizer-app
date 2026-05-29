@@ -73,19 +73,23 @@ fun OrganizerPage(
         }
     }
 
-    OrganizerPageContent(
-        language = language,
-        userProfile = userProfile,
-        organizers = organizers,
-        isLoading = isLoading,
-        onRefresh = { organizerViewModel.fetchOrganizers(context) },
-        onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
-        onDelete = { uuid -> organizerViewModel.deleteOrganizer(context, uuid) {} },
-        onNavigateToDetail = onNavigateToDetail,
-        onNavigateToCreate = onNavigateToCreate,
-        onNavigateToMyOrganizers = onNavigateToMyOrganizers,
-        onNavigateToLogin = onNavigateToLogin
-    )
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF2196F3), tertiary = Color(0xFF2196F3))
+    ) {
+        OrganizerPageContent(
+            language = language,
+            userProfile = userProfile,
+            organizers = organizers,
+            isLoading = isLoading,
+            onRefresh = { organizerViewModel.fetchOrganizers(context) },
+            onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
+            onDelete = { uuid -> organizerViewModel.deleteOrganizer(context, uuid) {} },
+            onNavigateToDetail = onNavigateToDetail,
+            onNavigateToCreate = onNavigateToCreate,
+            onNavigateToMyOrganizers = onNavigateToMyOrganizers,
+            onNavigateToLogin = onNavigateToLogin
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -240,7 +244,6 @@ fun OrganizerPageContent(
                             items(organizers) { organizer ->
                                 OrganizerCard(
                                     organizer = organizer,
-                                    languageCode = language,
                                     currentUserUuid = userProfile?.uuid,
                                     onToggleFollow = { onToggleFollow(organizer.uuid) },
                                     onDelete = { onDelete(organizer.uuid) },
@@ -340,7 +343,6 @@ fun OrganizerPageContent(
 @Composable
 fun OrganizerCard(
     organizer: OrganizerData,
-    languageCode: String,
     currentUserUuid: String? = null,
     onToggleFollow: () -> Unit,
     onDelete: () -> Unit = {},
@@ -430,7 +432,7 @@ fun OrganizerCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(R.string.organizer_projects_rating, organizer._count?.eventOrganizers ?: 0, 4.5f), // Rating mock for now
+                        text = stringResource(R.string.organizer_projects_rating, organizer.count?.eventOrganizers ?: 0, 4.5f), // Rating mock for now
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
@@ -439,7 +441,7 @@ fun OrganizerCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = stringResource(R.string.home_stat_total_events) + ": ${organizer._count?.eventOrganizers ?: 0}",
+                    text = stringResource(R.string.home_stat_total_events) + ": ${organizer.count?.eventOrganizers ?: 0}",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.tertiary
                 )

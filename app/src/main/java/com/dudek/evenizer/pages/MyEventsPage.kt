@@ -1,11 +1,9 @@
 package com.dudek.evenizer.pages
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -28,6 +26,8 @@ import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.ui.components.GradientFAB
+import com.dudek.evenizer.ui.components.ModernBackground
 import com.dudek.evenizer.utils.EventCard
 import com.dudek.evenizer.utils.EventCardSkeleton
 
@@ -80,118 +80,118 @@ fun MyEventsPageContent(
     var showDeleteDialog by remember { mutableStateOf<EventData?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        PullToRefreshBox(
-            isRefreshing = isLoading,
-            onRefresh = onRefresh,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
+        ModernBackground {
+            PullToRefreshBox(
+                isRefreshing = isLoading,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize()
             ) {
-                // Header (Algorithm from SettingsPage)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.create_event_back_desc),
-                            tint = Color(0xFF4CAF50)
-                        )
-                    }
-                    Text(
-                        text = stringResource(R.string.my_events_title),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4CAF50),
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-
-                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-                if (showDeleteDialog != null) {
-                    AlertDialog(
-                        onDismissRequest = { showDeleteDialog = null },
-                        title = { Text(stringResource(R.string.delete_event_title)) },
-                        text = { Text(stringResource(R.string.delete_event_desc)) },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    showDeleteDialog?.let { event ->
-                                        onDeleteEvent(event.uuid)
-                                    }
-                                    showDeleteDialog = null
-                                }
-                            ) {
-                                Text(stringResource(R.string.btn_delete), color = Color.Red)
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showDeleteDialog = null }) {
-                                Text(stringResource(R.string.btn_cancel))
-                            }
-                        }
-                    )
-                }
-
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 24.dp)
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    OutlinedTextField(
-                        value = searchQuery.value,
-                        onValueChange = { searchQuery.value = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text(text = stringResource(R.string.search_events_placeholder)) },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF4CAF50),
-                            unfocusedBorderColor = Color.LightGray
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    val filteredEvents = remember(searchQuery.value, myEvents) {
-                        myEvents.filter {
-                            searchQuery.value.isEmpty() || it.title.contains(searchQuery.value, ignoreCase = true)
+                    // Header (Algorithm from SettingsPage)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.create_event_back_desc),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
                         }
+                        Text(
+                            text = stringResource(R.string.my_events_title),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
                     }
 
-                    if (filteredEvents.isEmpty() && !isLoading) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(text = stringResource(R.string.my_events_empty), color = Color.Gray)
-                        }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            contentPadding = PaddingValues(bottom = 80.dp)
-                        ) {
-                            if (isLoading && filteredEvents.isEmpty()) {
-                                items(4) {
-                                    EventCardSkeleton()
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                    if (showDeleteDialog != null) {
+                        AlertDialog(
+                            onDismissRequest = { showDeleteDialog = null },
+                            title = { Text(stringResource(R.string.delete_event_title)) },
+                            text = { Text(stringResource(R.string.delete_event_desc)) },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        showDeleteDialog?.let { event ->
+                                            onDeleteEvent(event.uuid)
+                                        }
+                                        showDeleteDialog = null
+                                    }
+                                ) {
+                                    Text(stringResource(R.string.btn_delete), color = Color.Red)
                                 }
-                            } else {
-                                items(filteredEvents) { event ->
-                                    EventCard(
-                                        event = event,
-                                        languageCode = language,
-                                        userProfile = userProfile,
-                                        isFavorited = event.isFavorited,
-                                        onNavigateToDetail = { onNavigateToDetail(event.uuid) },
-                                        onDelete = { showDeleteDialog = event }
-                                    )
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showDeleteDialog = null }) {
+                                    Text(stringResource(R.string.btn_cancel))
+                                }
+                            }
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp)
+                    ) {
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        OutlinedTextField(
+                            value = searchQuery.value,
+                            onValueChange = { searchQuery.value = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text(text = stringResource(R.string.search_events_placeholder)) },
+                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = Color.LightGray
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        val filteredEvents = remember(searchQuery.value, myEvents) {
+                            myEvents.filter {
+                                searchQuery.value.isEmpty() || it.title.contains(searchQuery.value, ignoreCase = true)
+                            }
+                        }
+
+                        if (filteredEvents.isEmpty() && !isLoading) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text(text = stringResource(R.string.my_events_empty), color = Color.Gray)
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                contentPadding = PaddingValues(bottom = 80.dp)
+                            ) {
+                                if (isLoading && filteredEvents.isEmpty()) {
+                                    items(4) {
+                                        EventCardSkeleton()
+                                    }
+                                } else {
+                                    items(filteredEvents) { event ->
+                                        EventCard(
+                                            event = event,
+                                            languageCode = language,
+                                            userProfile = userProfile,
+                                            isFavorited = event.isFavorited,
+                                            onNavigateToDetail = { onNavigateToDetail(event.uuid) },
+                                            onDelete = { showDeleteDialog = event }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -200,11 +200,8 @@ fun MyEventsPageContent(
             }
         }
 
-        FloatingActionButton(
+        GradientFAB(
             onClick = onNavigateToCreate,
-            containerColor = Color(0xFF4CAF50),
-            contentColor = Color.White,
-            shape = CircleShape,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)

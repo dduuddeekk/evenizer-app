@@ -21,8 +21,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
-import com.dudek.evenizer.data.Event
-import com.dudek.evenizer.data.MockData
 import com.dudek.evenizer.data.network.model.EventData
 import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.models.EventViewModel
@@ -34,8 +32,6 @@ import com.dudek.evenizer.utils.DateUtils
 import com.dudek.evenizer.utils.EventCardSkeleton
 import com.dudek.evenizer.utils.OrganizerCardSkeleton
 import com.dudek.evenizer.utils.StatCardSkeleton
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomePage(
@@ -61,17 +57,21 @@ fun HomePage(
         }
     }
 
-    HomePageContent(
-        language = language,
-        events = events,
-        organizers = organizers,
-        isLoading = isLoadingEvents || isLoadingOrganizers,
-        onRefresh = {
-            eventViewModel.fetchEvents(context)
-            organizerViewModel.fetchOrganizers(context)
-        },
-        onNotificationClick = onNavigateToNotifications
-    )
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF9C27B0))
+    ) {
+        HomePageContent(
+            language = language,
+            events = events,
+            organizers = organizers,
+            isLoading = isLoadingEvents || isLoadingOrganizers,
+            onRefresh = {
+                eventViewModel.fetchEvents(context)
+                organizerViewModel.fetchOrganizers(context)
+            },
+            onNotificationClick = onNavigateToNotifications
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,7 +85,6 @@ fun HomePageContent(
     onNotificationClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val scope = rememberCoroutineScope()
 
     PullToRefreshBox(
         isRefreshing = isLoading,
@@ -110,7 +109,7 @@ fun HomePageContent(
                         text = stringResource(R.string.nav_home),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF9C27B0)
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = stringResource(R.string.profile_welcome),
@@ -119,7 +118,7 @@ fun HomePageContent(
                     )
                 }
                 IconButton(onClick = onNotificationClick) {
-                    Icon(Icons.Default.Notifications, contentDescription = null, tint = Color(0xFF9C27B0))
+                    Icon(Icons.Default.Notifications, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -185,7 +184,6 @@ fun HomePageContent(
                 organizers.take(2).forEach { organizer ->
                     OrganizerCard(
                         organizer = organizer,
-                        languageCode = language,
                         currentUserUuid = null,
                         onToggleFollow = { /* No-op on home page */ }
                     )
@@ -262,31 +260,6 @@ fun SectionHeader(title: String, actionText: String) {
     ) {
         Text(text = title, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Text(text = actionText, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
-    }
-}
-
-@Composable
-fun HomeEventCard(event: Event, languageCode: String) {
-    Card(
-        modifier = Modifier.width(200.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = event.title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = DateUtils.formatLocaleDate(event.date, languageCode),
-                fontSize = 12.sp,
-                color = Color.Gray
-            )
-            Text(text = event.location, fontSize = 12.sp, color = Color.Gray)
-        }
     }
 }
 

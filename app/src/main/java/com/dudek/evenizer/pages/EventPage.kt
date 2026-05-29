@@ -13,9 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -23,16 +20,13 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.EventData
 import com.dudek.evenizer.data.network.model.UserData
@@ -76,18 +70,22 @@ fun EventPage(
         }
     }
 
-    EventPageContent(
-        events = events,
-        isLoading = isLoading,
-        userProfile = userProfile,
-        language = language,
-        onRefresh = { eventViewModel.fetchEvents(context) },
-        onToggleFavourite = { uuid -> eventViewModel.toggleFavourite(context, uuid) },
-        onNavigateToCreate = onNavigateToCreate,
-        onNavigateToMyEvents = onNavigateToMyEvents,
-        onNavigateToDetail = onNavigateToDetail,
-        onNavigateToLogin = onNavigateToLogin
-    )
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF4CAF50))
+    ) {
+        EventPageContent(
+            events = events,
+            isLoading = isLoading,
+            userProfile = userProfile,
+            language = language,
+            onRefresh = { eventViewModel.fetchEvents(context) },
+            onToggleFavourite = { uuid -> eventViewModel.toggleFavourite(context, uuid) },
+            onNavigateToCreate = onNavigateToCreate,
+            onNavigateToMyEvents = onNavigateToMyEvents,
+            onNavigateToDetail = onNavigateToDetail,
+            onNavigateToLogin = onNavigateToLogin
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -330,7 +328,7 @@ fun EventPageContent(
                             showFabMenu = false
                             if (userProfile == null) {
                                 showLoginDialog.value = true
-                            } else if (userProfile?.isEmailVerified == false) {
+                            } else if (!userProfile.isEmailVerified) {
                                 showVerifyDialog.value = true
                             } else {
                                 onNavigateToCreate()

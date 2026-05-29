@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.NotificationData
 import com.dudek.evenizer.models.NotificationViewModel
+import com.dudek.evenizer.ui.components.ModernBackground
 import com.dudek.evenizer.utils.DateUtils
 
 @Composable
@@ -39,57 +40,61 @@ fun NotificationPage(
         notificationViewModel.fetchNotifications(context)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF9C27B0))
     ) {
-        // Header (Standardized like OrganizerDetailPage)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.create_event_back_desc),
-                    tint = Color(0xFF9C27B0) // Purple for Home category
-                )
-            }
-            Text(
-                text = stringResource(R.string.notification_title),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF9C27B0),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 8.dp)
-            )
-            
-            TextButton(onClick = { notificationViewModel.markAllAsRead(context) }) {
-                Text("Baca Semua", color = Color(0xFF9C27B0), fontWeight = FontWeight.Bold)
-            }
-        }
-
-        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-        if (notifications.isEmpty() && !isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = stringResource(R.string.notification_empty), color = Color.Gray)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+        ModernBackground {
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                items(notifications) { notification ->
-                    NotificationCard(
-                        notification = notification,
-                        onClick = { onNavigateToDetail(notification.uuid) }
+                // Header (Standardized like OrganizerDetailPage)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.create_event_back_desc),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.notification_title),
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
                     )
+                    
+                    TextButton(onClick = { notificationViewModel.markAllAsRead(context) }) {
+                        Text("Baca Semua", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                if (notifications.isEmpty() && !isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = stringResource(R.string.notification_empty), color = Color.Gray)
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(notifications) { notification ->
+                            NotificationCard(
+                                notification = notification,
+                                onClick = { onNavigateToDetail(notification.uuid) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -121,7 +126,7 @@ fun NotificationCard(
                 modifier = Modifier
                     .size(40.dp)
                     .background(
-                        if (notification.isRead) Color.Gray.copy(alpha = 0.2f) else Color(0xFF9C27B0).copy(alpha = 0.1f),
+                        if (notification.isRead) Color.Gray.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                         CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -129,7 +134,7 @@ fun NotificationCard(
                 Icon(
                     Icons.Default.Notifications,
                     contentDescription = null,
-                    tint = if (notification.isRead) Color.Gray else Color(0xFF9C27B0),
+                    tint = if (notification.isRead) Color.Gray else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
             }

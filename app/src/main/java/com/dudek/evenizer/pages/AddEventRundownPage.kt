@@ -3,7 +3,6 @@ package com.dudek.evenizer.pages
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
 import com.dudek.evenizer.models.EventViewModel
+import com.dudek.evenizer.ui.components.GradientButton
+import com.dudek.evenizer.ui.components.ModernBackground
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -57,11 +58,10 @@ fun AddEventRundownPage(
         error?.let { Toast.makeText(context, it, Toast.LENGTH_LONG).show() }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    ModernBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(rememberScrollState())
         ) {
             // Header
@@ -75,14 +75,14 @@ fun AddEventRundownPage(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.create_event_back_desc),
-                        tint = Color(0xFF4CAF50)
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
                 Text(
                     text = stringResource(R.string.rundown_add_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4CAF50),
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f).padding(start = 8.dp)
                 )
             }
@@ -95,7 +95,11 @@ fun AddEventRundownPage(
                     onValueChange = { title = it },
                     label = { Text(stringResource(R.string.rundown_field_title)) },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
                 )
 
                 // Date Picker
@@ -106,6 +110,10 @@ fun AddEventRundownPage(
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    ),
                     trailingIcon = {
                         IconButton(onClick = {
                             val calendar = Calendar.getInstance()
@@ -114,7 +122,7 @@ fun AddEventRundownPage(
                                 date = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).format(cal.time)
                             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
                         }) {
-                            Icon(Icons.Default.CalendarToday, contentDescription = null)
+                            Icon(Icons.Default.CalendarToday, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                 )
@@ -128,6 +136,10 @@ fun AddEventRundownPage(
                         readOnly = true,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        ),
                         trailingIcon = {
                             IconButton(onClick = {
                                 TimePickerDialog(context, { _, h, min ->
@@ -136,7 +148,7 @@ fun AddEventRundownPage(
                                     startTime = datePart + time
                                 }, 0, 0, true).show()
                             }) {
-                                Icon(Icons.Default.Schedule, contentDescription = null)
+                                Icon(Icons.Default.Schedule, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             }
                         }
                     )
@@ -148,6 +160,10 @@ fun AddEventRundownPage(
                         readOnly = true,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        ),
                         trailingIcon = {
                             IconButton(onClick = {
                                 TimePickerDialog(context, { _, h, min ->
@@ -156,7 +172,7 @@ fun AddEventRundownPage(
                                     endTime = datePart + time
                                 }, 0, 0, true).show()
                             }) {
-                                Icon(Icons.Default.Schedule, contentDescription = null)
+                                Icon(Icons.Default.Schedule, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                             }
                         }
                     )
@@ -165,10 +181,18 @@ fun AddEventRundownPage(
                 // Visibility Selection
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.rundown_field_visibility), fontWeight = FontWeight.Bold)
-                    RadioButton(selected = visibility == "PUBLIC", onClick = { visibility = "PUBLIC" })
+                    RadioButton(
+                        selected = visibility == "PUBLIC", 
+                        onClick = { visibility = "PUBLIC" },
+                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
+                    )
                     Text("PUBLIC")
                     Spacer(modifier = Modifier.width(8.dp))
-                    RadioButton(selected = visibility == "PRIVATE", onClick = { visibility = "PRIVATE" })
+                    RadioButton(
+                        selected = visibility == "PRIVATE", 
+                        onClick = { visibility = "PRIVATE" },
+                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
+                    )
                     Text("PRIVATE")
                 }
 
@@ -183,10 +207,14 @@ fun AddEventRundownPage(
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.rundown_field_location)) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth(),
+                        modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true).fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = locationDropdownExpanded) },
-                        leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) }
+                        leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary
+                        )
                     )
                     ExposedDropdownMenu(
                         expanded = locationDropdownExpanded,
@@ -210,11 +238,15 @@ fun AddEventRundownPage(
                     label = { Text(stringResource(R.string.rundown_field_desc)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    minLines = 3
+                    minLines = 3,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
+                    )
                 )
 
                 val successMsg = stringResource(R.string.rundown_save_success)
-                Button(
+                GradientButton(
                     onClick = {
                         eventViewModel.createRundown(
                             context = context,
@@ -232,10 +264,8 @@ fun AddEventRundownPage(
                             onSuccess()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !isLoading && title.isNotBlank() && date.isNotBlank() && startTime.isNotBlank() && endTime.isNotBlank() && selectedLocationUuid != null,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoading && title.isNotBlank() && date.isNotBlank() && startTime.isNotBlank() && endTime.isNotBlank() && selectedLocationUuid != null
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))

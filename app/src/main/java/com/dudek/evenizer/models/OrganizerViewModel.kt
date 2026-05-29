@@ -60,7 +60,7 @@ class OrganizerViewModel : ViewModel() {
                     if (response.success) {
                         _organizers.value = response.data?.data ?: emptyList()
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Silent
                 }
                 delay(10000)
@@ -271,26 +271,6 @@ class OrganizerViewModel : ViewModel() {
         }
     }
 
-    fun createOrganizer(context: Context, name: String, description: String, onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val service = NetworkModule.getOrganizerService(context)
-                val request = CreateOrganizerRequest(name, description)
-                val response = service.createOrganizer(request)
-                if (response.success) {
-                    onSuccess()
-                } else {
-                    _error.value = response.message
-                }
-            } catch (e: Exception) {
-                _error.value = "Failed to register organizer: ${e.message}"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
     fun createOrganizerWithLogo(
         context: Context,
         name: String,
@@ -383,7 +363,7 @@ class OrganizerViewModel : ViewModel() {
             if (response.success) {
                 _organizerOwner.value = response.data
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Silent
         }
     }
@@ -395,7 +375,7 @@ class OrganizerViewModel : ViewModel() {
             if (response.success) {
                 _organizerRoles.value = response.data
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Silent
         }
     }

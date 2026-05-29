@@ -36,6 +36,8 @@ import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
 import com.dudek.evenizer.models.CreateEventStep
 import com.dudek.evenizer.models.EventViewModel
+import com.dudek.evenizer.ui.components.GradientButton
+import com.dudek.evenizer.ui.components.ModernBackground
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
@@ -134,42 +136,41 @@ fun CreateEventPageContent(
         timeZone = TimeZone.getTimeZone("UTC")
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Header (Algorithm from SettingsPage)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+    ModernBackground {
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.create_event_back_desc),
-                    tint = Color(0xFF4CAF50)
+            // Header (Algorithm from SettingsPage)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.create_event_back_desc),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.create_event_title),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 8.dp)
                 )
             }
-            Text(
-                text = stringResource(R.string.create_event_title),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF4CAF50),
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
 
-        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .verticalScroll(scrollState)
-        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+                    .verticalScroll(scrollState)
+            ) {
             Spacer(modifier = Modifier.height(16.dp))
 
             // Banner Picker
@@ -213,7 +214,11 @@ fun CreateEventPageContent(
                 label = { Text(stringResource(R.string.create_event_field_title)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -225,7 +230,11 @@ fun CreateEventPageContent(
                 label = { Text(stringResource(R.string.create_event_field_desc)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                minLines = 3
+                minLines = 3,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -274,7 +283,11 @@ fun CreateEventPageContent(
                 label = { Text(stringResource(R.string.create_event_field_categories)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                minLines = 2
+                minLines = 2,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -334,7 +347,11 @@ fun CreateEventPageContent(
                 onValueChange = { location.value = it },
                 label = { Text(stringResource(R.string.create_event_field_location)) },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -419,7 +436,7 @@ fun CreateEventPageContent(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(
+            GradientButton(
                 onClick = {
                     val categoryList = categories.value.split("\n").filter { it.isNotBlank() }
                     val startIso = startCalendar.value?.let { isoFormatter.format(it.time) } ?: ""
@@ -427,11 +444,7 @@ fun CreateEventPageContent(
                     
                     onCreateEvent(title.value, description.value, startIso, endIso, categoryList, location.value, locationType.value, status.value, isPublic.value, bannerUri.value, context)
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                modifier = Modifier.fillMaxWidth(),
                 enabled = startCalendar.value != null && endCalendar.value != null && title.value.isNotBlank()
             ) {
                 Text(stringResource(R.string.create_event_btn_create), fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -440,6 +453,7 @@ fun CreateEventPageContent(
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+}
 }
 
 @Composable
@@ -468,12 +482,12 @@ fun CreateEventProgressDialog(
             ) {
                 when (step) {
                     CreateEventStep.CREATING_EVENT -> {
-                        CircularProgressIndicator(color = Color(0xFF4CAF50))
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(stringResource(R.string.create_event_progress_creating), fontWeight = FontWeight.Medium)
                     }
                     CreateEventStep.UPLOADING_BANNER -> {
-                        CircularProgressIndicator(color = Color(0xFF4CAF50))
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(stringResource(R.string.create_event_progress_uploading), fontWeight = FontWeight.Medium)
                     }
@@ -481,7 +495,7 @@ fun CreateEventProgressDialog(
                         Icon(
                             Icons.Default.CheckCircle,
                             contentDescription = null,
-                            tint = Color(0xFF4CAF50),
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(64.dp)
                         )
                         Spacer(modifier = Modifier.height(16.dp))

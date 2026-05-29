@@ -1,5 +1,6 @@
 package com.dudek.evenizer.data.network.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -20,7 +21,8 @@ data class OrganizerData(
     val roles: List<RoleData>? = emptyList(),
     val organizerMembers: List<kotlinx.serialization.json.JsonElement>? = emptyList(),
     val organizerLocations: List<kotlinx.serialization.json.JsonElement>? = emptyList(),
-    val _count: OrganizerCount? = null
+    @SerialName("_count")
+    val count: OrganizerCount? = null
 )
 
 @Serializable

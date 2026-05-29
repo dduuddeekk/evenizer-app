@@ -1,5 +1,6 @@
 package com.dudek.evenizer.data.network.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -38,7 +39,8 @@ data class EventData(
     val eventLocations: List<EventLocationData>? = null,
     val ticketTiers: List<TicketTier>? = emptyList(),
     val eventOrganizers: List<EventOrganizer>? = emptyList(),
-    val _count: Count? = null,
+    @SerialName("_count")
+    val count: Count? = null,
     val isFavorited: Boolean = false
 )
 

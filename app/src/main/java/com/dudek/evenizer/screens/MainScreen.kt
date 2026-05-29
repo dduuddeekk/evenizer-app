@@ -9,7 +9,10 @@ import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,28 +30,8 @@ import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.NotificationViewModel
-import com.dudek.evenizer.pages.CreateEventPage
-import com.dudek.evenizer.pages.EventDetailPage
-import com.dudek.evenizer.pages.EventPage
-import com.dudek.evenizer.pages.EventRundownPage
-import com.dudek.evenizer.pages.AddEventRundownPage
-import com.dudek.evenizer.pages.EventOrganizerListPage
-import com.dudek.evenizer.pages.AddEventOrganizerPage
-import com.dudek.evenizer.pages.MyEventsPage
-import com.dudek.evenizer.pages.HomePage
-import com.dudek.evenizer.pages.NotificationPage
-import com.dudek.evenizer.pages.NotificationDetailPage
-import com.dudek.evenizer.pages.OrganizerPage
-import com.dudek.evenizer.pages.OrganizerDetailPage
-import com.dudek.evenizer.pages.CreateOrganizerRolesPage
-import com.dudek.evenizer.pages.UpdateOrganizerRolePage
-import com.dudek.evenizer.pages.AddOrganizerMemberPage
-import com.dudek.evenizer.pages.ProfilePage
-import com.dudek.evenizer.pages.UserSchedulePage
-import com.dudek.evenizer.pages.SettingsPage
-import com.dudek.evenizer.pages.CreateOrganizerPage
-import com.dudek.evenizer.pages.MyOrganizersPage
-import com.dudek.evenizer.pages.TicketPage
+import com.dudek.evenizer.pages.*
+import com.dudek.evenizer.ui.theme.LocalGradients
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
@@ -264,7 +247,6 @@ fun MainScreen(
                 val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
                 OrganizerDetailPage(
                     uuid = uuid,
-                    themeViewModel = themeViewModel,
                     userViewModel = userViewModel,
                     organizerViewModel = organizerViewModel,
                     onBack = { navController.popBackStack() },
@@ -322,14 +304,13 @@ fun MainScreen(
             }
             composable("my_organizers") {
                 MyOrganizersPage(
-                    themeViewModel = themeViewModel,
                     organizerViewModel = organizerViewModel,
                     onNavigateToCreate = { navController.navigate("create_organizer") },
                     onNavigateToDetail = { uuid -> navController.navigate("organizer_detail/$uuid") },
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable("ticket") { TicketPage(themeViewModel = themeViewModel) }
+            composable("ticket") { TicketPage() }
                 composable("profile") {
                     ProfilePage(
                         authViewModel = authViewModel,
@@ -381,11 +362,37 @@ fun MainScreenContent(
             ) {
                 navItems.forEach { item ->
                     val selected = currentRoute == item.route || 
-                                   (item.route == "profile" && (currentRoute == "settings")) ||
-                                   (item.route == "event" && (currentRoute?.startsWith("event_detail") == true || currentRoute == "create_event" || currentRoute == "my_events" || currentRoute?.startsWith("event_rundown") == true || currentRoute?.startsWith("add_event_rundown") == true)) ||
+                                   (item.route == "home" && (currentRoute == "notification" || currentRoute?.startsWith("notification_detail") == true)) ||
+                                   (item.route == "profile" && (currentRoute == "settings" || currentRoute == "user_schedule")) ||
+                                   (item.route == "event" && (currentRoute?.startsWith("event_detail") == true || currentRoute == "create_event" || currentRoute == "my_events" || currentRoute?.startsWith("event_rundown") == true || currentRoute?.startsWith("add_event_rundown") == true || currentRoute?.startsWith("event_organizer_list") == true || currentRoute?.startsWith("add_event_organizer") == true)) ||
                                    (item.route == "organizer" && (currentRoute?.startsWith("organizer_detail") == true || currentRoute == "create_organizer" || currentRoute == "my_organizers" || currentRoute?.startsWith("create_organizer_roles") == true || currentRoute?.startsWith("add_organizer_member") == true || currentRoute?.startsWith("update_organizer_role") == true))
+                    
+                    val itemGradient = when(item.route) {
+                        "home" -> LocalGradients.current.primary
+                        "event" -> LocalGradients.current.secondary
+                        "organizer" -> LocalGradients.current.tertiary
+                        "ticket" -> LocalGradients.current.quaternary
+                        "profile" -> LocalGradients.current.quinary
+                        else -> LocalGradients.current.primary
+                    }
+
                     NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = null) },
+                        icon = { 
+                            if (selected) {
+                                Icon(
+                                    item.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .graphicsLayer(alpha = 0.99f)
+                                        .drawWithContent {
+                                            drawContent()
+                                            drawRect(itemGradient, blendMode = BlendMode.SrcAtop)
+                                        }
+                                )
+                            } else {
+                                Icon(item.icon, contentDescription = null)
+                            }
+                        },
                         label = { 
                             Text(
                                 text = stringResource(item.labelRes),

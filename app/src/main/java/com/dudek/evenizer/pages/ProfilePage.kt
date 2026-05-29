@@ -47,6 +47,7 @@ import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.UserViewModel
+import com.dudek.evenizer.ui.components.ModernBackground
 import com.dudek.evenizer.utils.shimmerEffect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -64,21 +65,25 @@ fun ProfilePage(
     val isLoading by userViewModel.profileLoading.collectAsState()
     val isUploading by userViewModel.uploadLoading.collectAsState()
 
-    ProfilePageContent(
-        modifier = modifier,
-        userProfile = userProfile,
-        isLoading = isLoading,
-        isUploading = isUploading,
-        onFetchProfile = { userViewModel.fetchProfile() },
-        onClearProfile = { userViewModel.clearProfile() },
-        onUpdateProfileImage = { uri, context, scale, offset, size -> 
-            userViewModel.updateProfileImage(uri, context, scale, offset, size) 
-        },
-        onLogout = { callback -> authViewModel.logout(callback) },
-        onNavigateToSettings = onNavigateToSettings,
-        onNavigateToSchedule = onNavigateToSchedule,
-        onNavigateToLogin = onNavigateToLogin
-    )
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFFF44336))
+    ) {
+        ProfilePageContent(
+            modifier = modifier,
+            userProfile = userProfile,
+            isLoading = isLoading,
+            isUploading = isUploading,
+            onFetchProfile = { userViewModel.fetchProfile() },
+            onClearProfile = { userViewModel.clearProfile() },
+            onUpdateProfileImage = { uri, context, scale, offset, size -> 
+                userViewModel.updateProfileImage(uri, context, scale, offset, size) 
+            },
+            onLogout = { callback -> authViewModel.logout(callback) },
+            onNavigateToSettings = onNavigateToSettings,
+            onNavigateToSchedule = onNavigateToSchedule,
+            onNavigateToLogin = onNavigateToLogin
+        )
+    }
 }
 
 @Composable
@@ -239,68 +244,69 @@ fun ProfilePageContent(
         },
         modifier = Modifier.fillMaxSize()
     ) {
-        val settingsTitle = stringResource(R.string.settings_title)
-        val scheduleTitle = stringResource(R.string.profile_menu_schedule)
-        val logoutText = stringResource(R.string.profile_logout)
-        val loginText = stringResource(R.string.profile_login)
+        ModernBackground {
+            val settingsTitle = stringResource(R.string.settings_title)
+            val scheduleTitle = stringResource(R.string.profile_menu_schedule)
+            val logoutText = stringResource(R.string.profile_logout)
+            val loginText = stringResource(R.string.profile_login)
 
-        val menuItems = remember(userProfile, settingsTitle, scheduleTitle, logoutText, loginText) {
-            val list = mutableListOf(
-                ProfileMenuItem(settingsTitle, Icons.Default.Settings, onNavigateToSettings)
-            )
-            if (userProfile != null) {
-                list.add(0, ProfileMenuItem(scheduleTitle, Icons.Default.CalendarToday, onNavigateToSchedule))
-                list.add(
-                    ProfileMenuItem(logoutText, Icons.AutoMirrored.Filled.Logout) {
-                        onLogout { 
-                            onClearProfile()
-                            onNavigateToLogin() 
+            val menuItems = remember(userProfile, settingsTitle, scheduleTitle, logoutText, loginText) {
+                val list = mutableListOf(
+                    ProfileMenuItem(settingsTitle, Icons.Default.Settings, onNavigateToSettings)
+                )
+                if (userProfile != null) {
+                    list.add(0, ProfileMenuItem(scheduleTitle, Icons.Default.CalendarToday, onNavigateToSchedule))
+                    list.add(
+                        ProfileMenuItem(logoutText, Icons.AutoMirrored.Filled.Logout) {
+                            onLogout { 
+                                onClearProfile()
+                                onNavigateToLogin() 
+                            }
                         }
-                    }
-                )
-            } else {
-                list.add(
-                    ProfileMenuItem(loginText, Icons.AutoMirrored.Filled.Login) {
-                        onNavigateToLogin()
-                    }
-                )
-            }
-            list
-        }
-
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 24.dp)
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = stringResource(R.string.nav_profile),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFFF44336)
-            )
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            if (isLoading && !isRefreshing.value) {
-                UserProfileSkeleton()
-            } else {
-                UserProfileSection(
-                    user = userProfile,
-                    isUploading = isUploading,
-                    onEditClick = { imagePicker.launch("image/*") },
-                    onImageClick = { url -> showFullPreview.value = url }
-                )
+                    )
+                } else {
+                    list.add(
+                        ProfileMenuItem(loginText, Icons.AutoMirrored.Filled.Login) {
+                            onNavigateToLogin()
+                        }
+                    )
+                }
+                list
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                items(menuItems) { item ->
-                    ProfileMenuButton(item)
-                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+            ) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = stringResource(R.string.nav_profile),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFF44336)
+                )
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                if (isLoading && !isRefreshing.value) {
+                    UserProfileSkeleton()
+                } else {
+                    UserProfileSection(
+                        user = userProfile,
+                        isUploading = isUploading,
+                        onEditClick = { imagePicker.launch("image/*") },
+                        onImageClick = { url -> showFullPreview.value = url }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(menuItems) { item ->
+                        ProfileMenuButton(item)
+                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+                    }
                 }
             }
         }

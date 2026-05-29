@@ -59,7 +59,7 @@ class NotificationViewModel : ViewModel() {
                         lastNotifiedUuid = newest.uuid
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Silent
             } finally {
                 if (!isSilent) _isLoading.value = false
@@ -81,7 +81,7 @@ class NotificationViewModel : ViewModel() {
                         if (it.uuid == uuid) it.copy(isRead = true) else it
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Silent
             } finally {
                 _isLoading.value = false
@@ -103,7 +103,7 @@ class NotificationViewModel : ViewModel() {
                         if (it.uuid == uuid) it.copy(isRead = true) else it
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Silent
             }
         }
@@ -118,7 +118,7 @@ class NotificationViewModel : ViewModel() {
                 if (response.statusCode == 200) {
                     _notifications.value = _notifications.value.map { it.copy(isRead = true) }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Silent
             } finally {
                 _isLoading.value = false
@@ -144,7 +144,7 @@ class NotificationViewModel : ViewModel() {
                     onSuccess()
                     fetchNotifications(context, isSilent = true)
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Silent
             } finally {
                 _isLoading.value = false

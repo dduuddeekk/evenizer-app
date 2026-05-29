@@ -55,7 +55,7 @@
 
     <string name="login_title">Selamat Datang</string>
     <string name="login_subtitle">Masuk ke akun Anda</string>
-    <string name="login_identifier">Username atau Email</string>
+    <string name="login_identifier">Nama Pengguna atau Email</string>
     <string name="login_email">Alamat Email</string>
     <string name="login_password">Kata Sandi</string>
     <string name="login_btn">Masuk</string>

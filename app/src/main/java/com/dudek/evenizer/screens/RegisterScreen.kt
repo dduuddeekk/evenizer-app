@@ -1,7 +1,6 @@
 package com.dudek.evenizer.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -14,7 +13,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -34,7 +32,6 @@ import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.ui.components.GradientButton
 import com.dudek.evenizer.ui.components.ModernBackground
 import com.dudek.evenizer.ui.theme.EvenizerTheme
-import com.dudek.evenizer.ui.theme.LocalGradients
 import android.content.res.Configuration
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -120,13 +117,13 @@ fun RegisterScreenContent(
                 ) {
                     Text(
                         text = stringResource(R.string.register_title),
-                        fontSize = 32.sp,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = stringResource(R.string.register_subtitle),
-                        fontSize = 16.sp,
+                        fontSize = 14.sp,
                         color = Color.Gray
                     )
 
@@ -259,7 +256,7 @@ fun RegisterScreenContent(
                         if (registerState is RegisterState.Loading || loginState is LoginState.Loading) {
                             CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                         } else {
-                            Text(text = stringResource(R.string.register_btn), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text(text = stringResource(R.string.register_btn), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
 

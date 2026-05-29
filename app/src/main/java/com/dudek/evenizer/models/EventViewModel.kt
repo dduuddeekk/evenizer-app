@@ -72,7 +72,7 @@ class EventViewModel : ViewModel() {
                     if (response.success) {
                         _events.value = response.data?.data ?: emptyList()
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Silent
                 }
                 delay(10000) // Poll every 10 seconds
@@ -152,7 +152,7 @@ class EventViewModel : ViewModel() {
             if (response.success) {
                 _eventRoles.value = response.data
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Silent
         }
     }
@@ -425,7 +425,7 @@ class EventViewModel : ViewModel() {
         try {
             val service = NetworkModule.getEventService(context)
             service.deleteEvent(uuid)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Silent
         }
     }

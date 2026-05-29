@@ -1,6 +1,5 @@
 package com.dudek.evenizer.pages
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -15,19 +14,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dudek.evenizer.R
-import com.dudek.evenizer.models.ThemeViewModel
+import com.dudek.evenizer.ui.components.ModernBackground
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun TicketPage(themeViewModel: ThemeViewModel) {
-    val language by themeViewModel.language.collectAsState(initial = "id")
-    TicketPageContent(language = language)
+fun TicketPage() {
+    TicketPageContent()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicketPageContent(language: String) {
+fun TicketPageContent() {
     val isRefreshing = remember { mutableStateOf(value = false) }
     val scope = rememberCoroutineScope()
 
@@ -42,29 +40,30 @@ fun TicketPageContent(language: String) {
         },
         modifier = Modifier.fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 24.dp)
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = stringResource(R.string.ticket_title),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFFFF9800)
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        ModernBackground {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+            ) {
+                Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = stringResource(R.string.ticket_not_implemented),
-                    color = Color.Gray,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 32.dp)
+                    text = stringResource(R.string.ticket_title),
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFF9800)
                 )
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = stringResource(R.string.ticket_not_implemented),
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    )
+                }
             }
         }
     }
@@ -73,5 +72,5 @@ fun TicketPageContent(language: String) {
 @Preview(showBackground = true)
 @Composable
 fun TicketPagePreview() {
-    TicketPageContent(language = "id")
+    TicketPageContent()
 }

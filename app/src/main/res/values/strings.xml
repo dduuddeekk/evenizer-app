@@ -189,6 +189,7 @@
     <string name="rundown_save_success">Rundown created successfully</string>
     <string name="rundown_status_done">DONE</string>
     <string name="rundown_location_label">Location: %1$s</string>
+    <string name="profile_menu_schedule">Schedule</string>
     <string name="owner_label">Owner: %1$s</string>
     <string name="organizer_rating_followers">%1$.1f • %2$d Followers</string>
     <string name="organizer_search_placeholder">Search Organizer</string>

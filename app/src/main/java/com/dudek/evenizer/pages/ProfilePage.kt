@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Edit
@@ -56,6 +57,7 @@ fun ProfilePage(
     authViewModel: AuthViewModel,
     userViewModel: UserViewModel,
     onNavigateToSettings: () -> Unit,
+    onNavigateToSchedule: () -> Unit,
     onNavigateToLogin: () -> Unit,
 ) {
     val userProfile by userViewModel.userProfile.collectAsState()
@@ -74,6 +76,7 @@ fun ProfilePage(
         },
         onLogout = { callback -> authViewModel.logout(callback) },
         onNavigateToSettings = onNavigateToSettings,
+        onNavigateToSchedule = onNavigateToSchedule,
         onNavigateToLogin = onNavigateToLogin
     )
 }
@@ -131,6 +134,7 @@ fun ProfilePageContent(
     onUpdateProfileImage: (Uri, android.content.Context, Float, Offset, Float) -> Unit,
     onLogout: (() -> Unit) -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToSchedule: () -> Unit,
     onNavigateToLogin: () -> Unit,
 ) {
     val isRefreshing = remember { mutableStateOf(value = false) }
@@ -236,14 +240,16 @@ fun ProfilePageContent(
         modifier = Modifier.fillMaxSize()
     ) {
         val settingsTitle = stringResource(R.string.settings_title)
+        val scheduleTitle = stringResource(R.string.profile_menu_schedule)
         val logoutText = stringResource(R.string.profile_logout)
         val loginText = stringResource(R.string.profile_login)
 
-        val menuItems = remember(userProfile, settingsTitle, logoutText, loginText) {
+        val menuItems = remember(userProfile, settingsTitle, scheduleTitle, logoutText, loginText) {
             val list = mutableListOf(
                 ProfileMenuItem(settingsTitle, Icons.Default.Settings, onNavigateToSettings)
             )
             if (userProfile != null) {
+                list.add(0, ProfileMenuItem(scheduleTitle, Icons.Default.CalendarToday, onNavigateToSchedule))
                 list.add(
                     ProfileMenuItem(logoutText, Icons.AutoMirrored.Filled.Logout) {
                         onLogout { 
@@ -528,6 +534,7 @@ fun ProfilePagePreview() {
         onUpdateProfileImage = { _, _, _, _, _ -> },
         onLogout = {},
         onNavigateToSettings = {},
+        onNavigateToSchedule = {},
         onNavigateToLogin = {}
     )
 }

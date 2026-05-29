@@ -188,6 +188,7 @@
     <string name="rundown_save_success">Programa creado con éxito</string>
     <string name="rundown_status_done">HECHO</string>
     <string name="rundown_location_label">Ubicación: %1$s</string>
+    <string name="profile_menu_schedule">Horario</string>
     <string name="owner_label">Propietario: %1$s</string>
     <string name="organizer_rating_followers">%1$.1f • %2$d Seguidores</string>
     <string name="organizer_search_placeholder">Buscar organizador</string>

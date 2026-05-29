@@ -188,6 +188,7 @@
     <string name="rundown_save_success">Rundown berhasil dibuat</string>
     <string name="rundown_status_done">SELESAI</string>
     <string name="rundown_location_label">Lokasi: %1$s</string>
+    <string name="profile_menu_schedule">Jadwal</string>
     <string name="owner_label">Pemilik: %1$s</string>
     <string name="organizer_rating_followers">%1$.1f • %2$d Pengikut</string>
     <string name="organizer_search_placeholder">Cari Penyelenggara</string>

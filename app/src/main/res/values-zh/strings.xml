@@ -188,6 +188,7 @@
     <string name="rundown_save_success">流程创建成功</string>
     <string name="rundown_status_done">完成</string>
     <string name="rundown_location_label">地点: %1$s</string>
+    <string name="profile_menu_schedule">日程</string>
     <string name="owner_label">所有者: %1$s</string>
     <string name="organizer_rating_followers">%1$.1f • %2$d 关注者</string>
     <string name="organizer_search_placeholder">搜索组织者</string>

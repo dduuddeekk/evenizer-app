@@ -188,6 +188,7 @@
     <string name="rundown_save_success">Пункт программы успешно создан</string>
     <string name="rundown_status_done">ГОТОВО</string>
     <string name="rundown_location_label">Место: %1$s</string>
+    <string name="profile_menu_schedule">Расписание</string>
     <string name="owner_label">Владелец: %1$s</string>
     <string name="organizer_rating_followers">%1$.1f • %2$d Подписчиков</string>
     <string name="organizer_search_placeholder">Поиск организатора</string>

@@ -6,6 +6,7 @@ import com.dudek.evenizer.data.local.TokenManager
 import com.dudek.evenizer.data.network.model.RegisterRequest
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.data.network.model.UserResponse
+import com.dudek.evenizer.data.network.model.YearSchedule
 import com.dudek.evenizer.data.network.service.UserService
 import com.dudek.evenizer.utils.JwtUtils
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -74,6 +75,19 @@ class UserRepository(
             } else {
                 val errorMsg = response.error ?: response.message
                 Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUserRundowns(): Result<List<YearSchedule>> {
+        return try {
+            val response = userService.getUserRundowns()
+            if (response.success) {
+                Result.success(response.data)
+            } else {
+                Result.failure(Exception(response.message))
             }
         } catch (e: Exception) {
             Result.failure(e)

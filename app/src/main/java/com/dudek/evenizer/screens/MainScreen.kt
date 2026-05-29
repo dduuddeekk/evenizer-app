@@ -44,6 +44,7 @@ import com.dudek.evenizer.pages.CreateOrganizerRolesPage
 import com.dudek.evenizer.pages.UpdateOrganizerRolePage
 import com.dudek.evenizer.pages.AddOrganizerMemberPage
 import com.dudek.evenizer.pages.ProfilePage
+import com.dudek.evenizer.pages.UserSchedulePage
 import com.dudek.evenizer.pages.SettingsPage
 import com.dudek.evenizer.pages.CreateOrganizerPage
 import com.dudek.evenizer.pages.MyOrganizersPage
@@ -66,6 +67,21 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val context = androidx.compose.ui.platform.LocalContext.current
+
+    val routeOrder = listOf("home", "event", "organizer", "ticket", "profile")
+    
+    fun getRouteIndex(route: String?): Int {
+        if (route == null) return 0
+        val baseRoute = when {
+            route == "home" || route == "notification" -> "home"
+            route.startsWith("event") || route == "create_event" || route == "my_events" || route.startsWith("add_event_rundown") -> "event"
+            route.startsWith("organizer") || route == "create_organizer" || route == "my_organizers" || route.startsWith("create_organizer_roles") || route.startsWith("add_organizer_member") || route.startsWith("update_organizer_role") -> "organizer"
+            route == "ticket" -> "ticket"
+            route == "profile" || route == "settings" -> "profile"
+            else -> "home"
+        }
+        return routeOrder.indexOf(baseRoute).coerceAtLeast(0)
+    }
 
     val latestNotification by notificationViewModel.latestNotification.collectAsState()
 
@@ -104,16 +120,28 @@ fun MainScreen(
                 startDestination = "home",
                 modifier = Modifier.padding(innerPadding),
                 enterTransition = {
-                    fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { it / 3 }
+                    val initialIndex = getRouteIndex(initialState.destination.route)
+                    val targetIndex = getRouteIndex(targetState.destination.route)
+                    if (targetIndex > initialIndex) {
+                        slideInHorizontally(animationSpec = tween(300)) { it } + fadeIn(animationSpec = tween(300))
+                    } else {
+                        slideInHorizontally(animationSpec = tween(300)) { -it } + fadeIn(animationSpec = tween(300))
+                    }
                 },
                 exitTransition = {
-                    fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { -it / 3 }
+                    val initialIndex = getRouteIndex(initialState.destination.route)
+                    val targetIndex = getRouteIndex(targetState.destination.route)
+                    if (targetIndex > initialIndex) {
+                        slideOutHorizontally(animationSpec = tween(300)) { -it } + fadeOut(animationSpec = tween(300))
+                    } else {
+                        slideOutHorizontally(animationSpec = tween(300)) { it } + fadeOut(animationSpec = tween(300))
+                    }
                 },
                 popEnterTransition = {
-                    fadeIn(animationSpec = tween(300)) + slideInHorizontally(animationSpec = tween(300)) { -it / 3 }
+                    slideInHorizontally(animationSpec = tween(300)) { -it } + fadeIn(animationSpec = tween(300))
                 },
                 popExitTransition = {
-                    fadeOut(animationSpec = tween(300)) + slideOutHorizontally(animationSpec = tween(300)) { it / 3 }
+                    slideOutHorizontally(animationSpec = tween(300)) { it } + fadeOut(animationSpec = tween(300))
                 }
             ) {
                 composable("home") { 
@@ -307,7 +335,15 @@ fun MainScreen(
                         authViewModel = authViewModel,
                         userViewModel = userViewModel,
                         onNavigateToSettings = { navController.navigate("settings") },
+                        onNavigateToSchedule = { navController.navigate("user_schedule") },
                         onNavigateToLogin = onNavigateToLogin
+                    )
+                }
+                composable("user_schedule") {
+                    UserSchedulePage(
+                        userViewModel = userViewModel,
+                        onBack = { navController.popBackStack() },
+                        onNavigateToEvent = { uuid -> navController.navigate("event_detail/$uuid") }
                     )
                 }
                 composable("settings") {

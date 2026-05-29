@@ -30,4 +30,7 @@ interface UserService {
 
     @GET("user/{uuid}")
     suspend fun getUserProfile(@Path("uuid") uuid: String): UserResponse
+
+    @GET("user/rundowns")
+    suspend fun getUserRundowns(): com.dudek.evenizer.data.network.model.UserScheduleResponse
 }

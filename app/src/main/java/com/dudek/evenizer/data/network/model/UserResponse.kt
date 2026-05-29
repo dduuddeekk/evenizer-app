@@ -25,3 +25,29 @@ data class UserListData(
     val data: List<UserData>,
     val meta: Meta
 )
+
+@Serializable
+data class UserScheduleResponse(
+    val success: Boolean,
+    val code: String,
+    val message: String,
+    val data: List<YearSchedule> = emptyList()
+)
+
+@Serializable
+data class YearSchedule(
+    val year: Int,
+    val months: List<MonthSchedule>
+)
+
+@Serializable
+data class MonthSchedule(
+    val month: Int,
+    val days: List<DaySchedule>
+)
+
+@Serializable
+data class DaySchedule(
+    val day: Int,
+    val rundowns: List<RundownData>
+)

@@ -103,7 +103,7 @@ data class RundownData(
     val end: String,
     val status: String,
     val visibility: String,
-    val eventUuid: String,
+    val eventUuid: String? = null,
     val locationUuid: String? = null,
     val description: String? = null,
     val actualStart: String? = null,
@@ -111,7 +111,14 @@ data class RundownData(
     val createdAt: String,
     val updatedAt: String,
     val deletedAt: String? = null,
+    val event: EventMinimalData? = null,
     val location: EventLocationData? = null
+)
+
+@Serializable
+data class EventMinimalData(
+    val uuid: String,
+    val title: String
 )
 
 @Serializable

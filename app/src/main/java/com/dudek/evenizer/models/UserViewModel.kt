@@ -6,6 +6,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dudek.evenizer.data.network.model.UserData
+import com.dudek.evenizer.data.network.model.YearSchedule
 import com.dudek.evenizer.data.repository.UserRepository
 import com.dudek.evenizer.utils.ImageUtils
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,9 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
     private val _userProfile = MutableStateFlow<UserData?>(null)
     val userProfile: StateFlow<UserData?> = _userProfile.asStateFlow()
+
+    private val _userSchedule = MutableStateFlow<List<YearSchedule>>(emptyList())
+    val userSchedule: StateFlow<List<YearSchedule>> = _userSchedule.asStateFlow()
 
     private val _profileLoading = MutableStateFlow(false)
     val profileLoading: StateFlow<Boolean> = _profileLoading.asStateFlow()
@@ -69,6 +73,19 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
             _userProfile.value = null
         }
         _profileLoading.value = false
+    }
+
+    fun fetchUserSchedule() {
+        viewModelScope.launch {
+            _profileLoading.value = true
+            val result = userRepository.getUserRundowns()
+            result.onSuccess { schedule ->
+                _userSchedule.value = schedule
+            }.onFailure {
+                _userSchedule.value = emptyList()
+            }
+            _profileLoading.value = false
+        }
     }
 
     fun clearProfile() {

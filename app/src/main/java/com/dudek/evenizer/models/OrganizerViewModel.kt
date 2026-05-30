@@ -5,6 +5,8 @@ import android.net.Uri
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.network.model.CreateOrganizerRequest
 import com.dudek.evenizer.data.network.model.CreateMemberRequest
@@ -12,8 +14,10 @@ import com.dudek.evenizer.data.network.model.CreateRoleRequest
 import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.data.network.model.RoleData
 import com.dudek.evenizer.data.network.model.UserData
+import com.dudek.evenizer.data.repository.OrganizerRepository
 import com.dudek.evenizer.utils.ImageUtils
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
@@ -48,7 +52,21 @@ class OrganizerViewModel : ViewModel() {
     private val _allUsers = MutableStateFlow<List<UserData>>(emptyList())
     val allUsers: StateFlow<List<UserData>> = _allUsers
 
+    private var organizerRepository: OrganizerRepository? = null
+    var pagedOrganizers: Flow<PagingData<OrganizerData>>? = null
+    var pagedMyOrganizers: Flow<PagingData<OrganizerData>>? = null
+
     private var pollingJob: kotlinx.coroutines.Job? = null
+
+    fun getPagedOrganizers(context: Context, search: String? = null): Flow<PagingData<OrganizerData>> {
+        val repo = organizerRepository ?: OrganizerRepository(context).also { organizerRepository = it }
+        return repo.getOrganizers(search).cachedIn(viewModelScope).also { pagedOrganizers = it }
+    }
+
+    fun getPagedMyOrganizers(context: Context, search: String? = null): Flow<PagingData<OrganizerData>> {
+        val repo = organizerRepository ?: OrganizerRepository(context).also { organizerRepository = it }
+        return repo.getMyOrganizers(search).cachedIn(viewModelScope).also { pagedMyOrganizers = it }
+    }
 
     fun startRealtimeOrganizers(context: Context, eventDescription: String? = null) {
         stopRealtimeOrganizers()

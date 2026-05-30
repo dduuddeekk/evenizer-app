@@ -29,6 +29,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
 import com.dudek.evenizer.data.network.model.OrganizerData
@@ -57,21 +62,7 @@ fun OrganizerPage(
     val context = LocalContext.current
     val language by themeViewModel.language.collectAsState(initial = "id")
     val userProfile by userViewModel.userProfile.collectAsState()
-    val organizers by organizerViewModel.organizers.collectAsState()
-    val isLoading by organizerViewModel.isLoading.collectAsState()
-
-    DisposableEffect(Unit) {
-        organizerViewModel.startRealtimeOrganizers(context)
-        onDispose {
-            organizerViewModel.stopRealtimeOrganizers()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        if (organizers.isEmpty()) {
-            organizerViewModel.fetchOrganizers(context)
-        }
-    }
+    val organizers = organizerViewModel.getPagedOrganizers(context).collectAsLazyPagingItems()
 
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF2196F3), tertiary = Color(0xFF2196F3))
@@ -80,10 +71,9 @@ fun OrganizerPage(
             language = language,
             userProfile = userProfile,
             organizers = organizers,
-            isLoading = isLoading,
-            onRefresh = { organizerViewModel.fetchOrganizers(context) },
+            onRefresh = { organizers.refresh() },
             onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
-            onDelete = { uuid -> organizerViewModel.deleteOrganizer(context, uuid) {} },
+            onDelete = { uuid -> organizerViewModel.deleteOrganizer(context, uuid) { organizers.refresh() } },
             onNavigateToDetail = onNavigateToDetail,
             onNavigateToCreate = onNavigateToCreate,
             onNavigateToMyOrganizers = onNavigateToMyOrganizers,
@@ -97,8 +87,7 @@ fun OrganizerPage(
 fun OrganizerPageContent(
     language: String,
     userProfile: UserData?,
-    organizers: List<OrganizerData>,
-    isLoading: Boolean,
+    organizers: LazyPagingItems<OrganizerData>,
     onRefresh: () -> Unit,
     onToggleFollow: (String) -> Unit,
     onDelete: (String) -> Unit,
@@ -116,7 +105,7 @@ fun OrganizerPageContent(
     Box(modifier = Modifier.fillMaxSize()) {
         ModernBackground {
             PullToRefreshBox(
-                isRefreshing = isLoading,
+                isRefreshing = organizers.loadState.refresh is LoadState.Loading,
                 onRefresh = onRefresh,
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -236,12 +225,13 @@ fun OrganizerPageContent(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         contentPadding = PaddingValues(bottom = 80.dp)
                     ) {
-                        if (isLoading && organizers.isEmpty()) {
-                            items(5) {
-                                OrganizerCardSkeleton()
-                            }
-                        } else {
-                            items(organizers) { organizer ->
+                        items(
+                            count = organizers.itemCount,
+                            key = organizers.itemKey { it.uuid },
+                            contentType = organizers.itemContentType { "organizer" }
+                        ) { index ->
+                            val organizer = organizers[index]
+                            if (organizer != null) {
                                 OrganizerCard(
                                     organizer = organizer,
                                     currentUserUuid = userProfile?.uuid,
@@ -249,6 +239,40 @@ fun OrganizerPageContent(
                                     onDelete = { onDelete(organizer.uuid) },
                                     onClick = { onNavigateToDetail(organizer.uuid) }
                                 )
+                            }
+                        }
+
+                        when (val state = organizers.loadState.append) {
+                            is LoadState.Loading -> {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(32.dp),
+                                            color = MaterialTheme.colorScheme.tertiary
+                                        )
+                                    }
+                                }
+                            }
+                            is LoadState.Error -> {
+                                item {
+                                    Text(
+                                        text = state.error.message ?: "Error loading more",
+                                        color = Color.Red,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+                            }
+                            else -> {}
+                        }
+
+                        if (organizers.loadState.refresh is LoadState.Loading && organizers.itemCount == 0) {
+                            items(5) {
+                                OrganizerCardSkeleton()
                             }
                         }
                     }
@@ -475,17 +499,6 @@ fun OrganizerCard(
 @Preview(showBackground = true)
 @Composable
 fun OrganizerPagePreview() {
-    OrganizerPageContent(
-        language = "id",
-        userProfile = null,
-        organizers = emptyList(),
-        isLoading = false,
-        onRefresh = {},
-        onToggleFollow = {},
-        onDelete = {},
-        onNavigateToDetail = {},
-        onNavigateToCreate = {},
-        onNavigateToMyOrganizers = {},
-        onNavigateToLogin = {}
-    )
+    // Preview would need a mock of LazyPagingItems which is complex, 
+    // so we just leave it for now or use a dummy content
 }

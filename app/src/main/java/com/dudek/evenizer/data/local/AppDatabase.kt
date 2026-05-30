@@ -5,17 +5,20 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.dudek.evenizer.data.local.dao.EventDao
+import com.dudek.evenizer.data.local.dao.OrganizerDao
 import com.dudek.evenizer.data.local.dao.RemoteKeysDao
 import com.dudek.evenizer.data.local.entity.EventEntity
+import com.dudek.evenizer.data.local.entity.OrganizerEntity
 import com.dudek.evenizer.data.local.entity.RemoteKeys
 
 @Database(
-    entities = [EventEntity::class, RemoteKeys::class],
-    version = 1,
+    entities = [EventEntity::class, OrganizerEntity::class, RemoteKeys::class],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
+    abstract fun organizerDao(): OrganizerDao
     abstract fun remoteKeysDao(): RemoteKeysDao
 
     companion object {
@@ -28,7 +31,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "evenizer_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

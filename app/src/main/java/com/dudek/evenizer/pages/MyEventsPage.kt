@@ -28,6 +28,7 @@ import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.ui.components.GradientFAB
 import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 import com.dudek.evenizer.utils.EventCard
 import com.dudek.evenizer.utils.EventCardSkeleton
 
@@ -50,17 +51,21 @@ fun MyEventsPage(
         eventViewModel.fetchMyEvents(context)
     }
 
-    MyEventsPageContent(
-        myEvents = myEvents,
-        isLoading = isLoading,
-        language = language,
-        userProfile = userProfile,
-        onBack = onBack,
-        onRefresh = { eventViewModel.fetchMyEvents(context) },
-        onDeleteEvent = { uuid -> eventViewModel.deleteEvent(context, uuid) },
-        onNavigateToDetail = onNavigateToDetail,
-        onNavigateToCreate = onNavigateToCreate
-    )
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF4CAF50))
+    ) {
+        MyEventsPageContent(
+            myEvents = myEvents,
+            isLoading = isLoading,
+            language = language,
+            userProfile = userProfile,
+            onBack = onBack,
+            onRefresh = { eventViewModel.fetchMyEvents(context) },
+            onDeleteEvent = { uuid -> eventViewModel.deleteEvent(context, uuid) },
+            onNavigateToDetail = onNavigateToDetail,
+            onNavigateToCreate = onNavigateToCreate
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -204,7 +209,8 @@ fun MyEventsPageContent(
             onClick = onNavigateToCreate,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
+                .padding(16.dp),
+            gradient = LocalGradients.current.secondary
         ) {
             Icon(Icons.Default.Add, contentDescription = "Create Event")
         }

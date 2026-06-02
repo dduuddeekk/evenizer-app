@@ -38,6 +38,7 @@ import com.dudek.evenizer.models.CreateEventStep
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.ui.components.GradientButton
 import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
@@ -51,16 +52,20 @@ fun CreateEventPage(
     val createStep by eventViewModel.createStep.collectAsState()
     val error by eventViewModel.error.collectAsState()
 
-    CreateEventPageContent(
-        createStep = createStep,
-        error = error,
-        onBack = onBack,
-        onSuccess = onSuccess,
-        onCreateEvent = { title, desc, start, end, cats, loc, locType, status, isPub, uri, context ->
-            eventViewModel.createEvent(context, title, desc, start, end, cats, loc, locType, status, isPub, uri)
-        },
-        onResetState = { eventViewModel.resetState() }
-    )
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF4CAF50))
+    ) {
+        CreateEventPageContent(
+            createStep = createStep,
+            error = error,
+            onBack = onBack,
+            onSuccess = onSuccess,
+            onCreateEvent = { title, desc, start, end, cats, loc, locType, status, isPub, uri, context ->
+                eventViewModel.createEvent(context, title, desc, start, end, cats, loc, locType, status, isPub, uri)
+            },
+            onResetState = { eventViewModel.resetState() }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -445,7 +450,8 @@ fun CreateEventPageContent(
                     onCreateEvent(title.value, description.value, startIso, endIso, categoryList, location.value, locationType.value, status.value, isPublic.value, bannerUri.value, context)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = startCalendar.value != null && endCalendar.value != null && title.value.isNotBlank()
+                enabled = startCalendar.value != null && endCalendar.value != null && title.value.isNotBlank(),
+                gradient = LocalGradients.current.secondary
             ) {
                 Text(stringResource(R.string.create_event_btn_create), fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }

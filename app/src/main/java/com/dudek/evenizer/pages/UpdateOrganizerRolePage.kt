@@ -44,92 +44,118 @@ fun UpdateOrganizerRolePage(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = stringResource(R.string.role_update_title), fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
-                            contentDescription = stringResource(R.string.create_event_back_desc),
-                            tint = MaterialTheme.colorScheme.tertiary
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF2196F3))
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(R.string.role_update_title),
+                            fontWeight = FontWeight.Bold
                         )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.tertiary
-                )
-            )
-        },
-        containerColor = Color.Transparent
-    ) { innerPadding ->
-        ModernBackground {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(24.dp)
-            ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = stringResource(R.string.role_update_info_title), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.tertiary)
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            label = { Text(stringResource(R.string.role_input_name_label)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                                focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.create_event_back_desc),
+                                tint = MaterialTheme.colorScheme.primary
                             )
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedTextField(
-                            value = description,
-                            onValueChange = { description = it },
-                            label = { Text(stringResource(R.string.role_input_desc_label)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                                focusedLabelColor = MaterialTheme.colorScheme.tertiary
-                            )
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                val successMsg = stringResource(R.string.role_update_success)
-                GradientButton(
-                    onClick = {
-                        organizerViewModel.updateRole(context, organizerUuid, roleUuid, name, description) {
-                            Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
-                            onSuccess()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    gradient = LocalGradients.current.tertiary,
-                    enabled = !isLoading && name.isNotBlank()
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        titleContentColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            },
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            ModernBackground {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(24.dp)
                 ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                    } else {
-                        Text(text = stringResource(R.string.role_update_save_btn), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = stringResource(R.string.role_update_info_title),
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            OutlinedTextField(
+                                value = name,
+                                onValueChange = { name = it },
+                                label = { Text(stringResource(R.string.role_input_name_label)) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                                )
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            OutlinedTextField(
+                                value = description,
+                                onValueChange = { description = it },
+                                label = { Text(stringResource(R.string.role_input_desc_label)) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                                )
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    val successMsg = stringResource(R.string.role_update_success)
+                    GradientButton(
+                        onClick = {
+                            organizerViewModel.updateRole(
+                                context,
+                                organizerUuid,
+                                roleUuid,
+                                name,
+                                description
+                            ) {
+                                Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
+                                onSuccess()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        gradient = LocalGradients.current.tertiary,
+                        enabled = !isLoading && name.isNotBlank()
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.role_update_save_btn),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }

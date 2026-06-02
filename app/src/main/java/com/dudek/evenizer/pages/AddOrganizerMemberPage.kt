@@ -55,107 +55,111 @@ fun AddOrganizerMemberPage(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ModernBackground {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // Header (Identical to OrganizerDetailPage)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF2196F3))
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ModernBackground {
+                Column(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.create_event_back_desc),
-                            tint = MaterialTheme.colorScheme.tertiary
+                    // Header (Identical to OrganizerDetailPage)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.create_event_back_desc),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.member_add_title),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 8.dp)
                         )
                     }
-                    Text(
-                        text = stringResource(R.string.member_add_title),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.tertiary,
+
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                    LazyColumn(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(start = 8.dp)
-                    )
-                }
-
-                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(vertical = 24.dp)
-                ) {
-                    itemsIndexed(memberEntries) { index, entry ->
-                        MemberInputCard(
-                            selectedUser = entry.first,
-                            selectedRole = entry.second,
-                            allUsers = allUsers,
-                            availableRoles = availableRoles,
-                            onUserSelected = { user ->
-                                val newList = memberEntries.toMutableList()
-                                newList[index] = Pair(user, entry.second)
-                                memberEntries = newList
-                            },
-                            onRoleSelected = { role ->
-                                val newList = memberEntries.toMutableList()
-                                newList[index] = Pair(entry.first, role)
-                                memberEntries = newList
-                            },
-                            onDelete = if (memberEntries.size > 1) {
-                                {
+                            .padding(horizontal = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(vertical = 24.dp)
+                    ) {
+                        itemsIndexed(memberEntries) { index, entry ->
+                            MemberInputCard(
+                                selectedUser = entry.first,
+                                selectedRole = entry.second,
+                                allUsers = allUsers,
+                                availableRoles = availableRoles,
+                                onUserSelected = { user ->
                                     val newList = memberEntries.toMutableList()
-                                    newList.removeAt(index)
+                                    newList[index] = Pair(user, entry.second)
                                     memberEntries = newList
-                                }
-                            } else null
-                        )
-                    }
-                }
-
-                val successMsg = stringResource(R.string.member_invite_success)
-                GradientButton(
-                    onClick = {
-                        val finalMembers = memberEntries.filter { it.first != null && it.second != null }
-                            .map { it.first!!.uuid to it.second!!.uuid }
-                        
-                        organizerViewModel.addMultipleMembers(context, organizerUuid, finalMembers) {
-                            Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
-                            onSuccess()
+                                },
+                                onRoleSelected = { role ->
+                                    val newList = memberEntries.toMutableList()
+                                    newList[index] = Pair(entry.first, role)
+                                    memberEntries = newList
+                                },
+                                onDelete = if (memberEntries.size > 1) {
+                                    {
+                                        val newList = memberEntries.toMutableList()
+                                        newList.removeAt(index)
+                                        memberEntries = newList
+                                    }
+                                } else null
+                            )
                         }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    gradient = LocalGradients.current.tertiary,
-                    enabled = !isLoading && memberEntries.any { it.first != null && it.second != null }
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                    } else {
-                        Text(text = stringResource(R.string.member_invite_all_btn), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    val successMsg = stringResource(R.string.member_invite_success)
+                    GradientButton(
+                        onClick = {
+                            val finalMembers = memberEntries.filter { it.first != null && it.second != null }
+                                .map { it.first!!.uuid to it.second!!.uuid }
+
+                            organizerViewModel.addMultipleMembers(context, organizerUuid, finalMembers) {
+                                Toast.makeText(context, successMsg, Toast.LENGTH_SHORT).show()
+                                onSuccess()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        gradient = LocalGradients.current.tertiary,
+                        enabled = !isLoading && memberEntries.any { it.first != null && it.second != null }
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        } else {
+                            Text(text = stringResource(R.string.member_invite_all_btn), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
-        }
 
-        // FAB to add more entries, styled like OrganizerDetailPage
-        GradientFAB(
-            onClick = { memberEntries = memberEntries + Pair(null, null) },
-            gradient = LocalGradients.current.tertiary,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 96.dp, end = 16.dp)
-        ) {
-            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.member_add_title))
+            // FAB to add more entries, styled like OrganizerDetailPage
+            GradientFAB(
+                onClick = { memberEntries = memberEntries + Pair(null, null) },
+                gradient = LocalGradients.current.tertiary,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 96.dp, end = 16.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.member_add_title))
+            }
         }
     }
 }
@@ -196,7 +200,7 @@ fun MemberInputCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = stringResource(R.string.member_input_select_title), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.tertiary)
+                Text(text = stringResource(R.string.member_input_select_title), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 if (onDelete != null) {
                     IconButton(onClick = onDelete) {
                         Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.btn_delete), tint = Color.Red)
@@ -221,10 +225,10 @@ fun MemberInputCard(
                     modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true).fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = userDropdownExpanded) },
-                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary) },
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
@@ -266,8 +270,8 @@ fun MemberInputCard(
                     shape = RoundedCornerShape(12.dp),
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = roleDropdownExpanded) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
                     )
                 )
 

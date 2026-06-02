@@ -41,15 +41,19 @@ fun MyOrganizersPage(
     val context = LocalContext.current
     val myOrganizers = organizerViewModel.getPagedMyOrganizers(context).collectAsLazyPagingItems()
 
-    MyOrganizersPageContent(
-        organizers = myOrganizers,
-        onBack = onBack,
-        onRefresh = { myOrganizers.refresh() },
-        onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
-        onDelete = { uuid -> organizerViewModel.deleteOrganizer(context, uuid) { myOrganizers.refresh() } },
-        onNavigateToDetail = onNavigateToDetail,
-        onNavigateToCreate = onNavigateToCreate
-    )
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF2196F3))
+    ) {
+        MyOrganizersPageContent(
+            organizers = myOrganizers,
+            onBack = onBack,
+            onRefresh = { myOrganizers.refresh() },
+            onToggleFollow = { uuid -> organizerViewModel.toggleFollow(context, uuid) },
+            onDelete = { uuid -> organizerViewModel.deleteOrganizer(context, uuid) { myOrganizers.refresh() } },
+            onNavigateToDetail = onNavigateToDetail,
+            onNavigateToCreate = onNavigateToCreate
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,14 +88,14 @@ fun MyOrganizersPageContent(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = stringResource(R.string.create_event_back_desc),
-                                tint = MaterialTheme.colorScheme.tertiary
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                         Text(
                             text = stringResource(R.string.my_organizers_title),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.tertiary,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }

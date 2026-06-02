@@ -24,6 +24,7 @@ import com.dudek.evenizer.data.network.model.RundownData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.ui.components.GradientFAB
 import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 import com.dudek.evenizer.utils.DateUtils
 
 @Composable
@@ -47,90 +48,95 @@ fun EventRundownPage(
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("PUBLIC", "PRIVATE")
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ModernBackground {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // Header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF4CAF50))
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ModernBackground {
+                Column(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.create_event_back_desc),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    Text(
-                        text = stringResource(R.string.rundown_title),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                    // Header
+                    Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp)
-                    )
-                }
-
-                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-                SecondaryTabRow(
-                    selectedTabIndex = selectedTab,
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.primary,
-                    indicator = { 
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier.tabIndicatorOffset(selectedTabIndex = selectedTab),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                ) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            text = {
-                                Text(
-                                    text = title,
-                                    color = if (selectedTab == index) MaterialTheme.colorScheme.primary else Color.Gray
-                                )
-                            }
-                        )
-                    }
-                }
-
-                val currentList = if (selectedTab == 0) publicRundowns else privateRundowns
-
-                if (currentList.isEmpty() && !isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = stringResource(R.string.rundown_empty), color = Color.Gray)
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        items(currentList) { rundown ->
-                            RundownCard(rundown)
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.create_event_back_desc),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.rundown_title),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 8.dp)
+                        )
+                    }
+
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                    SecondaryTabRow(
+                        selectedTabIndex = selectedTab,
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.primary,
+                        indicator = {
+                            TabRowDefaults.SecondaryIndicator(
+                                Modifier.tabIndicatorOffset(selectedTabIndex = selectedTab),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    ) {
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTab == index,
+                                onClick = { selectedTab = index },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        color = if (selectedTab == index) MaterialTheme.colorScheme.primary else Color.Gray
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                    val currentList = if (selectedTab == 0) publicRundowns else privateRundowns
+
+                    if (currentList.isEmpty() && !isLoading) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(text = stringResource(R.string.rundown_empty), color = Color.Gray)
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(currentList) { rundown ->
+                                RundownCard(rundown)
+                            }
                         }
                     }
                 }
             }
-        }
 
-        GradientFAB(
-            onClick = { onNavigateToAddRundown(eventUuid) },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.rundown_add_title))
+            GradientFAB(
+                onClick = { onNavigateToAddRundown(eventUuid) },
+                gradient = LocalGradients.current.secondary,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.rundown_add_title))
+            }
         }
     }
 }

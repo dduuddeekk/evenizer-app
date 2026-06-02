@@ -47,17 +47,21 @@ fun CreateOrganizerPage(
     val context = LocalContext.current
     val isLoading by organizerViewModel.isLoading.collectAsState()
 
-    CreateOrganizerPageContent(
-        isLoading = isLoading,
-        onBack = onBack,
-        onRegister = { name, desc, isPublic, logoUri, scale, offset, containerSize -> 
-            organizerViewModel.createOrganizerWithLogo(
-                context, name, desc, isPublic, logoUri, scale, offset, containerSize
-            ) {
-                onSuccess()
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF2196F3))
+    ) {
+        CreateOrganizerPageContent(
+            isLoading = isLoading,
+            onBack = onBack,
+            onRegister = { name, desc, isPublic, logoUri, scale, offset, containerSize ->
+                organizerViewModel.createOrganizerWithLogo(
+                    context, name, desc, isPublic, logoUri, scale, offset, containerSize
+                ) {
+                    onSuccess()
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -158,14 +162,14 @@ fun CreateOrganizerPageContent(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.create_event_back_desc),
-                        tint = MaterialTheme.colorScheme.tertiary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
                 Text(
                     text = stringResource(R.string.create_organizer_title),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
@@ -184,7 +188,7 @@ fun CreateOrganizerPageContent(
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                         .clickable { imagePicker.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
@@ -207,14 +211,14 @@ fun CreateOrganizerPageContent(
                             Icon(
                                 imageVector = Icons.Default.AddAPhoto,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.tertiary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(32.dp)
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = stringResource(R.string.create_organizer_add_logo),
                                 fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.tertiary
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -231,8 +235,8 @@ fun CreateOrganizerPageContent(
                     singleLine = true,
                     enabled = !isLoading,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
@@ -247,8 +251,8 @@ fun CreateOrganizerPageContent(
                     minLines = 3,
                     enabled = !isLoading,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = MaterialTheme.colorScheme.tertiary
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
@@ -282,7 +286,7 @@ fun CreateOrganizerPageContent(
                         enabled = !isLoading,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
-                            checkedTrackColor = MaterialTheme.colorScheme.tertiary
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
                         )
                     )
                 }

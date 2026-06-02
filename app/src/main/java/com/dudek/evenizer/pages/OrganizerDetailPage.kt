@@ -61,23 +61,27 @@ fun OrganizerDetailPage(
         organizerViewModel.fetchOrganizerDetail(context, uuid)
     }
 
-    OrganizerDetailPageContent(
-        organizer = organizer,
-        organizerRoles = organizerRoles,
-        organizerOwner = organizerOwner,
-        isLoading = isLoading,
-        userProfile = userProfile,
-        onBack = onBack,
-        onAddMember = onNavigateToAddMember,
-        onAddRole = onNavigateToAddRole,
-        onEditOrganizer = { /* TODO: Implement edit */ },
-        onUpdateRole = { role -> 
-            onNavigateToUpdateRole(uuid, role.uuid, role.name, role.description)
-        },
-        onDeleteRole = { role -> 
-            organizerViewModel.deleteRole(context, uuid, role.uuid) {}
-        }
-    )
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF2196F3))
+    ) {
+        OrganizerDetailPageContent(
+            organizer = organizer,
+            organizerRoles = organizerRoles,
+            organizerOwner = organizerOwner,
+            isLoading = isLoading,
+            userProfile = userProfile,
+            onBack = onBack,
+            onAddMember = onNavigateToAddMember,
+            onAddRole = onNavigateToAddRole,
+            onEditOrganizer = { /* TODO: Implement edit */ },
+            onUpdateRole = { role ->
+                onNavigateToUpdateRole(uuid, role.uuid, role.name, role.description)
+            },
+            onDeleteRole = { role ->
+                organizerViewModel.deleteRole(context, uuid, role.uuid) {}
+            }
+        )
+    }
 }
 
 @Composable
@@ -139,14 +143,14 @@ fun OrganizerDetailPageContent(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.create_event_back_desc),
-                            tint = MaterialTheme.colorScheme.tertiary
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                     Text(
                         text = stringResource(R.string.nav_organizer),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.tertiary,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .weight(1f)
                             .padding(start = 8.dp)
@@ -175,7 +179,7 @@ fun OrganizerDetailPageContent(
                                 modifier = Modifier
                                     .size(80.dp)
                                     .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)),
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (!organizer.logo.isNullOrEmpty()) {
@@ -188,7 +192,7 @@ fun OrganizerDetailPageContent(
                                 } else {
                                     Text(
                                         text = organizer.name.take(1),
-                                        color = MaterialTheme.colorScheme.tertiary,
+                                        color = MaterialTheme.colorScheme.primary,
                                         fontSize = 32.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -241,7 +245,7 @@ fun OrganizerDetailPageContent(
                                 text = stringResource(R.string.create_organizer_field_desc),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.tertiary
+                                color = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
@@ -277,7 +281,7 @@ fun OrganizerDetailPageContent(
                                     text = stringResource(R.string.event_detail_sie_title),
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.tertiary
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                                 organizerRoles.forEach { role ->
@@ -310,7 +314,7 @@ fun OrganizerDetailPageContent(
 
                                             if (isOwner) {
                                                 IconButton(onClick = { onUpdateRole(role) }) {
-                                                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.role_update_title), tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(20.dp))
+                                                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.role_update_title), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                                                 }
                                                 IconButton(onClick = { roleToDelete.value = role }) {
                                                     Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.btn_delete), tint = Color.Red, modifier = Modifier.size(20.dp))

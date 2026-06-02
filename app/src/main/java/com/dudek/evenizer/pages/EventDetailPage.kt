@@ -65,19 +65,23 @@ fun EventDetailPage(
         eventViewModel.fetchEventDetail(context, uuid)
     }
 
-    EventDetailPageContent(
-        event = event,
-        eventRoles = eventRoles,
-        isFavourited = isFavourited,
-        isLoading = isLoading,
-        language = language,
-        userProfile = userProfile,
-        onBack = onBack,
-        onToggleFavourite = { eventViewModel.toggleFavourite(context, uuid) },
-        onNavigateToEdit = { onNavigateToEdit(uuid) },
-        onNavigateToRundown = { onNavigateToRundown(uuid) },
-        onNavigateToOrganizers = { onNavigateToOrganizers(uuid) }
-    )
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF4CAF50))
+    ) {
+        EventDetailPageContent(
+            event = event,
+            eventRoles = eventRoles,
+            isFavourited = isFavourited,
+            isLoading = isLoading,
+            language = language,
+            userProfile = userProfile,
+            onBack = onBack,
+            onToggleFavourite = { eventViewModel.toggleFavourite(context, uuid) },
+            onNavigateToEdit = { onNavigateToEdit(uuid) },
+            onNavigateToRundown = { onNavigateToRundown(uuid) },
+            onNavigateToOrganizers = { onNavigateToOrganizers(uuid) }
+        )
+    }
 }
 
 @Composable
@@ -364,7 +368,7 @@ fun EventDetailPageContent(
                         Box(
                             modifier = Modifier
                                 .size(56.dp)
-                                .background(LocalGradients.current.primary, CircleShape),
+                                .background(LocalGradients.current.secondary, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Crossfade(targetState = showFabMenu, label = "FabIcon") { isOpen ->

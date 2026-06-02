@@ -28,6 +28,7 @@ import com.dudek.evenizer.data.network.model.EventOrganizerData
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.ui.components.GradientFAB
 import com.dudek.evenizer.ui.components.ModernBackground
+import com.dudek.evenizer.ui.theme.LocalGradients
 
 @Composable
 fun EventOrganizerListPage(
@@ -44,84 +45,89 @@ fun EventOrganizerListPage(
         eventViewModel.fetchEventOrganizers(context, eventUuid)
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ModernBackground {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // Header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(primary = Color(0xFF4CAF50))
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            ModernBackground {
+                Column(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.create_event_back_desc),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    Text(
-                        text = stringResource(R.string.nav_organizer),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                    // Header
+                    Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp)
-                    )
-                }
-
-                HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-
-                if (organizers.isEmpty() && !isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = stringResource(R.string.event_organizer_empty), color = Color.Gray)
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Group by status
-                        val statusMap = mapOf(
-                            "ACCEPTED" to R.string.status_accepted,
-                            "PENDING" to R.string.status_pending,
-                            "FINISHED" to R.string.status_finished
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.create_event_back_desc),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.nav_organizer),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 8.dp)
                         )
-                        
-                        statusMap.forEach { (statusKey, stringId) ->
-                            val listByStatus = organizers.filter { it.status == statusKey }
-                            if (listByStatus.isNotEmpty()) {
-                                item {
-                                    Text(
-                                        text = stringResource(stringId),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = getStatusColor(statusKey),
-                                        modifier = Modifier.padding(bottom = 8.dp)
-                                    )
-                                }
-                                items(listByStatus) { item ->
-                                    EventOrganizerCard(item)
+                    }
+
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+
+                    if (organizers.isEmpty() && !isLoading) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(text = stringResource(R.string.event_organizer_empty), color = Color.Gray)
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            // Group by status
+                            val statusMap = mapOf(
+                                "ACCEPTED" to R.string.status_accepted,
+                                "PENDING" to R.string.status_pending,
+                                "FINISHED" to R.string.status_finished
+                            )
+
+                            statusMap.forEach { (statusKey, stringId) ->
+                                val listByStatus = organizers.filter { it.status == statusKey }
+                                if (listByStatus.isNotEmpty()) {
+                                    item {
+                                        Text(
+                                            text = stringResource(stringId),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = getStatusColor(statusKey),
+                                            modifier = Modifier.padding(bottom = 8.dp)
+                                        )
+                                    }
+                                    items(listByStatus) { item ->
+                                        EventOrganizerCard(item)
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
-        GradientFAB(
-            onClick = { onNavigateToAdd(eventUuid) },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Icon(Icons.Default.Add, contentDescription = stringResource(R.string.organizer_invite_title))
+            GradientFAB(
+                onClick = { onNavigateToAdd(eventUuid) },
+                gradient = com.dudek.evenizer.ui.theme.LocalGradients.current.secondary,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.organizer_invite_title))
+            }
         }
     }
 }

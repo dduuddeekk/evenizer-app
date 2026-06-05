@@ -456,7 +456,7 @@ fun OrganizerCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(R.string.organizer_projects_rating, organizer.count?.eventOrganizers ?: 0, 4.5f), // Rating mock for now
+                        text = stringResource(R.string.organizer_projects_rating, organizer.count?.eventOrganizers ?: 0, organizer.reviews), // Rating from real data
                         fontSize = 14.sp,
                         color = Color.Gray
                     )

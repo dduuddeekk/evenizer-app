@@ -203,4 +203,7 @@
     <string name="status_accepted">ACCEPTED</string>
     <string name="status_pending">PENDING</string>
     <string name="status_finished">FINISHED</string>
+    <string name="reviews_title">Organizer Reviews</string>
+    <string name="reviews_empty">No reviews yet. Be the first to review!</string>
+    <string name="btn_write_review">Write a Review</string>
 </resources>

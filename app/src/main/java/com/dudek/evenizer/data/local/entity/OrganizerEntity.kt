@@ -18,6 +18,7 @@ data class OrganizerEntity(
     val userUuid: String?,
     val followCount: Int,
     val isFollow: Boolean,
+    val reviews: Double,
     val type: String // "ALL" or "MY"
 )
 
@@ -35,6 +36,7 @@ fun OrganizerData.toEntity(type: String): OrganizerEntity {
         userUuid = userUuid,
         followCount = followCount,
         isFollow = isFollow,
+        reviews = reviews,
         type = type
     )
 }
@@ -54,6 +56,7 @@ fun OrganizerEntity.toData(): OrganizerData {
         userUuid = userUuid,
         followCount = followCount,
         isFollow = isFollow,
+        reviews = reviews,
         roles = null,
         organizerMembers = null,
         organizerLocations = null,

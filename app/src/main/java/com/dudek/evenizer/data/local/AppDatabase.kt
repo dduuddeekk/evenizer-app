@@ -7,19 +7,29 @@ import androidx.room.RoomDatabase
 import com.dudek.evenizer.data.local.dao.EventDao
 import com.dudek.evenizer.data.local.dao.OrganizerDao
 import com.dudek.evenizer.data.local.dao.RemoteKeysDao
+import com.dudek.evenizer.data.local.dao.ReviewDao
 import com.dudek.evenizer.data.local.entity.EventEntity
 import com.dudek.evenizer.data.local.entity.OrganizerEntity
 import com.dudek.evenizer.data.local.entity.RemoteKeys
+import com.dudek.evenizer.data.local.entity.ReviewEntity
+import com.dudek.evenizer.data.local.entity.ReviewMediaEntity
 
 @Database(
-    entities = [EventEntity::class, OrganizerEntity::class, RemoteKeys::class],
-    version = 2,
+    entities = [
+        EventEntity::class,
+        OrganizerEntity::class,
+        RemoteKeys::class,
+        ReviewEntity::class,
+        ReviewMediaEntity::class
+    ],
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
     abstract fun organizerDao(): OrganizerDao
     abstract fun remoteKeysDao(): RemoteKeysDao
+    abstract fun reviewDao(): ReviewDao
 
     companion object {
         @Volatile

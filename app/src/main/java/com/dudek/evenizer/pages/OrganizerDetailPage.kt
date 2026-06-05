@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,10 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.dudek.evenizer.R
+import com.dudek.evenizer.data.local.dao.ReviewWithMedias
 import com.dudek.evenizer.data.network.model.OrganizerData
 import com.dudek.evenizer.data.network.model.RoleData
 import com.dudek.evenizer.data.network.model.UserData
 import com.dudek.evenizer.models.OrganizerViewModel
+import com.dudek.evenizer.models.ReviewViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.ui.components.ModernBackground
 import com.dudek.evenizer.ui.theme.LocalGradients
@@ -45,6 +48,7 @@ fun OrganizerDetailPage(
     uuid: String,
     userViewModel: UserViewModel,
     organizerViewModel: OrganizerViewModel,
+    reviewViewModel: ReviewViewModel,
     onBack: () -> Unit,
     onNavigateToAddRole: () -> Unit,
     onNavigateToUpdateRole: (String, String, String, String) -> Unit,
@@ -56,9 +60,12 @@ fun OrganizerDetailPage(
     val organizerOwner by organizerViewModel.organizerOwner.collectAsState()
     val isLoading by organizerViewModel.isLoading.collectAsState()
     val userProfile by userViewModel.userProfile.collectAsState()
+    val reviews by reviewViewModel.reviews.collectAsState()
+    val isReviewLoading by reviewViewModel.isLoading.collectAsState()
 
     LaunchedEffect(uuid) {
         organizerViewModel.fetchOrganizerDetail(context, uuid)
+        reviewViewModel.fetchReviews(uuid)
     }
 
     MaterialTheme(
@@ -70,6 +77,8 @@ fun OrganizerDetailPage(
             organizerOwner = organizerOwner,
             isLoading = isLoading,
             userProfile = userProfile,
+            reviews = reviews,
+            isReviewLoading = isReviewLoading,
             onBack = onBack,
             onAddMember = onNavigateToAddMember,
             onAddRole = onNavigateToAddRole,
@@ -79,6 +88,15 @@ fun OrganizerDetailPage(
             },
             onDeleteRole = { role ->
                 organizerViewModel.deleteRole(context, uuid, role.uuid) {}
+            },
+            onAddReview = { rating, comment, medias ->
+                reviewViewModel.createReview(context, uuid, rating, comment, medias) {}
+            },
+            onUpdateReview = { reviewUuid, rating, comment, medias ->
+                reviewViewModel.updateReview(context, reviewUuid, uuid, rating, comment, medias) {}
+            },
+            onDeleteReview = { reviewUuid ->
+                reviewViewModel.deleteReview(reviewUuid, uuid)
             }
         )
     }
@@ -91,12 +109,17 @@ fun OrganizerDetailPageContent(
     organizerOwner: UserData?,
     isLoading: Boolean,
     userProfile: UserData?,
+    reviews: List<ReviewWithMedias>,
+    isReviewLoading: Boolean,
     onBack: () -> Unit,
     onAddMember: () -> Unit,
     onAddRole: () -> Unit,
     onEditOrganizer: () -> Unit,
     onUpdateRole: (RoleData) -> Unit,
-    onDeleteRole: (RoleData) -> Unit
+    onDeleteRole: (RoleData) -> Unit,
+    onAddReview: (Int, String?, List<android.net.Uri>) -> Unit,
+    onUpdateReview: (String, Int?, String?, List<android.net.Uri>) -> Unit,
+    onDeleteReview: (String) -> Unit
 ) {
     val isOwner = userProfile != null && organizer != null && userProfile.uuid == organizer.userUuid
     val scrollState = rememberScrollState()
@@ -222,7 +245,7 @@ fun OrganizerDetailPageContent(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = stringResource(R.string.organizer_projects_rating, organizer.count?.eventOrganizers ?: 0, 4.5f),
+                                        text = stringResource(R.string.organizer_projects_rating, organizer.count?.eventOrganizers ?: 0, organizer.reviews),
                                         fontSize = 14.sp,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -325,6 +348,17 @@ fun OrganizerDetailPageContent(
                                 }
                                 Spacer(modifier = Modifier.height(32.dp))
                             }
+
+                            // Reviews Section
+                            ReviewSection(
+                                reviews = reviews,
+                                isLoading = isReviewLoading,
+                                userProfile = userProfile,
+                                onAddReview = onAddReview,
+                                onUpdateReview = onUpdateReview,
+                                onDeleteReview = onDeleteReview
+                            )
+                            Spacer(modifier = Modifier.height(32.dp))
                         }
                     }
                 }
@@ -413,6 +447,164 @@ fun OrganizerDetailPageContent(
     }
 }
 
+@Composable
+fun ReviewSection(
+    reviews: List<ReviewWithMedias>,
+    isLoading: Boolean,
+    userProfile: UserData?,
+    onAddReview: (Int, String?, List<android.net.Uri>) -> Unit,
+    onUpdateReview: (String, Int?, String?, List<android.net.Uri>) -> Unit,
+    onDeleteReview: (String) -> Unit
+) {
+    var showReviewDialog by remember { mutableStateOf(false) }
+
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.reviews_title),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            if (userProfile != null) {
+                TextButton(onClick = { showReviewDialog = true }) {
+                    Text(stringResource(R.string.btn_write_review))
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        if (isLoading && reviews.isEmpty()) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+        } else if (reviews.isEmpty()) {
+            Text(
+                text = stringResource(R.string.reviews_empty),
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+        } else {
+            reviews.forEach { reviewWithMedias ->
+                ReviewCard(
+                    reviewWithMedias = reviewWithMedias,
+                    userProfile = userProfile,
+                    onDelete = { onDeleteReview(reviewWithMedias.review.uuid) }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+        }
+    }
+
+    if (showReviewDialog) {
+        ReviewDialog(
+            onDismiss = { showReviewDialog = false },
+            onConfirm = { rating, comment ->
+                onAddReview(rating, comment, emptyList())
+                showReviewDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+fun ReviewCard(
+    reviewWithMedias: ReviewWithMedias,
+    userProfile: UserData?,
+    onDelete: () -> Unit
+) {
+    val isReviewOwner = userProfile != null && reviewWithMedias.review.userUuid == userProfile.uuid
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row {
+                    repeat(5) { index ->
+                        Icon(
+                            imageVector = if (index < reviewWithMedias.review.rating) Icons.Default.Star else Icons.Default.StarOutline,
+                            contentDescription = null,
+                            tint = if (index < reviewWithMedias.review.rating) Color(0xFFFFC107) else Color.Gray,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+                if (isReviewOwner) {
+                    IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
+                        Icon(Icons.Default.Delete, contentDescription = null, tint = Color.Red, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            if (!reviewWithMedias.review.comment.isNullOrEmpty()) {
+                Text(
+                    text = reviewWithMedias.review.comment,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ReviewDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (Int, String) -> Unit
+) {
+    var rating by remember { mutableIntStateOf(5) }
+    var comment by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.btn_write_review)) },
+        text = {
+            Column {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    repeat(5) { index ->
+                        IconButton(onClick = { rating = index + 1 }) {
+                            Icon(
+                                imageVector = if (index < rating) Icons.Default.Star else Icons.Default.StarOutline,
+                                contentDescription = null,
+                                tint = if (index < rating) Color(0xFFFFC107) else Color.Gray
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    label = { Text(stringResource(R.string.create_organizer_field_desc)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(rating, comment) }) {
+                Text(stringResource(R.string.btn_ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.btn_cancel))
+            }
+        }
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 fun OrganizerDetailPagePreview() {
@@ -422,11 +614,16 @@ fun OrganizerDetailPagePreview() {
         organizerOwner = null,
         isLoading = true,
         userProfile = null,
+        reviews = emptyList(),
+        isReviewLoading = false,
         onBack = {},
         onAddMember = {},
         onAddRole = {},
         onEditOrganizer = {},
         onUpdateRole = {},
-        onDeleteRole = {}
+        onDeleteRole = {},
+        onAddReview = { _, _, _ -> },
+        onUpdateReview = { _, _, _, _ -> },
+        onDeleteReview = { _ -> }
     )
 }

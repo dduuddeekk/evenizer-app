@@ -340,7 +340,7 @@ fun RecommendationCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(R.string.organizer_rating_followers, 4.5f, organizer.followCount),
+                        text = stringResource(R.string.organizer_rating_followers, organizer.reviews, organizer.followCount),
                         fontSize = 12.sp,
                         color = Color.Gray
                     )

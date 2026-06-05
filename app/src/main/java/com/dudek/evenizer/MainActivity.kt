@@ -17,13 +17,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.dudek.evenizer.data.local.AppDatabase
 import com.dudek.evenizer.data.network.di.NetworkModule
 import com.dudek.evenizer.data.repository.AuthRepository
+import com.dudek.evenizer.data.repository.ReviewRepository
 import com.dudek.evenizer.data.repository.UserRepository
 import com.dudek.evenizer.models.AuthViewModel
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.NotificationViewModel
 import com.dudek.evenizer.models.OrganizerViewModel
+import com.dudek.evenizer.models.ReviewViewModel
 import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.screens.MainScreen
@@ -100,6 +103,19 @@ class MainActivity : ComponentActivity() {
                 eventViewModel.initialize(applicationContext)
             }
             val organizerViewModel: OrganizerViewModel = viewModel()
+            val reviewViewModel: ReviewViewModel = viewModel(
+                factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                        val database = AppDatabase.getDatabase(applicationContext)
+                        val repository = ReviewRepository(
+                            NetworkModule.getReviewService(applicationContext),
+                            database.reviewDao()
+                        )
+                        return ReviewViewModel(repository) as T
+                    }
+                }
+            )
             val notificationViewModel: NotificationViewModel = viewModel()
             
             val isDarkMode by themeViewModel.isDarkMode.collectAsState(initial = false)
@@ -155,6 +171,7 @@ class MainActivity : ComponentActivity() {
                         userViewModel = userViewModel,
                         eventViewModel = eventViewModel,
                         organizerViewModel = organizerViewModel,
+                        reviewViewModel = reviewViewModel,
                         notificationViewModel = notificationViewModel,
                         onNavigateToLogin = {
                             authViewModel.logout {

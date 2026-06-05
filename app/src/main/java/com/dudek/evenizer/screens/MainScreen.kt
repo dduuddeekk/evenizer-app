@@ -30,6 +30,7 @@ import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.models.EventViewModel
 import com.dudek.evenizer.models.OrganizerViewModel
 import com.dudek.evenizer.models.NotificationViewModel
+import com.dudek.evenizer.models.ReviewViewModel
 import com.dudek.evenizer.pages.*
 import com.dudek.evenizer.ui.theme.LocalGradients
 import androidx.compose.material.icons.filled.Home
@@ -43,6 +44,7 @@ fun MainScreen(
     userViewModel: UserViewModel,
     eventViewModel: EventViewModel,
     organizerViewModel: OrganizerViewModel,
+    reviewViewModel: ReviewViewModel,
     notificationViewModel: NotificationViewModel,
     onNavigateToLogin: () -> Unit
 ) {
@@ -249,6 +251,7 @@ fun MainScreen(
                     uuid = uuid,
                     userViewModel = userViewModel,
                     organizerViewModel = organizerViewModel,
+                    reviewViewModel = reviewViewModel,
                     onBack = { navController.popBackStack() },
                     onNavigateToAddRole = { navController.navigate("create_organizer_roles/$uuid") },
                     onNavigateToUpdateRole = { organizerUuid, roleUuid, name, desc ->

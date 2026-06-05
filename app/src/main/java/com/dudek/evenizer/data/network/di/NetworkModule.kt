@@ -11,6 +11,7 @@ import com.dudek.evenizer.data.network.service.EventService
 import com.dudek.evenizer.data.network.service.UserService
 import com.dudek.evenizer.data.network.service.OrganizerService
 import com.dudek.evenizer.data.network.service.NotificationService
+import com.dudek.evenizer.data.network.service.ReviewService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -53,6 +54,9 @@ object NetworkModule {
 
     @Volatile
     private var notificationServiceInstance: NotificationService? = null
+
+    @Volatile
+    private var reviewServiceInstance: ReviewService? = null
     
     @Volatile
     private var tokenManagerInstance: TokenManager? = null
@@ -99,6 +103,12 @@ object NetworkModule {
     fun getNotificationService(context: Context): NotificationService {
         return notificationServiceInstance ?: synchronized(this) {
             notificationServiceInstance ?: buildNotificationService(context.applicationContext).also { notificationServiceInstance = it }
+        }
+    }
+
+    fun getReviewService(context: Context): ReviewService {
+        return reviewServiceInstance ?: synchronized(this) {
+            reviewServiceInstance ?: buildReviewService(context.applicationContext).also { reviewServiceInstance = it }
         }
     }
 
@@ -184,5 +194,14 @@ object NetworkModule {
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(NotificationService::class.java)
+    }
+
+    private fun buildReviewService(context: Context): ReviewService {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(getAuthenticatedClient(context))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(ReviewService::class.java)
     }
 }

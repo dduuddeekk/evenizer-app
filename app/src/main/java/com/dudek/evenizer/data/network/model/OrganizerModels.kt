@@ -18,6 +18,7 @@ data class OrganizerData(
     val userUuid: String? = null,
     val followCount: Int = 0,
     val isFollow: Boolean = false,
+    val reviews: Double = 0.0,
     val roles: List<RoleData>? = emptyList(),
     val organizerMembers: List<kotlinx.serialization.json.JsonElement>? = emptyList(),
     val organizerLocations: List<kotlinx.serialization.json.JsonElement>? = emptyList(),

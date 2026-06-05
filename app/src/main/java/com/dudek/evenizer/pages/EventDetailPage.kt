@@ -143,7 +143,7 @@ fun EventDetailPageContent(
 
                 HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
-                if (isLoading) {
+                if (isLoading && event == null) {
                     DetailSkeleton()
                 } else if (event != null) {
                     Column(

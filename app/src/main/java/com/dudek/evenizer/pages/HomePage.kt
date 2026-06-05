@@ -29,8 +29,7 @@ import com.dudek.evenizer.models.ThemeViewModel
 import com.dudek.evenizer.ui.components.ModernBackground
 import com.dudek.evenizer.ui.theme.LocalGradients
 import com.dudek.evenizer.utils.DateUtils
-import com.dudek.evenizer.utils.EventCardSkeleton
-import com.dudek.evenizer.utils.OrganizerCardSkeleton
+import com.dudek.evenizer.utils.HomeSkeleton
 import com.dudek.evenizer.utils.StatCardSkeleton
 
 @Composable
@@ -92,107 +91,103 @@ fun HomePageContent(
         modifier = Modifier.fillMaxSize(),
     ) {
         ModernBackground {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 24.dp)
-            ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.nav_home),
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = stringResource(R.string.profile_welcome),
-                        fontSize = 16.sp,
-                        color = Color.Gray
-                    )
-                }
-                IconButton(onClick = onNotificationClick) {
-                    Icon(Icons.Default.Notifications, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Quick Stats Summary
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                if (isLoading && events.isEmpty()) {
-                    StatCardSkeleton(modifier = Modifier.weight(1f))
-                    StatCardSkeleton(modifier = Modifier.weight(1f))
-                } else {
-                    StatCard(
-                        title = stringResource(R.string.home_stat_total_events),
-                        value = events.size.toString(),
-                        color = Color(0xFF4CAF50),
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        title = stringResource(R.string.home_stat_organizers),
-                        value = organizers.size.toString(),
-                        color = Color(0xFF2196F3),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Recent Events Preview
-            SectionHeader(title = stringResource(R.string.home_section_upcoming), actionText = stringResource(R.string.home_see_all))
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 8.dp)
-            ) {
-                if (isLoading && events.isEmpty()) {
-                    items(3) {
-                        EventCardSkeleton(modifier = Modifier.width(200.dp))
-                    }
-                } else {
-                    items(events.take(3)) { event ->
-                        HomeEventCardFromData(event, language)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Top Organizers Preview
-            SectionHeader(title = stringResource(R.string.home_section_available_organizers), actionText = stringResource(R.string.home_see_all))
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            if (isLoading && organizers.isEmpty()) {
-                repeat(2) {
-                    OrganizerCardSkeleton()
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
+            if (isLoading && events.isEmpty() && organizers.isEmpty()) {
+                HomeSkeleton()
             } else {
-                organizers.take(2).forEach { organizer ->
-                    OrganizerCard(
-                        organizer = organizer,
-                        currentUserUuid = null,
-                        onToggleFollow = { /* No-op on home page */ }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = stringResource(R.string.nav_home),
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = stringResource(R.string.profile_welcome),
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
+                        }
+                        IconButton(onClick = onNotificationClick) {
+                            Icon(
+                                Icons.Default.Notifications,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Quick Stats Summary
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        StatCard(
+                            title = stringResource(R.string.home_stat_total_events),
+                            value = events.size.toString(),
+                            color = Color(0xFF4CAF50),
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatCard(
+                            title = stringResource(R.string.home_stat_organizers),
+                            value = organizers.size.toString(),
+                            color = Color(0xFF2196F3),
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Recent Events Preview
+                    SectionHeader(
+                        title = stringResource(R.string.home_section_upcoming),
+                        actionText = stringResource(R.string.home_see_all)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
+
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(bottom = 8.dp)
+                    ) {
+                        items(events.take(3)) { event ->
+                            HomeEventCardFromData(event, language)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Top Organizers Preview
+                    SectionHeader(
+                        title = stringResource(R.string.home_section_available_organizers),
+                        actionText = stringResource(R.string.home_see_all)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    organizers.take(2).forEach { organizer ->
+                        OrganizerCard(
+                            organizer = organizer,
+                            currentUserUuid = null,
+                            onToggleFollow = { /* No-op on home page */ }
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
         }
     }
-}
 }
 
 @Composable

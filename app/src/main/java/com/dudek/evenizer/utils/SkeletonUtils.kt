@@ -272,3 +272,95 @@ fun SettingsSkeleton(modifier: Modifier = Modifier) {
         }
     }
 }
+
+@Composable
+fun ReviewCardSkeleton(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row {
+                    repeat(5) {
+                        Box(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .shimmerEffect()
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .height(14.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .shimmerEffect()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .height(14.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .shimmerEffect()
+            )
+        }
+    }
+}
+
+@Composable
+fun HomeSkeleton(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+        Spacer(modifier = Modifier.height(24.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Box(modifier = Modifier.width(120.dp).height(32.dp).clip(RoundedCornerShape(4.dp)).shimmerEffect())
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(modifier = Modifier.width(180.dp).height(16.dp).clip(RoundedCornerShape(4.dp)).shimmerEffect())
+            }
+            Box(modifier = Modifier.size(40.dp).clip(CircleShape).shimmerEffect())
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            StatCardSkeleton(modifier = Modifier.weight(1f))
+            StatCardSkeleton(modifier = Modifier.weight(1f))
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Box(modifier = Modifier.width(150.dp).height(24.dp).clip(RoundedCornerShape(4.dp)).shimmerEffect())
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            repeat(2) {
+                EventCardSkeleton(modifier = Modifier.width(200.dp))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Box(modifier = Modifier.width(150.dp).height(24.dp).clip(RoundedCornerShape(4.dp)).shimmerEffect())
+        Spacer(modifier = Modifier.height(12.dp))
+        repeat(2) {
+            OrganizerCardSkeleton()
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+    }
+}

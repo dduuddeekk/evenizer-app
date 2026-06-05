@@ -42,6 +42,7 @@ import com.dudek.evenizer.models.UserViewModel
 import com.dudek.evenizer.ui.components.ModernBackground
 import com.dudek.evenizer.ui.theme.LocalGradients
 import com.dudek.evenizer.utils.DetailSkeleton
+import com.dudek.evenizer.utils.ReviewCardSkeleton
 
 @Composable
 fun OrganizerDetailPage(
@@ -182,7 +183,7 @@ fun OrganizerDetailPageContent(
 
                 HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
-                if (isLoading) {
+                if (isLoading && organizer == null) {
                     DetailSkeleton()
                 } else if (organizer != null) {
                     Column(
@@ -480,7 +481,10 @@ fun ReviewSection(
         Spacer(modifier = Modifier.height(12.dp))
 
         if (isLoading && reviews.isEmpty()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            repeat(3) {
+                ReviewCardSkeleton()
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         } else if (reviews.isEmpty()) {
             Text(
                 text = stringResource(R.string.reviews_empty),
